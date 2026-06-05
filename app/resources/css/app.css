@@ -455,6 +455,239 @@
     height: auto;
 }
 
+.cocktail-page {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    width: min(100%, 1080px);
+    margin: 34px auto 0;
+    gap: 16px;
+    border: 1px solid #201510;
+    background: #fffaf0;
+    color: #1d1714;
+    padding: 24px;
+    text-align: left;
+}
+
+.cocktail-header {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5d7ba;
+    padding-bottom: 16px;
+}
+
+.cocktail-header p {
+    margin: 0;
+    color: #8a1f17;
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.cocktail-header h2 {
+    margin: 4px 0 0;
+    color: #1d1714;
+    font-size: 1.85rem;
+    font-weight: 900;
+    line-height: 1.08;
+}
+
+.cocktail-results-bar button {
+    min-height: 38px;
+    border: 1px solid #8a1f17;
+    border-radius: 6px;
+    background: #8a1f17;
+    color: white;
+    padding: 8px 13px;
+    font: inherit;
+    font-weight: 900;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cocktail-results-bar button:hover,
+.cocktail-results-bar button:focus {
+    background: #681812;
+    outline: none;
+}
+
+.cocktail-controls {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.25fr) minmax(220px, 1fr) minmax(
+            220px,
+            1fr
+        );
+    gap: 12px;
+    align-items: end;
+}
+
+.cocktail-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    border: 1px solid #c7b891;
+    border-radius: 8px;
+    background: #f7efd9;
+}
+
+.cocktail-tabs button {
+    min-height: 44px;
+    border: 0;
+    border-right: 1px solid #c7b891;
+    background: transparent;
+    color: #4b3b2f;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.cocktail-tabs button:last-child {
+    border-right: 0;
+}
+
+.cocktail-tabs button:hover,
+.cocktail-tabs button:focus {
+    background: #fff4c7;
+    outline: none;
+}
+
+.cocktail-tabs button.is-active {
+    background: #144f4a;
+    color: white;
+}
+
+.cocktail-field {
+    display: grid;
+    min-width: 0;
+    gap: 6px;
+}
+
+.cocktail-field span {
+    color: #5e5141;
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.cocktail-field input,
+.cocktail-field select {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #c7b891;
+    border-radius: 6px;
+    background: white;
+    color: #1d1714;
+    padding: 0 12px;
+    font: inherit;
+    font-weight: 800;
+}
+
+.cocktail-field input:focus,
+.cocktail-field select:focus {
+    border-color: #144f4a;
+    outline: 2px solid rgb(20 79 74 / 22%);
+}
+
+.cocktail-results-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 42px;
+}
+
+.cocktail-results-bar strong {
+    color: #144f4a;
+    font-size: 0.98rem;
+}
+
+.cocktail-results-bar button {
+    min-height: 34px;
+    border-color: #c7b891;
+    background: white;
+    color: #8a1f17;
+    padding: 6px 11px;
+}
+
+.cocktail-results-bar button:hover,
+.cocktail-results-bar button:focus {
+    border-color: #8a1f17;
+    background: #fff4eb;
+    color: #681812;
+}
+
+.cocktail-error,
+.cocktail-empty {
+    margin: 10px 0;
+    border-radius: 6px;
+    padding: 13px 14px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.cocktail-error {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #991b1b;
+}
+
+.cocktail-empty {
+    border: 1px solid #e5d7ba;
+    background: #fffdf8;
+    color: #5e5141;
+}
+
+.cocktail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.cocktail-card {
+    display: grid;
+    grid-template-rows: auto minmax(90px, auto);
+    overflow: hidden;
+    min-width: 0;
+    border: 1px solid #e5d7ba;
+    border-radius: 8px;
+    background: white;
+}
+
+.cocktail-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f7efd9;
+    object-fit: cover;
+}
+
+.cocktail-card div {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    padding: 12px;
+}
+
+.cocktail-card h3 {
+    margin: 0;
+    color: #1d1714;
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.18;
+    overflow-wrap: anywhere;
+}
+
+.cocktail-card p {
+    margin: 0;
+    color: #5e5141;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
 .tablet-app {
     min-height: 100vh;
     background: #f7f3ea;
@@ -596,6 +829,59 @@
     align-items: start;
     justify-content: space-between;
     margin-bottom: 14px;
+}
+
+.tablet-view-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: hidden;
+    margin-bottom: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+}
+
+.tablet-view-tabs button {
+    min-height: 42px;
+    border: 0;
+    border-right: 1px solid #cbd5e1;
+    background: transparent;
+    color: #475569;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.tablet-view-tabs button:last-child {
+    border-right: 0;
+}
+
+.tablet-view-tabs button:hover,
+.tablet-view-tabs button:focus {
+    background: #fff7df;
+    color: #111827;
+    outline: none;
+}
+
+.tablet-view-tabs button.is-active {
+    background: #7f1d1d;
+    color: white;
+}
+
+.tablet-menu .cocktail-page {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.tablet-menu .cocktail-header {
+    display: block;
+}
+
+.tablet-menu .cocktail-header h2 {
+    font-size: 1.35rem;
 }
 
 .tablet-panel-header button {
@@ -1800,6 +2086,42 @@
     .legacy-menu-page {
         width: calc(100% - 24px);
         margin-top: 24px;
+    }
+
+    .cocktail-page {
+        width: calc(100% - 24px);
+        margin-top: 24px;
+        padding: 16px;
+    }
+
+    .cocktail-header {
+        display: grid;
+    }
+
+    .cocktail-header h2 {
+        font-size: 1.45rem;
+    }
+
+    .cocktail-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .cocktail-results-bar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .cocktail-results-bar button {
+        width: 100%;
+    }
+
+    .cocktail-grid {
+        grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+        gap: 10px;
+    }
+
+    .cocktail-card {
+        grid-template-rows: auto minmax(84px, auto);
     }
 
     .legacy-contact-card h2,

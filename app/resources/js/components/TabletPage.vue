@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import CocktailPage from './CocktailPage.vue';
 import { toastService } from '../services/toastService';
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
@@ -28,6 +29,7 @@ const isLoading = ref(true);
 const isHistoryLoading = ref(false);
 const isSubmitting = ref(false);
 const isRefreshingStatus = ref(false);
+const activeTabletPanel = ref('menu');
 const repeatedSourceOrderId = ref(null);
 const errorMessage = ref('');
 const orderMessage = ref('');
@@ -399,37 +401,62 @@ onUnmounted(() => {
                         </p>
                     </div>
 
-                    <div class="tablet-panel-header">
-                        <h2 id="tablet-menu-title">Menukaart</h2>
-                        <span>{{ items.length }} gerechten</span>
-                    </div>
-
-                    <p v-if="isLoading" class="tablet-empty">Menukaart laden...</p>
-                    <p v-else-if="items.length === 0" class="tablet-empty">Geen gerechten beschikbaar.</p>
-
-                    <div v-else class="tablet-menu-groups">
-                        <section
-                            v-for="group in groupedItems"
-                            :key="group.category"
-                            class="tablet-menu-group"
+                    <div class="tablet-view-tabs" role="tablist" aria-label="Tablet weergave">
+                        <button
+                            type="button"
+                            role="tab"
+                            :aria-selected="activeTabletPanel === 'menu'"
+                            :class="{ 'is-active': activeTabletPanel === 'menu' }"
+                            @click="activeTabletPanel = 'menu'"
                         >
-                            <h3>{{ group.category }}</h3>
-                            <button
-                                v-for="item in group.items"
-                                :key="item.id"
-                                class="tablet-menu-item"
-                                type="button"
-                                @click="addItem(item)"
-                            >
-                                <span class="tablet-item-code">{{ item.display_number || '-' }}</span>
-                                <span class="tablet-item-copy">
-                                    <strong>{{ item.name }}</strong>
-                                    <small>{{ item.description || item.category }}</small>
-                                </span>
-                                <span class="tablet-item-price">{{ formatter.format(item.price) }}</span>
-                            </button>
-                        </section>
+                            Menukaart
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            :aria-selected="activeTabletPanel === 'cocktails'"
+                            :class="{ 'is-active': activeTabletPanel === 'cocktails' }"
+                            @click="activeTabletPanel = 'cocktails'"
+                        >
+                            Cocktails
+                        </button>
                     </div>
+
+                    <template v-if="activeTabletPanel === 'menu'">
+                        <div class="tablet-panel-header">
+                            <h2 id="tablet-menu-title">Menukaart</h2>
+                            <span>{{ items.length }} gerechten</span>
+                        </div>
+
+                        <p v-if="isLoading" class="tablet-empty">Menukaart laden...</p>
+                        <p v-else-if="items.length === 0" class="tablet-empty">Geen gerechten beschikbaar.</p>
+
+                        <div v-else class="tablet-menu-groups">
+                            <section
+                                v-for="group in groupedItems"
+                                :key="group.category"
+                                class="tablet-menu-group"
+                            >
+                                <h3>{{ group.category }}</h3>
+                                <button
+                                    v-for="item in group.items"
+                                    :key="item.id"
+                                    class="tablet-menu-item"
+                                    type="button"
+                                    @click="addItem(item)"
+                                >
+                                    <span class="tablet-item-code">{{ item.display_number || '-' }}</span>
+                                    <span class="tablet-item-copy">
+                                        <strong>{{ item.name }}</strong>
+                                        <small>{{ item.description || item.category }}</small>
+                                    </span>
+                                    <span class="tablet-item-price">{{ formatter.format(item.price) }}</span>
+                                </button>
+                            </section>
+                        </div>
+                    </template>
+
+                    <CocktailPage v-else />
                 </section>
 
                 <aside class="tablet-order" aria-labelledby="tablet-order-title">
