@@ -4,14 +4,17 @@ use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 Artisan::command('legacy:import-menu {--fresh : Clear imported menu categories and items first}', function () {
     $legacyDatabase = 'gouden_draak_legacy';
 
     if ($this->option('fresh')) {
-        DB::table('favorite_menu_items')->delete();
-        DB::table('menu_items')->delete();
-        DB::table('menu_categories')->delete();
+        Schema::disableForeignKeyConstraints();
+        DB::table('favorite_menu_items')->truncate();
+        DB::table('menu_items')->truncate();
+        DB::table('menu_categories')->truncate();
+        Schema::enableForeignKeyConstraints();
     }
 
     $legacyItems = DB::table("{$legacyDatabase}.menu")
@@ -48,35 +51,81 @@ Artisan::command('legacy:import-menu {--fresh : Clear imported menu categories a
         $imported++;
     }
 
+    $this->info("Imported {$imported} legacy menu items.");
+
+    $this->comment("Importing historical orders...");
+
+    // Group sales by date to reconstruct orders
     $legacySales = DB::table("{$legacyDatabase}.sales")
-        ->select('itemId', DB::raw('SUM(amount) as total'))
-        ->groupBy('itemId')
-        ->get();
+        ->orderBy('saleDate')
+        ->get()
+        ->groupBy(function ($sale) {
+            return $sale->saleDate;
+        });
 
-    $favoriteStats = 0;
+    $ordersImported = 0;
+    $orderLinesImported = 0;
 
-    foreach ($legacySales as $legacySale) {
-        $menuItem = MenuItem::where('legacy_menu_id', $legacySale->itemId)->first();
+    foreach ($legacySales as $timestamp => $salesInOrder) {
+        $order = DB::table('orders')->insertGetId([
+            'channel' => 'legacy',
+            'status' => 'paid',
+            'paid_at' => $timestamp,
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
+        ]);
 
-        if (! $menuItem) {
-            continue;
+        $orderSubtotal = 0;
+
+        foreach ($salesInOrder as $sale) {
+            $menuItem = MenuItem::where('legacy_menu_id', $sale->itemId)->first();
+
+            if (!$menuItem) continue;
+
+            $lineTotal = (float) $menuItem->price * (int) $sale->amount;
+
+            DB::table('order_lines')->insert([
+                'order_id' => $order,
+                'menu_item_id' => $menuItem->id,
+                'quantity' => (int) $sale->amount,
+                'unit_price' => $menuItem->price,
+                'line_total' => $lineTotal,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
+            ]);
+
+            $orderSubtotal += $lineTotal;
+            $orderLinesImported++;
         }
 
-        DB::table('favorite_menu_items')->updateOrInsert(
-            ['menu_item_id' => $menuItem->id],
-            [
-                'count' => (int) $legacySale->total,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        );
+        DB::table('orders')->where('id', $order)->update([
+            'subtotal' => $orderSubtotal,
+            'total' => $orderSubtotal,
+        ]);
 
-        $favoriteStats++;
+        $ordersImported++;
     }
 
-    $this->info("Imported {$imported} legacy menu items.");
-    $this->info("Imported {$favoriteStats} legacy sales totals as favorite menu item stats.");
-})->purpose('Import legacy menu data into the modern menu schema');
+    // Still update favorite stats for easy lookup
+    $favoriteStats = 0;
+    foreach (MenuItem::all() as $menuItem) {
+        $totalSold = DB::table('order_lines')
+            ->where('menu_item_id', $menuItem->id)
+            ->sum('quantity');
+
+        if ($totalSold > 0) {
+            DB::table('favorite_menu_items')->updateOrInsert(
+                ['menu_item_id' => $menuItem->id],
+                ['count' => $totalSold, 'created_at' => now(), 'updated_at' => now()]
+            );
+            $favoriteStats++;
+        }
+    }
+
+    $this->info("Imported {$ordersImported} historical orders with {$orderLinesImported} lines.");
+    $this->info("Updated {$favoriteStats} favorite menu item stats.");
+    })->purpose('Import legacy menu data and sales history into the modern schema');
+
 
 if (! function_exists('clean_legacy_menu_text')) {
     function clean_legacy_menu_text(string $value): string
