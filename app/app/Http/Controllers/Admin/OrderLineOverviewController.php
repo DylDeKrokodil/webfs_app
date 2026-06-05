@@ -23,15 +23,15 @@ class OrderLineOverviewController extends Controller
         $end = CarbonImmutable::createFromFormat('Y-m-d', $validated['end_date'])->endOfDay();
 
         $lines = OrderLine::query()
-            ->with(['menuItem:id,number,suffix,name', 'order:id,channel,status,table_code,created_at'])
+            ->with(['menuItem:id,number,suffix,name', 'order:id,channel,status,table_code,paid_at'])
             ->whereHas('order', function ($query) use ($start, $end): void {
                 $query
                     ->where('status', 'paid')
                     ->whereNotNull('paid_at')
-                    ->whereBetween('created_at', [$start, $end]);
+                    ->whereBetween('paid_at', [$start, $end]);
             })
             ->join('orders', 'orders.id', '=', 'order_lines.order_id')
-            ->orderBy('orders.created_at')
+            ->orderBy('orders.paid_at')
             ->orderBy('order_lines.id')
             ->select('order_lines.*')
             ->get()
@@ -41,7 +41,7 @@ class OrderLineOverviewController extends Controller
                 return [
                     'id' => $line->id,
                     'order_id' => $line->order_id,
-                    'date' => $line->order?->created_at?->toIso8601String(),
+                    'date' => $line->order?->paid_at?->toIso8601String(),
                     'channel' => $line->order?->channel,
                     'status' => $line->order?->status,
                     'table_code' => $line->order?->table_code,

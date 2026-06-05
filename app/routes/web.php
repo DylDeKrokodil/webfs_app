@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\OrderLineOverviewController;
+use App\Http\Controllers\Admin\SalesSummaryController;
 use App\Http\Controllers\Admin\TableReceiptController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MenuItemController;
@@ -43,10 +44,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
             ->only(['index', 'store', 'update', 'destroy']);
         Route::post('orders', [AdminOrderController::class, 'store']);
         Route::get('order-line-overview', [OrderLineOverviewController::class, 'index']);
+        Route::get('sales-summaries', [SalesSummaryController::class, 'index']);
         Route::get('table-receipts', [TableReceiptController::class, 'index']);
         Route::post('table-receipts/{tableCode}/checkout', [TableReceiptController::class, 'checkout'])
             ->where('tableCode', '[A-Za-z0-9_-]+');
     });
+
+    Route::get('/admin/sales-summaries/{generatedFile}/download', [SalesSummaryController::class, 'download'])
+        ->whereNumber('generatedFile')
+        ->name('admin.sales-summaries.download');
 
     Route::get('/admin/table-receipts/{tableCode}.pdf', [TableReceiptController::class, 'pdf'])
         ->where('tableCode', '[A-Za-z0-9_-]+')

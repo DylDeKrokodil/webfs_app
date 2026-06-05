@@ -17,6 +17,7 @@ const today = formatInputDate(new Date());
 const startDate = ref(today);
 const endDate = ref(today);
 const lines = ref([]);
+const salesSummaries = ref([]);
 const summary = ref({
     lines_count: 0,
     items_count: 0,
@@ -26,6 +27,7 @@ const summary = ref({
     vat_percentage: 9,
 });
 const isLoading = ref(false);
+const isLoadingSummaries = ref(false);
 const hasLoaded = ref(false);
 const activePreset = ref('today');
 
@@ -187,10 +189,39 @@ const loadOverview = async () => {
     }
 };
 
+const loadSalesSummaries = async () => {
+    isLoadingSummaries.value = true;
+
+    try {
+        const response = await fetch('/api/admin/sales-summaries', {
+            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        });
+        const payload = await response.json();
+
+        if (!response.ok) throw new Error(payload.message || 'Samenvattingen laden mislukt.');
+
+        salesSummaries.value = payload.data ?? [];
+    } catch (error) {
+        toastService.error(error.message);
+    } finally {
+        isLoadingSummaries.value = false;
+    }
+};
+
 const formatDate = (value) => {
     if (!value) return '-';
 
     return dateFormatter.format(new Date(value));
+};
+
+const formatReportDate = (value) => {
+    if (!value) return '-';
+
+    return new Intl.DateTimeFormat('nl-NL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).format(new Date(`${value}T00:00:00`));
 };
 
 const sourceLabel = (line) => {
@@ -200,7 +231,10 @@ const sourceLabel = (line) => {
     return line.channel || '-';
 };
 
-onMounted(loadOverview);
+onMounted(() => {
+    loadOverview();
+    loadSalesSummaries();
+});
 </script>
 
 <template>
@@ -311,6 +345,61 @@ onMounted(loadOverview);
                         <strong class="block text-lg font-black text-stone-900">{{ formatter.format(summary.vat_amount) }}</strong>
                     </div>
                 </div>
+
+                <section class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden mb-6">
+                    <div class="px-5 py-4 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Dagelijkse Excel-samenvattingen</h3>
+                            <p class="text-[10px] font-bold text-stone-400">Automatisch gegenereerd na middernacht voor de vorige dag</p>
+                        </div>
+                        <button
+                            type="button"
+                            @click="loadSalesSummaries"
+                            :disabled="isLoadingSummaries"
+                            class="h-8 px-3 rounded-lg border border-stone-200 bg-white text-[9px] font-black uppercase tracking-widest text-stone-500 hover:border-brand-gold hover:text-stone-900 disabled:opacity-50"
+                        >
+                            Vernieuw
+                        </button>
+                    </div>
+
+                    <div v-if="isLoadingSummaries" class="p-8 text-center">
+                        <div class="w-7 h-7 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
+                    </div>
+                    <div v-else-if="salesSummaries.length === 0" class="p-8 text-center">
+                        <p class="font-black text-stone-300 italic text-sm">Nog geen Excel-samenvattingen gegenereerd</p>
+                    </div>
+                    <div v-else class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full min-w-[720px] text-left">
+                            <thead class="bg-stone-50 border-b border-stone-100">
+                                <tr>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400">Datum</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Orders</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Items</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Omzet</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400">Gegenereerd</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Download</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stone-100">
+                                <tr v-for="report in salesSummaries" :key="report.id" class="hover:bg-[#FFF7ED] transition-colors">
+                                    <td class="px-5 py-3 whitespace-nowrap text-xs font-black text-stone-900">{{ formatReportDate(report.date) }}</td>
+                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-bold text-stone-600">{{ report.orders_count }}</td>
+                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-bold text-stone-600">{{ report.items_count }}</td>
+                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-black text-brand-red">{{ formatter.format(report.gross_total) }}</td>
+                                    <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-stone-600">{{ formatDate(report.generated_at) }}</td>
+                                    <td class="px-5 py-3 text-right whitespace-nowrap">
+                                        <a
+                                            :href="report.download_url"
+                                            class="inline-flex h-8 items-center justify-center rounded-lg bg-brand-gold px-3 text-[9px] font-black uppercase tracking-widest text-white hover:bg-[#854d03] active:scale-[0.98] transition-all shadow-sm"
+                                        >
+                                            Excel
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
                 <section class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-5 py-4 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3">
