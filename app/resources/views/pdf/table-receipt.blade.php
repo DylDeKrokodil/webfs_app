@@ -116,6 +116,13 @@
             font-weight: 700;
         }
 
+        .item-note {
+            margin-top: 0.8mm;
+            color: #7f1d1d;
+            font-size: 6.6px;
+            font-weight: 400;
+        }
+
         .number,
         .money {
             text-align: right;
@@ -192,7 +199,12 @@
                         <td>
                             <div class="thumb">{{ $line['display_number'] ?: 'GD' }}</div>
                         </td>
-                        <td class="item-name">{{ $line['name'] }}</td>
+                        <td class="item-name">
+                            {{ $line['name'] }}
+                            @if (! empty($line['notes']))
+                                <div class="item-note">{{ implode(' · ', $line['notes']) }}</div>
+                            @endif
+                        </td>
                         <td class="money">€ {{ number_format($line['unit_price'], 2, ',', '.') }}</td>
                         <td class="number">{{ $line['quantity'] }}</td>
                         <td class="money">€ {{ number_format($line['line_total'], 2, ',', '.') }}</td>

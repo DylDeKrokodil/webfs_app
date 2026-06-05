@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\TableReceiptController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MenuItemController;
+use App\Http\Controllers\OrderLineNoteSuggestionController;
 use App\Http\Controllers\TabletOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::get('/api/menu-items', [MenuItemController::class, 'index']);
+Route::get('/api/order-line-note-suggestions', [OrderLineNoteSuggestionController::class, 'index']);
 Route::get('/api/tablet/tables/{tableNumber}/status', [TabletOrderController::class, 'status'])
     ->whereNumber('tableNumber');
 Route::get('/api/tablet/tables/{tableNumber}/history', [TabletOrderController::class, 'history'])

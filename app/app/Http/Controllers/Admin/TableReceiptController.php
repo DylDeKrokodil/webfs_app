@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteMenuItem;
 use App\Models\Order;
+use App\Support\OrderLineNoteService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Http\JsonResponse;
@@ -102,7 +103,7 @@ class TableReceiptController extends Controller
         abort_if($orderIds === [], 404);
 
         $orders = Order::query()
-            ->with('lines.menuItem')
+            ->with(['lines.menuItem', 'lines.notes'])
             ->whereIn('id', $orderIds)
             ->where('channel', 'tablet')
             ->where('table_code', $tableCode)
@@ -150,7 +151,7 @@ class TableReceiptController extends Controller
     private function activeTableOrders()
     {
         return Order::query()
-            ->with('lines.menuItem')
+            ->with(['lines.menuItem', 'lines.notes'])
             ->where('channel', 'tablet')
             ->where('status', 'submitted')
             ->whereNull('paid_at')
@@ -164,10 +165,15 @@ class TableReceiptController extends Controller
         $orderedByDate = $orders->sortBy('created_at');
         $lines = $orders
             ->flatMap->lines
-            ->groupBy(fn ($line): string => implode(':', [
-                $line->menu_item_id,
-                number_format((float) $line->unit_price, 2, '.', ''),
-            ]))
+            ->groupBy(function ($line): string {
+                $notes = app(OrderLineNoteService::class)->serializeNotes($line);
+
+                return implode(':', [
+                    $line->menu_item_id,
+                    number_format((float) $line->unit_price, 2, '.', ''),
+                    implode("\n", $notes),
+                ]);
+            })
             ->map(function (Collection $lines): array {
                 $firstLine = $lines->first();
                 $menuItem = $firstLine->menuItem;
@@ -181,6 +187,7 @@ class TableReceiptController extends Controller
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
                     'line_total' => $quantity * $unitPrice,
+                    'notes' => app(OrderLineNoteService::class)->serializeNotes($firstLine),
                 ];
             })
             ->sortBy('display_number', SORT_NATURAL)

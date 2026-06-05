@@ -71,6 +71,30 @@ class TabletOrderTest extends TestCase
         $this->assertSame(2, $order->lines->first()->quantity);
     }
 
+    public function test_tablet_order_stores_notes_on_order_lines(): void
+    {
+        $menuItem = $this->createMenuItem(price: 12.50);
+
+        $this->postJson('/api/tablet/orders', [
+            'table_number' => 7,
+            'lines' => [
+                [
+                    'menu_item_id' => $menuItem->id,
+                    'quantity' => 1,
+                    'notes' => ['Geen ui toevoegen'],
+                ],
+            ],
+        ])->assertCreated();
+
+        $order = Order::query()->with('lines.notes')->firstOrFail();
+
+        $this->assertSame(['Geen ui toevoegen'], $order->lines->first()->notes->pluck('note')->all());
+        $this->assertDatabaseHas('order_line_notes', [
+            'note' => 'Geen ui toevoegen',
+            'normalized_note' => 'geen ui toevoegen',
+        ]);
+    }
+
     public function test_tablet_status_reports_table_rounds_and_cooldown(): void
     {
         Carbon::setTestNow('2026-06-05 12:00:00');
@@ -169,13 +193,19 @@ class TabletOrderTest extends TestCase
                 'paid_at' => now()->subMinutes(5),
             ]);
 
+        $visibleOrder->lines->first()->notes()->create([
+            'note' => 'Geen ui toevoegen',
+            'normalized_note' => 'geen ui toevoegen',
+        ]);
+
         $this->getJson('/api/tablet/tables/6/history')
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $visibleOrder->id)
             ->assertJsonPath('data.0.lines.0.menu_item_id', $menuItem->id)
             ->assertJsonPath('data.0.lines.0.quantity', 2)
-            ->assertJsonPath('data.0.lines.0.is_active', true);
+            ->assertJsonPath('data.0.lines.0.is_active', true)
+            ->assertJsonPath('data.0.lines.0.notes.0', 'Geen ui toevoegen');
     }
 
     public function test_tablet_repeat_order_records_source_order_for_the_same_table(): void

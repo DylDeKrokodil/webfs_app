@@ -18,6 +18,8 @@ const tableNumber = computed(() => {
 const items = ref([]);
 const orderLines = ref([]);
 const orderHistory = ref([]);
+const commonNoteSuggestions = ref([]);
+const customNoteInputs = ref({});
 const tableStatus = ref(null);
 const cooldownRemainingSeconds = ref(0);
 const isLoading = ref(true);
@@ -134,6 +136,15 @@ const loadOrderHistory = async () => {
     } finally { isHistoryLoading.value = false; }
 };
 
+const loadNoteSuggestions = async () => {
+    const response = await fetch('/api/order-line-note-suggestions', {
+        headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+    });
+    if (!response.ok) return;
+    const payload = await response.json();
+    commonNoteSuggestions.value = payload.data ?? [];
+};
+
 const loadTabletData = async () => {
     if (!tableNumber.value) {
         isLoading.value = false;
@@ -142,7 +153,7 @@ const loadTabletData = async () => {
     }
     isLoading.value = true;
     try {
-        await Promise.all([loadTableStatus(), loadOrderHistory()]);
+        await Promise.all([loadTableStatus(), loadOrderHistory(), loadNoteSuggestions()]);
         const response = await fetch('/api/menu-items', {
             headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
         });
@@ -154,6 +165,9 @@ const loadTabletData = async () => {
         toastService.error(errorMessage.value);
     } finally { isLoading.value = false; }
 };
+
+const cleanNote = (note) => note.replace(/\s+/g, ' ').trim();
+const normalizeNote = (note) => cleanNote(note).toLowerCase();
 
 const addItem = (item) => {
     const existingLine = orderLines.value.find((line) => line.id === item.id);
@@ -167,6 +181,7 @@ const addItem = (item) => {
         name: item.name,
         price: Number(item.price ?? item.current_price),
         quantity: 1,
+        notes: [],
     });
 };
 
@@ -178,6 +193,7 @@ const repeatOrder = (order) => {
         name: line.name,
         price: Number(line.current_price),
         quantity: line.quantity,
+        notes: [...(line.notes ?? [])],
     }));
     repeatedSourceOrderId.value = order.id;
 };
@@ -188,6 +204,23 @@ const decreaseQuantity = (line) => {
         return;
     }
     line.quantity -= 1;
+};
+
+const addNoteToLine = (line, note) => {
+    const cleanedNote = cleanNote(note);
+    if (!cleanedNote) return;
+    if (line.notes.some((existingNote) => normalizeNote(existingNote) === normalizeNote(cleanedNote))) return;
+    if (line.notes.length >= 5) {
+        toastService.error('Maximaal 5 opmerkingen per gerecht.');
+        return;
+    }
+
+    line.notes.push(cleanedNote);
+    customNoteInputs.value[line.id] = '';
+};
+
+const removeNoteFromLine = (line, note) => {
+    line.notes = line.notes.filter((existingNote) => existingNote !== note);
 };
 
 const submitOrder = async () => {
@@ -207,6 +240,7 @@ const submitOrder = async () => {
                 lines: orderLines.value.map((line) => ({
                     menu_item_id: line.id,
                     quantity: line.quantity,
+                    notes: line.notes,
                 })),
             }),
         });
@@ -381,15 +415,50 @@ onUnmounted(() => {
 
                     <div class="p-5 space-y-3">
                         <p v-if="orderLines.length === 0" class="text-stone-300 font-bold text-[10px] text-center italic py-4">Kies gerechten</p>
-                        <article v-for="line in orderLines" :key="line.id" class="flex items-center gap-3">
-                            <div class="flex-1 min-w-0">
-                                <p class="font-black text-stone-900 text-[11px] truncate">{{ line.display_number }} {{ line.name }}</p>
-                                <p class="text-[9px] font-bold text-stone-400">{{ formatter.format(line.price) }} / st.</p>
+                        <article v-for="line in orderLines" :key="line.id" class="space-y-2 border-b border-stone-100 pb-3 last:border-b-0 last:pb-0">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-black text-stone-900 text-[11px] truncate">{{ line.display_number }} {{ line.name }}</p>
+                                    <p class="text-[9px] font-bold text-stone-400">{{ formatter.format(line.price) }} / st.</p>
+                                </div>
+                                <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
+                                    <button @click="decreaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
+                                    <span class="w-6 text-center font-black text-[10px]">{{ line.quantity }}</span>
+                                    <button @click="line.quantity++" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+                                </div>
                             </div>
-                            <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
-                                <button @click="decreaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
-                                <span class="w-6 text-center font-black text-[10px]">{{ line.quantity }}</span>
-                                <button @click="line.quantity++" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+
+                            <div class="space-y-2">
+                                <div v-if="line.notes.length > 0" class="flex flex-wrap gap-1.5">
+                                    <button
+                                        v-for="note in line.notes"
+                                        :key="note"
+                                        @click="removeNoteFromLine(line, note)"
+                                        class="px-2 py-1 bg-[#FFF7ED] border border-[#FED7AA] rounded-md text-[9px] font-black text-brand-gold"
+                                    >
+                                        {{ note }} ×
+                                    </button>
+                                </div>
+                                <div v-if="commonNoteSuggestions.length > 0" class="flex gap-1.5 overflow-x-auto scrollbar-hide">
+                                    <button
+                                        v-for="suggestion in commonNoteSuggestions"
+                                        :key="suggestion.note"
+                                        @click="addNoteToLine(line, suggestion.note)"
+                                        class="px-2 py-1 bg-stone-50 hover:bg-stone-100 border border-stone-100 rounded-md whitespace-nowrap text-[9px] font-bold text-stone-500"
+                                    >
+                                        {{ suggestion.note }}
+                                    </button>
+                                </div>
+                                <form class="flex gap-2" @submit.prevent="addNoteToLine(line, customNoteInputs[line.id] ?? '')">
+                                    <input
+                                        v-model="customNoteInputs[line.id]"
+                                        type="text"
+                                        maxlength="160"
+                                        placeholder="Opmerking..."
+                                        class="min-w-0 flex-1 h-9 bg-stone-50 border border-stone-100 rounded-lg px-3 text-[10px] font-bold outline-none focus:ring-1 focus:ring-brand-gold"
+                                    >
+                                    <button type="submit" class="h-9 px-3 bg-brand-dark text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Toevoegen</button>
+                                </form>
                             </div>
                         </article>
                     </div>
@@ -424,9 +493,14 @@ onUnmounted(() => {
                                 <button @click="repeatOrder(order)" class="font-black text-brand-gold uppercase">Herhaal</button>
                             </div>
                             <div class="p-2.5 space-y-0.5">
-                                <div v-for="line in order.lines" :key="line.menu_item_id" class="flex justify-between items-center text-[10px]">
-                                    <span class="text-stone-500"><span class="font-black text-stone-900">{{ line.quantity }}x</span> {{ line.name }}</span>
-                                    <span v-if="!line.is_active" class="text-[7px] font-black text-red-500 uppercase bg-red-50 px-1 rounded">OP</span>
+                                <div v-for="line in order.lines" :key="`${line.menu_item_id}-${line.notes?.join('|')}`" class="text-[10px]">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-stone-500"><span class="font-black text-stone-900">{{ line.quantity }}x</span> {{ line.name }}</span>
+                                        <span v-if="!line.is_active" class="text-[7px] font-black text-red-500 uppercase bg-red-50 px-1 rounded">OP</span>
+                                    </div>
+                                    <p v-if="line.notes?.length" class="mt-0.5 text-[9px] font-bold text-brand-gold">
+                                        {{ line.notes.join(' · ') }}
+                                    </p>
                                 </div>
                             </div>
                         </div>

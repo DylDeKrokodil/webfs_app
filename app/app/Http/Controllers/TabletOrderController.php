@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MenuItem;
 use App\Models\Order;
+use App\Support\OrderLineNoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -25,7 +26,7 @@ class TabletOrderController extends Controller
     public function history(int $tableNumber): JsonResponse
     {
         $orders = $this->openTableOrders($tableNumber)
-            ->with(['lines.menuItem.category'])
+            ->with(['lines.menuItem.category', 'lines.notes'])
             ->limit(self::MAX_ROUNDS_PER_TABLE)
             ->get()
             ->map(fn (Order $order): array => [
@@ -44,6 +45,7 @@ class TabletOrderController extends Controller
                         'unit_price' => (float) $line->unit_price,
                         'current_price' => (float) $line->menuItem->price,
                         'is_active' => (bool) $line->menuItem->is_active,
+                        'notes' => app(OrderLineNoteService::class)->serializeNotes($line),
                     ])
                     ->values(),
             ])
@@ -55,7 +57,7 @@ class TabletOrderController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, OrderLineNoteService $noteService): JsonResponse
     {
         $validated = $request->validate([
             'table_number' => ['required', 'integer', 'min:1', 'max:999'],
@@ -63,6 +65,7 @@ class TabletOrderController extends Controller
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.menu_item_id' => ['required', 'integer', 'exists:menu_items,id'],
             'lines.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
+            ...$noteService->validationRules(),
         ]);
 
         $tableNumber = (int) $validated['table_number'];
@@ -76,12 +79,15 @@ class TabletOrderController extends Controller
         }
 
         $sourceOrderId = $this->validSourceOrderId($validated['source_order_id'] ?? null, $tableNumber);
-        ['menuItems' => $menuItems, 'quantities' => $quantities] = $this->validatedOrderLines($validated['lines']);
+        ['menuItems' => $menuItems, 'orderLines' => $orderLines] = $this->validatedOrderLines(
+            $validated['lines'],
+            $noteService,
+        );
 
-        $order = DB::transaction(function () use ($menuItems, $quantities, $sourceOrderId, $validated): Order {
-            $total = $quantities->reduce(
-                fn (float $sum, int $quantity, int $menuItemId): float =>
-                    $sum + ((float) $menuItems[$menuItemId]->price * $quantity),
+        $order = DB::transaction(function () use ($menuItems, $orderLines, $sourceOrderId, $validated, $noteService): Order {
+            $total = $orderLines->reduce(
+                fn (float $sum, array $line): float =>
+                    $sum + ((float) $menuItems[$line['menu_item_id']]->price * $line['quantity']),
                 0.0,
             );
 
@@ -94,16 +100,20 @@ class TabletOrderController extends Controller
                 'total' => $total,
             ]);
 
-            $quantities->each(function (int $quantity, int $menuItemId) use ($menuItems, $order): void {
+            $orderLines->each(function (array $line) use ($menuItems, $noteService, $order): void {
+                $quantity = $line['quantity'];
+                $menuItemId = $line['menu_item_id'];
                 $menuItem = $menuItems[$menuItemId];
                 $unitPrice = (float) $menuItem->price;
 
-                $order->lines()->create([
+                $orderLine = $order->lines()->create([
                     'menu_item_id' => $menuItem->id,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
                     'line_total' => $unitPrice * $quantity,
                 ]);
+
+                $noteService->createNotes($orderLine, $line['notes']);
             });
 
             return $order;
@@ -180,9 +190,10 @@ class TabletOrderController extends Controller
         return $sourceOrderId;
     }
 
-    private function validatedOrderLines(array $lines): array
+    private function validatedOrderLines(array $lines, OrderLineNoteService $noteService): array
     {
-        $quantities = collect($lines)
+        $orderLines = $noteService->prepareLines($lines);
+        $quantities = $orderLines
             ->groupBy('menu_item_id')
             ->map(fn (Collection $lines): int => (int) $lines->sum('quantity'));
 
@@ -200,7 +211,7 @@ class TabletOrderController extends Controller
 
         return [
             'menuItems' => $menuItems,
-            'quantities' => $quantities,
+            'orderLines' => $orderLines,
         ];
     }
 }

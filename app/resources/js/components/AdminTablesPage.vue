@@ -226,7 +226,7 @@ onMounted(loadTables);
                             </div>
                             <template v-else>
                                 <div class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
-                                    <div v-for="line in selectedTable.lines" :key="`${line.menu_item_id}-${line.unit_price}`" class="flex items-start gap-3">
+                                    <div v-for="line in selectedTable.lines" :key="`${line.menu_item_id}-${line.unit_price}-${line.notes?.join('|')}`" class="flex items-start gap-3">
                                         <div class="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center font-black text-[9px] text-stone-400 border border-stone-200 flex-shrink-0">
                                             {{ line.display_number || 'GD' }}
                                         </div>
@@ -236,6 +236,9 @@ onMounted(loadTables);
                                                 <span class="font-black text-stone-900 text-xs">{{ formatter.format(line.line_total) }}</span>
                                             </div>
                                             <p class="text-[9px] font-bold text-stone-400 mt-0.5">{{ line.quantity }}x {{ formatter.format(line.unit_price) }}</p>
+                                            <p v-if="line.notes?.length" class="text-[9px] font-black text-brand-gold mt-1 leading-snug">
+                                                {{ line.notes.join(' · ') }}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

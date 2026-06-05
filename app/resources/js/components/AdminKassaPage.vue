@@ -9,6 +9,8 @@ const items = ref([]);
 const query = ref('');
 const categoryFilter = ref('all');
 const orderLines = ref([]);
+const commonNoteSuggestions = ref([]);
+const customNoteInputs = ref({});
 const isLoading = ref(true);
 const isCheckingOut = ref(false);
 const errorMessage = ref('');
@@ -58,16 +60,56 @@ const loadMenu = async () => {
     }
 };
 
+const loadNoteSuggestions = async () => {
+    try {
+        const response = await fetch('/api/order-line-note-suggestions', {
+            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        });
+        if (!response.ok) throw new Error('Suggesties laden mislukt.');
+        const payload = await response.json();
+        commonNoteSuggestions.value = payload.data ?? [];
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const cleanNote = (note) => note.replace(/\s+/g, ' ').trim();
+const normalizeNote = (note) => cleanNote(note).toLowerCase();
+
 const addItem = (item) => {
     const existingLine = orderLines.value.find((l) => l.id === item.id);
     if (existingLine) { existingLine.quantity += 1; return; }
-    orderLines.value.push({ id: item.id, display_number: item.display_number, name: item.name, price: Number(item.price), quantity: 1 });
+    orderLines.value.push({
+        id: item.id,
+        display_number: item.display_number,
+        name: item.name,
+        price: Number(item.price),
+        quantity: 1,
+        notes: [],
+    });
 };
 
 const increaseQuantity = (line) => { line.quantity += 1; };
 const decreaseQuantity = (line) => {
     if (line.quantity <= 1) { orderLines.value = orderLines.value.filter((l) => l.id !== line.id); return; }
     line.quantity -= 1;
+};
+
+const addNoteToLine = (line, note) => {
+    const cleanedNote = cleanNote(note);
+    if (!cleanedNote) return;
+    if (line.notes.some((existingNote) => normalizeNote(existingNote) === normalizeNote(cleanedNote))) return;
+    if (line.notes.length >= 5) {
+        toastService.error('Maximaal 5 opmerkingen per gerecht.');
+        return;
+    }
+
+    line.notes.push(cleanedNote);
+    customNoteInputs.value[line.id] = '';
+};
+
+const removeNoteFromLine = (line, note) => {
+    line.notes = line.notes.filter((existingNote) => existingNote !== note);
 };
 
 const checkoutOrder = async () => {
@@ -77,7 +119,13 @@ const checkoutOrder = async () => {
         const response = await fetch('/api/admin/orders', {
             method: 'POST',
             headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            body: JSON.stringify({ lines: orderLines.value.map((l) => ({ menu_item_id: l.id, quantity: l.quantity })) }),
+            body: JSON.stringify({
+                lines: orderLines.value.map((l) => ({
+                    menu_item_id: l.id,
+                    quantity: l.quantity,
+                    notes: l.notes,
+                })),
+            }),
         });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.message || 'Fout bij afrekenen.');
@@ -90,7 +138,10 @@ const checkoutOrder = async () => {
     }
 };
 
-onMounted(loadMenu);
+onMounted(() => {
+    loadMenu();
+    loadNoteSuggestions();
+});
 </script>
 
 <template>
@@ -200,17 +251,52 @@ onMounted(loadMenu);
 
                             <div class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
                                 <p v-if="orderLines.length === 0" class="text-stone-300 font-bold text-xs text-center italic py-10">Voeg items toe</p>
-                                <article v-for="line in orderLines" :key="line.id" class="flex items-center gap-3 group">
-                                    <div class="flex-1 min-w-0">
-                                        <h4 class="font-black text-stone-900 text-xs leading-tight truncate">{{ line.display_number }} {{ line.name }}</h4>
-                                        <p class="text-[9px] font-bold text-stone-400 mt-0.5">{{ formatter.format(line.price) }} / stuk</p>
+                                <article v-for="line in orderLines" :key="line.id" class="space-y-2 border-b border-stone-100 pb-4 last:border-b-0 last:pb-0">
+                                    <div class="flex items-center gap-3 group">
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="font-black text-stone-900 text-xs leading-tight truncate">{{ line.display_number }} {{ line.name }}</h4>
+                                            <p class="text-[9px] font-bold text-stone-400 mt-0.5">{{ formatter.format(line.price) }} / stuk</p>
+                                        </div>
+                                        <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
+                                            <button @click="decreaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
+                                            <span class="w-7 text-center font-black text-[10px]">{{ line.quantity }}</span>
+                                            <button @click="increaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+                                        </div>
+                                        <span class="w-16 text-right font-black text-stone-900 text-xs">{{ formatter.format(line.quantity * line.price) }}</span>
                                     </div>
-                                    <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
-                                        <button @click="decreaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
-                                        <span class="w-7 text-center font-black text-[10px]">{{ line.quantity }}</span>
-                                        <button @click="increaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+
+                                    <div class="pl-0 sm:pl-1 space-y-2">
+                                        <div v-if="line.notes.length > 0" class="flex flex-wrap gap-1.5">
+                                            <button
+                                                v-for="note in line.notes"
+                                                :key="note"
+                                                @click="removeNoteFromLine(line, note)"
+                                                class="px-2 py-1 bg-[#FFF7ED] border border-[#FED7AA] rounded-md text-[9px] font-black text-brand-gold"
+                                            >
+                                                {{ note }} ×
+                                            </button>
+                                        </div>
+                                        <div v-if="commonNoteSuggestions.length > 0" class="flex gap-1.5 overflow-x-auto scrollbar-hide">
+                                            <button
+                                                v-for="suggestion in commonNoteSuggestions"
+                                                :key="suggestion.note"
+                                                @click="addNoteToLine(line, suggestion.note)"
+                                                class="px-2 py-1 bg-stone-50 hover:bg-stone-100 border border-stone-100 rounded-md whitespace-nowrap text-[9px] font-bold text-stone-500"
+                                            >
+                                                {{ suggestion.note }}
+                                            </button>
+                                        </div>
+                                        <form class="flex gap-2" @submit.prevent="addNoteToLine(line, customNoteInputs[line.id] ?? '')">
+                                            <input
+                                                v-model="customNoteInputs[line.id]"
+                                                type="text"
+                                                maxlength="160"
+                                                placeholder="Opmerking, bv. geen ui..."
+                                                class="min-w-0 flex-1 h-8 bg-stone-50 border border-stone-100 rounded-lg px-3 text-[10px] font-bold outline-none focus:ring-1 focus:ring-brand-gold"
+                                            >
+                                            <button type="submit" class="h-8 px-3 bg-brand-dark text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Toevoegen</button>
+                                        </form>
                                     </div>
-                                    <span class="w-16 text-right font-black text-stone-900 text-xs">{{ formatter.format(line.quantity * line.price) }}</span>
                                 </article>
                             </div>
 
@@ -256,5 +342,13 @@ onMounted(loadMenu);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--color-brand-gold);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 </style>
