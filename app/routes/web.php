@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MenuPdfController;
 use App\Http\Controllers\OrderLineNoteSuggestionController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\TabletOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,9 @@ Route::get('/menukaart.pdf', MenuPdfController::class)->name('public.menu.pdf');
 Route::view('/tablet', 'app');
 Route::view('/tablet/{tableNumber}', 'app')
     ->whereNumber('tableNumber');
+Route::view('/review/{token}', 'app')
+    ->where('token', '[A-Za-z0-9]+')
+    ->name('reviews.show');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
@@ -61,6 +65,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 Route::get('/api/menu-items', [MenuItemController::class, 'index']);
 Route::get('/api/order-line-note-suggestions', [OrderLineNoteSuggestionController::class, 'index']);
+Route::get('/api/reviews/{token}', [ReviewController::class, 'show'])
+    ->where('token', '[A-Za-z0-9]+');
+Route::post('/api/reviews/{token}', [ReviewController::class, 'store'])
+    ->where('token', '[A-Za-z0-9]+');
 Route::get('/api/tablet/tables/{tableNumber}/status', [TabletOrderController::class, 'status'])
     ->whereNumber('tableNumber');
 Route::get('/api/tablet/tables/{tableNumber}/history', [TabletOrderController::class, 'history'])

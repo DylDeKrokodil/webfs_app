@@ -7,6 +7,7 @@ import AdminTablesPage from './AdminTablesPage.vue';
 import ContactPage from './ContactPage.vue';
 import HomePage from './HomePage.vue';
 import MenuPage from './MenuPage.vue';
+import ReviewPage from './ReviewPage.vue';
 import TabletPage from './TabletPage.vue';
 import ToastHost from './ToastHost.vue';
 
@@ -24,6 +25,10 @@ const pageComponents = {
 const currentPage = computed(() => {
     if (/^\/tablet\/\d+$/.test(window.location.pathname)) {
         return TabletPage;
+    }
+
+    if (/^\/review\/[A-Za-z0-9]+$/.test(window.location.pathname)) {
+        return ReviewPage;
     }
 
     return pageComponents[window.location.pathname] ?? HomePage;

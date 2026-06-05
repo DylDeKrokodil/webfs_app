@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteMenuItem;
 use App\Models\Order;
+use App\Services\Reviews\ReceiptQrCodeService;
+use App\Services\Reviews\ReviewInviteService;
 use App\Support\OrderLineNoteService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -18,7 +20,7 @@ class TableReceiptController extends Controller
 {
     private const RECEIPT_WIDTH_MM = 85;
 
-    private const RECEIPT_HEIGHT_MM = 100;
+    private const RECEIPT_HEIGHT_MM = 130;
 
     public function index(): JsonResponse
     {
@@ -121,8 +123,13 @@ class TableReceiptController extends Controller
             ?->format('d-m-Y H:i');
         $receipt['order_ids'] = $orders->pluck('id')->all();
 
+        $reviewInvite = app(ReviewInviteService::class)->findOrCreateForReceipt($tableCode, $orders);
+        $reviewUrl = route('reviews.show', ['token' => $reviewInvite->token]);
+
         $html = view('pdf.table-receipt', [
             'receipt' => $receipt,
+            'reviewUrl' => $reviewUrl,
+            'reviewQrCode' => app(ReceiptQrCodeService::class)->dataUri($reviewUrl),
         ])->render();
 
         $options = new Options;

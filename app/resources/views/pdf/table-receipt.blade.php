@@ -5,7 +5,7 @@
     <style>
         @page {
             margin: 4mm;
-            size: 85mm 100mm;
+            size: 85mm 130mm;
         }
 
         * {
@@ -158,6 +158,38 @@
             font-size: 6.8px;
             text-align: center;
         }
+
+        .review {
+            margin-top: 2.4mm;
+            padding-top: 2mm;
+            border-top: 0.25mm dashed #d7b56d;
+            page-break-inside: avoid;
+            text-align: center;
+        }
+
+        .review-title {
+            color: #7f1d1d;
+            font-size: 8.2px;
+            font-weight: 800;
+        }
+
+        .review-copy {
+            margin: 0.7mm 0 1.2mm;
+            color: #374151;
+            font-size: 6.8px;
+        }
+
+        .review-qr {
+            width: 24mm;
+            height: 24mm;
+        }
+
+        .review-url {
+            margin-top: 0.8mm;
+            color: #64748b;
+            font-size: 5.5px;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -224,7 +256,14 @@
             </tr>
         </table>
 
-        <p class="footer">Paginaformaat: 8,5 cm x 10 cm. Bedankt voor uw bezoek.</p>
+        <section class="review">
+            <div class="review-title">Hoe was uw bezoek?</div>
+            <p class="review-copy">Scan de QR-code en laat in een minuut uw review achter.</p>
+            <img class="review-qr" src="{{ $reviewQrCode }}" alt="QR-code naar reviewformulier">
+            <div class="review-url">{{ $reviewUrl }}</div>
+        </section>
+
+        <p class="footer">Bedankt voor uw bezoek.</p>
     </main>
 </body>
 </html>
