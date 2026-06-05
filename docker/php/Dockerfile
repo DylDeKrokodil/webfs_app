@@ -10,7 +10,7 @@ RUN apt-get update \
         unzip \
         zip \
     && docker-php-ext-configure gd --with-jpeg --with-webp \
-    && docker-php-ext-install gd pdo_mysql zip \
+    && docker-php-ext-install gd pdo_mysql zip pcntl \
     && a2enmod rewrite \
     && echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
     && a2enconf servername \
