@@ -1,0 +1,91 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: gouden_draak_app
+    working_dir: /var/www/html/app
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+      - vite
+
+  vite:
+    image: node:22
+    container_name: gouden_draak_vite
+    working_dir: /var/www/html/app
+    command: npm run dev -- --host 0.0.0.0
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "5173:5173"
+
+  legacy:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile.legacy
+    container_name: gouden_draak_legacy
+    working_dir: /var/www/html/webfs_old
+    environment:
+      DB_HOST: mysql
+      DB_DATABASE: gouden_draak_legacy
+      DB_USERNAME: gouden_draak
+      DB_PASSWORD: gouden_draak
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8090:80"
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.4
+    container_name: gouden_draak_mysql
+    environment:
+      MYSQL_DATABASE: gouden_draak_app
+      MYSQL_USER: gouden_draak
+      MYSQL_PASSWORD: gouden_draak
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./webfs_old/gouden_draak_create_script.sql:/docker-entrypoint-initdb.d/10-legacy.sql:ro
+      - ./docker/mysql/init/99-grants.sql:/docker-entrypoint-initdb.d/99-grants.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: gouden_draak_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+
+  composer:
+    image: composer:2
+    container_name: gouden_draak_composer
+    profiles:
+      - tools
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+
+  node:
+    image: node:22
+    container_name: gouden_draak_node
+    profiles:
+      - tools
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+
+volumes:
+  mysql_data:

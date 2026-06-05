@@ -1,0 +1,447 @@
+@import "tailwindcss";
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+}
+
+@font-face {
+    font-family: "Chinese Takeaway";
+    font-style: normal;
+    font-weight: 400;
+    src:
+        url("/fonts/chinesetakeaway-webfont.woff2") format("woff2"),
+        url("/fonts/chinesetakeaway-webfont.woff") format("woff");
+}
+
+@keyframes legacy-marquee {
+    from {
+        transform: translateX(65%);
+    }
+
+    to {
+        transform: translateX(-115%);
+    }
+}
+
+.legacy-page {
+    --legacy-frame-line: 4px;
+    --legacy-frame-edge: 14px;
+    --legacy-frame-cell: 24px;
+    min-height: 100vh;
+    background: #8b0000;
+    color: yellow;
+    padding: 10px 50px 15px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.legacy-topbar {
+    display: grid;
+    grid-template-columns: minmax(21rem, 30%) 1fr minmax(21rem, 30%);
+    align-items: center;
+    min-height: 72px;
+    background: red;
+}
+
+.legacy-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    color: yellow;
+    font-family: "Chinese Takeaway", Impact, fantasy;
+    font-size: clamp(2.1rem, 2.7vw, 3.4rem);
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.legacy-brand img {
+    width: clamp(3rem, 3.8vw, 4.5rem);
+    height: clamp(3rem, 3.8vw, 4.5rem);
+    object-fit: contain;
+}
+
+.legacy-marquee {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    color: yellow;
+    font:
+        bold clamp(1rem, 1.35vw, 1.6rem) Georgia,
+        "Times New Roman",
+        serif;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.legacy-marquee span {
+    display: inline-block;
+    animation: legacy-marquee 16s linear infinite;
+}
+
+.legacy-frame {
+    position: relative;
+    min-height: calc(100vh - 82px);
+    margin-top: 0;
+    overflow: hidden;
+    background: red;
+}
+
+.legacy-frame-grid {
+    display: grid;
+    grid-template-columns:
+        var(--legacy-frame-edge)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        minmax(0, 1fr)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-edge);
+    grid-template-rows:
+        var(--legacy-frame-edge)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        auto
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-cell)
+        var(--legacy-frame-edge);
+    min-height: calc(100vh - 82px);
+    padding: 5px;
+}
+
+.legacy-frame-cell {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    border: 0 solid yellow;
+    pointer-events: none;
+}
+
+.legacy-frame-cell.is-right-mirror {
+    transform: scaleX(-1);
+}
+
+.legacy-frame-content {
+    grid-column: 5;
+    grid-row: 5;
+    position: relative;
+    min-width: 0;
+    z-index: 2;
+    text-align: center;
+}
+
+.legacy-frame-cell.border-l {
+    border-left-width: var(--legacy-frame-line);
+}
+
+.legacy-frame-cell.border-r {
+    border-right-width: var(--legacy-frame-line);
+}
+
+.legacy-frame-cell.border-t {
+    border-top-width: var(--legacy-frame-line);
+}
+
+.legacy-frame-cell.border-b {
+    border-bottom-width: var(--legacy-frame-line);
+}
+
+.legacy-frame-cell.border-all {
+    border-width: var(--legacy-frame-line);
+}
+
+.legacy-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(14rem, 1fr) minmax(40rem, 1.65fr) minmax(
+            14rem,
+            1fr
+        );
+    align-items: end;
+    min-height: 470px;
+    padding: 70px 0 0;
+}
+
+.legacy-title-block {
+    align-self: start;
+    padding-top: 6px;
+    color: yellow;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    text-align: center;
+}
+
+.legacy-title-block p {
+    margin: 0;
+    font-size: clamp(2.1rem, 2.95vw, 3.75rem);
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.legacy-title-block h1 {
+    margin: 0.18em 0 0;
+    font-size: clamp(2.6rem, 3.45vw, 4.35rem);
+    line-height: 1.05;
+    white-space: nowrap;
+}
+
+.legacy-large-dragon {
+    width: min(100%, 320px);
+    max-height: 330px;
+    object-fit: contain;
+    object-position: bottom center;
+}
+
+.legacy-large-dragon-left {
+    justify-self: start;
+}
+
+.legacy-large-dragon-right {
+    justify-self: end;
+    transform: scaleX(-1);
+}
+
+.legacy-nav {
+    display: inline-grid;
+    grid-template-columns: repeat(3, minmax(10rem, 1fr));
+    margin-top: 36px;
+    overflow: hidden;
+    border: 2px solid white;
+    background: url("/images/menu_bg_gradient.png") center / cover no-repeat;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(1.35rem, 1.45vw, 1.8rem);
+    font-weight: 700;
+}
+
+.legacy-nav a {
+    display: block;
+    padding: 10px 34px;
+    border-right: 2px solid white;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+}
+
+.legacy-nav a:last-child {
+    border-right: 0;
+}
+
+.legacy-nav a:hover,
+.legacy-nav a:focus {
+    background: rgb(0 0 0 / 18%);
+    outline: none;
+}
+
+.legacy-offer {
+    position: relative;
+    z-index: 2;
+    width: min(74%, 980px);
+    margin: 30px auto 0;
+    border: 1px solid black;
+    background: floralwhite;
+    color: black;
+    padding: 28px 42px 34px;
+    text-align: center;
+}
+
+.legacy-offer p {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+.legacy-offer h2 {
+    margin: 26px 0 0;
+    font-size: 1.75rem;
+    font-weight: 800;
+    text-decoration: underline;
+}
+
+.legacy-offer h3 {
+    margin: 14px 0 0;
+    font-size: 2.4rem;
+    font-weight: 800;
+}
+
+.legacy-offer dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 680px;
+    margin: 24px auto;
+    gap: 8px 56px;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.legacy-offer dl div:nth-child(odd) {
+    text-align: right;
+}
+
+.legacy-offer dl div:nth-child(even) {
+    text-align: left;
+}
+
+.legacy-offer strong {
+    display: block;
+    margin-top: 22px;
+    font-size: 2.25rem;
+}
+
+.legacy-contact-link,
+.legacy-contact-page {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.legacy-contact-link a {
+    color: yellow;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.legacy-contact-link a:hover,
+.legacy-contact-link a:focus {
+    text-decoration: underline;
+}
+
+.legacy-contact-page {
+    width: min(74%, 900px);
+    margin: 30px auto 60px;
+    color: white;
+    padding: 26px 24px 34px;
+}
+
+.legacy-contact-page h2 {
+    margin: 0 0 18px;
+    color: yellow;
+    font-size: 2.25rem;
+    font-weight: 800;
+}
+
+.legacy-contact-page p,
+.legacy-contact-page address {
+    margin: 12px 0;
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+@media (max-width: 1100px) {
+    .legacy-page {
+        padding-inline: 20px;
+    }
+
+    .legacy-topbar {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 8px 0;
+    }
+
+    .legacy-brand-left {
+        display: none;
+    }
+
+    .legacy-hero {
+        grid-template-columns: 1fr minmax(18rem, 2fr) 1fr;
+        padding-inline: 24px;
+    }
+
+    .legacy-large-dragon {
+        width: min(100%, 210px);
+    }
+}
+
+@media (max-width: 760px) {
+    .legacy-page {
+        padding: 8px;
+    }
+
+    .legacy-frame {
+        display: block;
+        border-right: 5px solid yellow;
+        border-left: 5px solid yellow;
+    }
+
+    .legacy-frame-grid {
+        display: block;
+        min-height: 0;
+        padding: 0;
+    }
+
+    .legacy-frame-cell {
+        display: none;
+    }
+
+    .legacy-hero {
+        display: block;
+        min-height: 0;
+        padding: 34px 18px 0;
+    }
+
+    .legacy-large-dragon {
+        width: 120px;
+        margin: 0 10px;
+    }
+
+    .legacy-large-dragon-left {
+        float: left;
+    }
+
+    .legacy-large-dragon-right {
+        float: right;
+    }
+
+    .legacy-nav {
+        clear: both;
+        grid-template-columns: 1fr;
+        width: min(100%, 320px);
+        margin-top: 28px;
+    }
+
+    .legacy-nav a {
+        border-right: 0;
+        border-bottom: 1px solid white;
+    }
+
+    .legacy-nav a:last-child {
+        border-bottom: 0;
+    }
+
+    .legacy-offer {
+        width: calc(100% - 24px);
+        padding: 22px 16px;
+    }
+
+    .legacy-contact-page {
+        width: calc(100% - 24px);
+        margin-top: 24px;
+        padding: 18px 12px 28px;
+    }
+
+    .legacy-contact-page p,
+    .legacy-contact-page address {
+        font-size: 1.15rem;
+    }
+
+    .legacy-offer dl,
+    .legacy-offer dl div:nth-child(n) {
+        display: block;
+        text-align: center;
+    }
+}
