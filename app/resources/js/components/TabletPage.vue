@@ -242,9 +242,9 @@ onUnmounted(() => {
                 <div class="flex items-center gap-5">
                     <div v-if="tableStatus" class="flex gap-3">
                         <div class="text-right hidden sm:block">
-                            <p class="text-[9px] uppercase font-bold text-stone-400">Ronde</p>
+                            <p class="text-[9px] uppercase font-bold text-stone-600">Ronde</p>
                             <p class="font-black text-stone-900 leading-none">
-                                {{ tableStatus.rounds_used }} <span class="text-stone-300">/</span> {{ tableStatus.max_rounds }}
+                                {{ tableStatus.rounds_used }} <span class="text-stone-600">/</span> {{ tableStatus.max_rounds }}
                             </p>
                         </div>
                         <div v-if="!canOrder" class="px-2 py-0.5 bg-[#FFF7ED] border border-[#FED7AA] rounded-md flex items-center gap-1.5">
@@ -253,7 +253,7 @@ onUnmounted(() => {
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-[9px] uppercase font-bold text-stone-400">Totaal</p>
+                        <p class="text-[9px] uppercase font-bold text-stone-600">Totaal</p>
                         <p class="font-black text-xl text-brand-red leading-none">{{ formatter.format(orderTotal) }}</p>
                     </div>
                 </div>
@@ -270,7 +270,7 @@ onUnmounted(() => {
                         :key="panel"
                         @click="activeTabletPanel = panel"
                         class="flex-1 py-2 px-4 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all"
-                        :class="activeTabletPanel === panel ? 'bg-brand-dark text-white shadow-sm' : 'text-stone-500 hover:text-stone-900'"
+                        :class="activeTabletPanel === panel ? 'bg-brand-dark text-white shadow-sm' : 'text-stone-700 hover:text-stone-900'"
                     >
                         {{ panel === 'menu' ? 'Gerechten' : 'Cocktails' }}
                     </button>
@@ -286,7 +286,7 @@ onUnmounted(() => {
                                 placeholder="Zoek nummer of naam..."
                                 class="w-full h-10 bg-stone-50 border-none rounded-xl px-4 pl-10 font-bold text-stone-800 text-sm focus:ring-1 focus:ring-brand-gold outline-none"
                             >
-                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-300">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                             </span>
                         </div>
@@ -297,7 +297,7 @@ onUnmounted(() => {
                                 :key="cat"
                                 @click="activeMenuCategory = cat"
                                 class="px-4 py-1.5 rounded-full whitespace-nowrap font-bold text-[10px] uppercase tracking-wide transition-all"
-                                :class="activeMenuCategory === cat ? 'bg-brand-gold text-white' : 'bg-stone-50 text-stone-500 hover:bg-stone-100'"
+                                :class="activeMenuCategory === cat ? 'bg-brand-gold text-white' : 'bg-stone-50 text-stone-700 hover:bg-stone-100'"
                             >
                                 {{ cat === '' ? 'Alles' : cat }}
                             </button>
@@ -324,7 +324,7 @@ onUnmounted(() => {
                                 >
                                     <div
                                         class="w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center font-black text-xs transition-colors"
-                                        :class="itemQuantityById.has(item.id) ? 'bg-brand-gold text-white' : 'bg-stone-50 text-stone-400 group-hover:bg-brand-dark group-hover:text-white'"
+                                        :class="itemQuantityById.has(item.id) ? 'bg-brand-gold text-white' : 'bg-stone-50 text-stone-600 group-hover:bg-brand-dark group-hover:text-white'"
                                     >
                                         {{ item.display_number || '-' }}
                                     </div>
@@ -333,7 +333,7 @@ onUnmounted(() => {
                                             <h4 class="font-black text-stone-900 text-xs truncate">{{ item.name }}</h4>
                                             <span class="font-black text-brand-red text-xs">{{ formatter.format(item.price) }}</span>
                                         </div>
-                                        <p class="text-[10px] text-stone-400 font-medium truncate mt-0.5">
+                                        <p class="text-[10px] text-stone-600 font-medium truncate mt-0.5">
                                             {{ item.description || item.category }}
                                         </p>
                                     </div>
@@ -356,29 +356,29 @@ onUnmounted(() => {
                     <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
                         <div>
                             <h2 class="font-black text-base">Bestelling</h2>
-                            <p class="text-[9px] uppercase font-bold text-stone-400">{{ lineCount }} items</p>
+                            <p class="text-[9px] uppercase font-bold text-stone-600">{{ lineCount }} items</p>
                         </div>
                         <button
                             v-if="orderLines.length > 0"
                             @click="clearOrderLines"
-                            class="text-[9px] uppercase font-black text-stone-300 hover:text-red-500 transition-colors"
+                            class="text-[9px] uppercase font-black text-stone-700 hover:text-red-600 transition-colors"
                         >
                             Wissen
                         </button>
                     </div>
 
                     <div class="p-5 space-y-3">
-                        <p v-if="orderLines.length === 0" class="text-stone-300 font-bold text-[10px] text-center italic py-4">Kies gerechten</p>
+                        <p v-if="orderLines.length === 0" class="text-stone-600 font-bold text-[10px] text-center italic py-4">Kies gerechten</p>
                         <article v-for="line in orderLines" :key="line.id" class="space-y-2 border-b border-stone-100 pb-3 last:border-b-0 last:pb-0">
                             <div class="flex items-center gap-3">
                                 <div class="flex-1 min-w-0">
                                     <p class="font-black text-stone-900 text-[11px] truncate">{{ line.display_number }} {{ line.name }}</p>
-                                    <p class="text-[9px] font-bold text-stone-400">{{ formatter.format(line.price) }} / st.</p>
+                                    <p class="text-[9px] font-bold text-stone-600">{{ formatter.format(line.price) }} / st.</p>
                                 </div>
                                 <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
-                                    <button @click="decreaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
+                                    <button @click="decreaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-700 hover:text-stone-900">-</button>
                                     <span class="w-6 text-center font-black text-[10px]">{{ line.quantity }}</span>
-                                    <button @click="increaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+                                    <button @click="increaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-700 hover:text-stone-900">+</button>
                                 </div>
                             </div>
 
@@ -398,7 +398,7 @@ onUnmounted(() => {
                                         v-for="suggestion in commonNoteSuggestions"
                                         :key="suggestion.note"
                                         @click="addNoteToLine(line, suggestion.note)"
-                                        class="px-2 py-1 bg-stone-50 hover:bg-stone-100 border border-stone-100 rounded-md whitespace-nowrap text-[9px] font-bold text-stone-500"
+                                        class="px-2 py-1 bg-stone-50 hover:bg-stone-100 border border-stone-100 rounded-md whitespace-nowrap text-[9px] font-bold text-stone-700"
                                     >
                                         {{ suggestion.note }}
                                     </button>
@@ -419,7 +419,7 @@ onUnmounted(() => {
 
                     <div class="p-5 bg-stone-50 rounded-b-2xl border-t border-stone-100 space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-stone-400 uppercase text-[9px] tracking-widest">Totaal</span>
+                            <span class="font-bold text-stone-700 uppercase text-[9px] tracking-widest">Totaal</span>
                             <span class="font-black text-xl text-brand-red">{{ formatter.format(orderTotal) }}</span>
                         </div>
 
@@ -436,8 +436,8 @@ onUnmounted(() => {
 
                 <!-- Previous Rounds -->
                 <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
-                    <h2 class="font-black text-xs uppercase tracking-widest text-stone-400">Eerdere rondes</h2>
-                    <div v-if="orderHistory.length === 0" class="text-center py-4 text-stone-300 font-bold text-[10px] italic border border-dashed border-stone-100 rounded-xl">
+                    <h2 class="font-black text-xs uppercase tracking-widest text-stone-700">Eerdere rondes</h2>
+                    <div v-if="orderHistory.length === 0" class="text-center py-4 text-stone-600 font-bold text-[10px] italic border border-dashed border-stone-100 rounded-xl">
                         Geen geschiedenis
                     </div>
                     <div v-else class="space-y-3">
@@ -449,7 +449,7 @@ onUnmounted(() => {
                             <div class="p-2.5 space-y-0.5">
                                 <div v-for="line in order.lines" :key="`${line.menu_item_id}-${line.notes?.join('|')}`" class="text-[10px]">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-stone-500"><span class="font-black text-stone-900">{{ line.quantity }}x</span> {{ line.name }}</span>
+                                        <span class="text-stone-600"><span class="font-black text-stone-900">{{ line.quantity }}x</span> {{ line.name }}</span>
                                         <span v-if="!line.is_active" class="text-[7px] font-black text-red-500 uppercase bg-red-50 px-1 rounded">OP</span>
                                     </div>
                                     <p v-if="line.notes?.length" class="mt-0.5 text-[9px] font-bold text-brand-gold">

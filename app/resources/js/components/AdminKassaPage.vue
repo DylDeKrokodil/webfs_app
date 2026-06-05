@@ -101,12 +101,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <main class="min-h-screen bg-brand-light text-brand-dark flex font-sans antialiased">
+    <main class="h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
         <AdminSidebar :is-open="isSidebarOpen" active-page="kassa" :csrf-token="csrfToken" @close="isSidebarOpen = false" />
 
         <!-- Workspace -->
-        <section class="flex-1 min-w-0 flex flex-col">
-            <header class="bg-white border-b border-brand-border px-6 py-4 sticky top-0 z-40 flex items-center justify-between">
+        <section class="flex-1 min-w-0 min-h-0 flex flex-col">
+            <header class="bg-white border-b border-brand-border px-6 py-4 z-40 flex items-center justify-between flex-shrink-0">
                 <div class="flex items-center gap-4">
                     <button @click="isSidebarOpen = true" class="lg:hidden p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
@@ -118,20 +118,20 @@ onMounted(() => {
                 </div>
             </header>
 
-            <div class="flex-1 p-6 overflow-y-auto">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div class="flex-1 min-h-0 p-4 lg:p-6 overflow-y-auto lg:overflow-hidden flex flex-col">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch flex-1 min-h-0">
                     <!-- Kassa List -->
-                    <section class="lg:col-span-7 space-y-4">
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col h-[calc(100dvh-140px)]">
+                    <section class="lg:col-span-7 min-h-[360px] lg:min-h-0">
+                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
                             <div class="p-4 border-b border-stone-100 bg-brand-light/50 space-y-3 flex-shrink-0">
                                 <div class="flex items-center justify-between">
                                     <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Snel Zoeken</h3>
-                                    <span class="text-[10px] font-bold text-stone-400">{{ visibleItems.length }} gerechten</span>
+                                    <span class="text-[10px] font-bold text-stone-600">{{ visibleItems.length }} gerechten</span>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div class="relative">
                                         <input v-model="query" type="search" placeholder="Naam of nummer..." autofocus class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 pl-9 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
-                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-600">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                                         </span>
                                     </div>
@@ -147,7 +147,7 @@ onMounted(() => {
                             </div>
                             <div v-else class="divide-y divide-stone-100 flex-1 overflow-y-auto custom-scrollbar">
                                 <div v-for="group in groupedItems" :key="group.category">
-                                    <div class="px-4 py-2 bg-stone-50 text-[9px] font-black uppercase text-stone-400 tracking-widest">{{ group.category }}</div>
+                                    <div class="px-4 py-2 bg-stone-50 text-[9px] font-black uppercase text-stone-600 tracking-widest">{{ group.category }}</div>
                                     <button
                                         v-for="item in group.items"
                                         :key="item.id"
@@ -157,11 +157,11 @@ onMounted(() => {
                                         <span class="w-8 font-black text-xs text-brand-red text-center">{{ item.display_number || '-' }}</span>
                                         <div class="flex-1 min-w-0">
                                             <h4 class="font-black text-stone-900 text-xs truncate leading-tight">{{ item.name }}</h4>
-                                            <p class="text-[9px] font-medium text-stone-400 truncate mt-0.5">{{ item.category }}</p>
+                                            <p class="text-[9px] font-medium text-stone-600 truncate mt-0.5">{{ item.category }}</p>
                                         </div>
                                         <div class="text-right flex items-center gap-4">
                                             <span class="font-black text-stone-900 text-xs">{{ formatter.format(item.price) }}</span>
-                                            <span class="px-2 py-1 bg-brand-dark text-white text-[8px] font-black uppercase rounded opacity-0 group-hover:opacity-100 transition-opacity">Plus</span>
+                                            <span class="px-2 py-1 bg-brand-dark text-white text-[8px] font-black uppercase rounded opacity-0 group-hover:opacity-100 transition-opacity">Toevoegen</span>
                                         </div>
                                     </button>
                                 </div>
@@ -170,28 +170,28 @@ onMounted(() => {
                     </section>
 
                     <!-- Cart -->
-                    <aside class="lg:col-span-5 sticky top-0 self-start mb-6">
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-lg overflow-hidden flex flex-col h-[calc(100dvh-140px)]">
+                    <aside class="lg:col-span-5 min-h-[420px] lg:min-h-0">
+                        <div class="bg-white border border-brand-border rounded-2xl shadow-lg overflow-hidden flex flex-col h-full">
                             <div class="p-5 border-b border-stone-100 bg-brand-dark text-white flex justify-between items-center flex-shrink-0">
                                 <div>
                                     <h3 class="font-black text-lg leading-none">Bestelling</h3>
-                                    <p class="text-[9px] uppercase font-bold text-stone-500 mt-1 tracking-widest">Overzicht</p>
+                                    <p class="text-[9px] uppercase font-bold text-stone-300 mt-1 tracking-widest">Overzicht</p>
                                 </div>
-                                <button v-if="orderLines.length > 0" @click="clearOrderLines" class="text-[9px] font-black text-stone-500 hover:text-red-400 uppercase tracking-widest">Leeg</button>
+                                <button v-if="orderLines.length > 0" @click="clearOrderLines" class="text-[9px] font-black text-stone-300 hover:text-red-300 uppercase tracking-widest">Leeg</button>
                             </div>
 
                             <div class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
-                                <p v-if="orderLines.length === 0" class="text-stone-300 font-bold text-xs text-center italic py-10">Voeg items toe</p>
+                                <p v-if="orderLines.length === 0" class="text-stone-600 font-bold text-xs text-center italic py-10">Voeg items toe</p>
                                 <article v-for="line in orderLines" :key="line.id" class="space-y-2 border-b border-stone-100 pb-4 last:border-b-0 last:pb-0">
                                     <div class="flex items-center gap-3 group">
                                         <div class="flex-1 min-w-0">
                                             <h4 class="font-black text-stone-900 text-xs leading-tight truncate">{{ line.display_number }} {{ line.name }}</h4>
-                                            <p class="text-[9px] font-bold text-stone-400 mt-0.5">{{ formatter.format(line.price) }} / stuk</p>
+                                            <p class="text-[9px] font-bold text-stone-600 mt-0.5">{{ formatter.format(line.price) }} / stuk</p>
                                         </div>
                                         <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
-                                            <button @click="decreaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
+                                            <button @click="decreaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-700 hover:text-stone-900">-</button>
                                             <span class="w-7 text-center font-black text-[10px]">{{ line.quantity }}</span>
-                                            <button @click="increaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+                                            <button @click="increaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-700 hover:text-stone-900">+</button>
                                         </div>
                                         <span class="w-16 text-right font-black text-stone-900 text-xs">{{ formatter.format(line.quantity * line.price) }}</span>
                                     </div>
@@ -212,7 +212,7 @@ onMounted(() => {
                                                 v-for="suggestion in commonNoteSuggestions"
                                                 :key="suggestion.note"
                                                 @click="addNoteToLine(line, suggestion.note)"
-                                                class="px-2 py-1 bg-stone-50 hover:bg-stone-100 border border-stone-100 rounded-md whitespace-nowrap text-[9px] font-bold text-stone-500"
+                                                class="px-2 py-1 bg-stone-50 hover:bg-stone-100 border border-stone-100 rounded-md whitespace-nowrap text-[9px] font-bold text-stone-700"
                                             >
                                                 {{ suggestion.note }}
                                             </button>
@@ -233,7 +233,7 @@ onMounted(() => {
 
                             <div class="p-6 bg-brand-light border-t border-stone-100 space-y-5 flex-shrink-0">
                                 <div class="flex items-center justify-between">
-                                    <span class="font-black text-stone-400 uppercase text-[9px] tracking-widest">Subtotaal</span>
+                                    <span class="font-black text-stone-700 uppercase text-[9px] tracking-widest">Subtotaal</span>
                                     <span class="font-black text-2xl text-brand-red">{{ formatter.format(orderTotal) }}</span>
                                 </div>
 

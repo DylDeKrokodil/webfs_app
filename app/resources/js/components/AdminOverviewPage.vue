@@ -238,12 +238,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <main class="min-h-screen bg-brand-light text-brand-dark flex font-sans antialiased">
+    <main class="h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
         <AdminSidebar :is-open="isSidebarOpen" active-page="overzicht" :csrf-token="csrfToken" @close="isSidebarOpen = false" />
 
         <!-- Workspace -->
-        <section class="flex-1 min-w-0 flex flex-col">
-            <header class="bg-white border-b border-brand-border px-6 py-4 sticky top-0 z-40 flex items-center justify-between">
+        <section class="flex-1 min-w-0 min-h-0 flex flex-col">
+            <header class="bg-white border-b border-brand-border px-6 py-4 z-40 flex items-center justify-between flex-shrink-0">
                 <div class="flex items-center gap-4">
                     <button @click="isSidebarOpen = true" class="lg:hidden p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
@@ -254,150 +254,147 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="text-right hidden sm:block">
-                    <p class="text-[9px] uppercase font-bold text-stone-400 tracking-widest">Periode</p>
+                    <p class="text-[9px] uppercase font-bold text-stone-600 tracking-widest">Periode</p>
                     <p class="text-xs font-black text-stone-900">{{ periodLabel }}</p>
                 </div>
             </header>
 
-            <div class="flex-1 p-6 overflow-y-auto">
-                <section class="bg-white border border-brand-border rounded-2xl shadow-sm mb-6 overflow-hidden">
-                    <div class="p-4 border-b border-stone-100 bg-brand-light/50">
-                        <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Periode kiezen</h3>
-                    </div>
-                    <div class="p-4 space-y-4">
-                        <div class="flex flex-wrap gap-2">
+            <div class="flex-1 min-h-0 p-4 lg:p-6 overflow-y-auto lg:overflow-hidden flex flex-col gap-4">
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 flex-shrink-0">
+                    <section class="xl:col-span-8 bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden">
+                        <div class="px-4 py-3 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3">
+                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Periode kiezen</h3>
+                            <span class="text-[10px] font-bold text-stone-600 hidden sm:inline">{{ periodLabel }}</span>
+                        </div>
+                        <div class="p-4 grid gap-3">
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    v-for="preset in periodPresets"
+                                    :key="preset.key"
+                                    type="button"
+                                    @click="applyPreset(preset)"
+                                    class="h-8 px-3 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all"
+                                    :class="activePreset === preset.key ? 'bg-brand-gold border-brand-gold text-white shadow-sm' : 'bg-white border-stone-200 text-stone-700 hover:border-brand-gold hover:text-stone-900'"
+                                >
+                                    {{ preset.label }}
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 items-end">
+                                <label class="space-y-1.5">
+                                    <span class="block text-[9px] uppercase font-black tracking-widest text-stone-700">Begindatum</span>
+                                    <input v-model="startDate" @change="markCustomPeriod" type="date" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
+                                </label>
+                                <label class="space-y-1.5">
+                                    <span class="block text-[9px] uppercase font-black tracking-widest text-stone-700">Einddatum</span>
+                                    <input v-model="endDate" @change="markCustomPeriod" type="date" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
+                                </label>
+                                <button
+                                    @click="loadOverview"
+                                    :disabled="isLoading"
+                                    class="h-10 px-5 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-[#854d03] active:scale-[0.98] transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <span v-if="isLoading" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                                    <span>Maak overzicht</span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="xl:col-span-4 bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0">
+                        <div class="px-4 py-3 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3 flex-shrink-0">
+                            <div class="min-w-0">
+                                <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight truncate">Excel-samenvattingen</h3>
+                                <p class="text-[10px] font-bold text-stone-600 truncate">Dagrapporten na middernacht</p>
+                            </div>
                             <button
-                                v-for="preset in periodPresets"
-                                :key="preset.key"
                                 type="button"
-                                @click="applyPreset(preset)"
-                                class="h-8 px-3 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all"
-                                :class="activePreset === preset.key ? 'bg-brand-gold border-brand-gold text-white shadow-sm' : 'bg-white border-stone-200 text-stone-500 hover:border-brand-gold hover:text-stone-900'"
+                                @click="loadSalesSummaries"
+                                :disabled="isLoadingSummaries"
+                                class="h-8 px-3 rounded-lg border border-stone-200 bg-white text-[9px] font-black uppercase tracking-widest text-stone-700 hover:border-brand-gold hover:text-stone-900 disabled:opacity-50 flex-shrink-0"
                             >
-                                {{ preset.label }}
+                                Vernieuw
                             </button>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 items-end">
-                            <label class="space-y-1.5">
-                                <span class="block text-[9px] uppercase font-black tracking-widest text-stone-400">Begindatum</span>
-                                <input v-model="startDate" @change="markCustomPeriod" type="date" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
-                            </label>
-                            <label class="space-y-1.5">
-                                <span class="block text-[9px] uppercase font-black tracking-widest text-stone-400">Einddatum</span>
-                                <input v-model="endDate" @change="markCustomPeriod" type="date" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
-                            </label>
-                            <button
-                                @click="loadOverview"
-                                :disabled="isLoading"
-                                class="h-10 px-5 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-[#854d03] active:scale-[0.98] transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                <span v-if="isLoading" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                                <span>Maak overzicht</span>
-                            </button>
+                        <div v-if="isLoadingSummaries" class="p-6 text-center">
+                            <div class="w-7 h-7 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
                         </div>
-                    </div>
-                </section>
+                        <div v-else-if="salesSummaries.length === 0" class="p-6 text-center">
+                            <p class="font-black text-stone-600 italic text-sm">Nog geen Excel-samenvattingen</p>
+                        </div>
+                        <div v-else class="max-h-40 overflow-auto custom-scrollbar">
+                            <table class="w-full min-w-[420px] text-left">
+                                <thead class="bg-stone-50 border-b border-stone-100 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-4 py-2.5 text-[9px] uppercase tracking-widest font-black text-stone-600">Datum</th>
+                                        <th class="px-4 py-2.5 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Omzet</th>
+                                        <th class="px-4 py-2.5 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Download</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-100">
+                                    <tr v-for="report in salesSummaries" :key="report.id" class="hover:bg-[#FFF7ED] transition-colors">
+                                        <td class="px-4 py-2.5 whitespace-nowrap text-xs font-black text-stone-900">{{ formatReportDate(report.date) }}</td>
+                                        <td class="px-4 py-2.5 text-right whitespace-nowrap text-xs font-black text-brand-red">{{ formatter.format(report.gross_total) }}</td>
+                                        <td class="px-4 py-2.5 text-right whitespace-nowrap">
+                                            <a
+                                                :href="report.download_url"
+                                                class="inline-flex h-7 items-center justify-center rounded-lg bg-brand-gold px-3 text-[9px] font-black uppercase tracking-widest text-white hover:bg-[#854d03] active:scale-[0.98] transition-all shadow-sm"
+                                            >
+                                                Excel
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white border border-brand-border p-4 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-400 tracking-wider mb-1">Regels</span>
-                        <strong class="block text-lg font-black text-stone-900">{{ summary.lines_count }}</strong>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 flex-shrink-0">
+                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
+                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">Regels</span>
+                        <strong class="block text-lg font-black text-stone-900 leading-none">{{ summary.lines_count }}</strong>
                     </div>
-                    <div class="bg-white border border-brand-border p-4 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-400 tracking-wider mb-1">Aantal</span>
-                        <strong class="block text-lg font-black text-stone-900">{{ summary.items_count }}</strong>
+                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
+                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">Aantal</span>
+                        <strong class="block text-lg font-black text-stone-900 leading-none">{{ summary.items_count }}</strong>
                     </div>
-                    <div class="bg-white border border-brand-border p-4 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-400 tracking-wider mb-1">Omzet excl. btw</span>
-                        <strong class="block text-lg font-black text-brand-red">{{ formatter.format(summary.total) }}</strong>
+                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
+                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">Omzet excl. btw</span>
+                        <strong class="block text-lg font-black text-brand-red leading-none">{{ formatter.format(summary.total) }}</strong>
                     </div>
-                    <div class="bg-white border border-brand-border p-4 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-400 tracking-wider mb-1">BTW {{ summary.vat_percentage }}%</span>
-                        <strong class="block text-lg font-black text-stone-900">{{ formatter.format(summary.vat_amount) }}</strong>
+                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
+                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">BTW {{ summary.vat_percentage }}%</span>
+                        <strong class="block text-lg font-black text-stone-900 leading-none">{{ formatter.format(summary.vat_amount) }}</strong>
                     </div>
                 </div>
 
-                <section class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden mb-6">
-                    <div class="px-5 py-4 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3">
-                        <div>
-                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Dagelijkse Excel-samenvattingen</h3>
-                            <p class="text-[10px] font-bold text-stone-400">Automatisch gegenereerd na middernacht voor de vorige dag</p>
-                        </div>
-                        <button
-                            type="button"
-                            @click="loadSalesSummaries"
-                            :disabled="isLoadingSummaries"
-                            class="h-8 px-3 rounded-lg border border-stone-200 bg-white text-[9px] font-black uppercase tracking-widest text-stone-500 hover:border-brand-gold hover:text-stone-900 disabled:opacity-50"
-                        >
-                            Vernieuw
-                        </button>
-                    </div>
-
-                    <div v-if="isLoadingSummaries" class="p-8 text-center">
-                        <div class="w-7 h-7 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
-                    </div>
-                    <div v-else-if="salesSummaries.length === 0" class="p-8 text-center">
-                        <p class="font-black text-stone-300 italic text-sm">Nog geen Excel-samenvattingen gegenereerd</p>
-                    </div>
-                    <div v-else class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full min-w-[720px] text-left">
-                            <thead class="bg-stone-50 border-b border-stone-100">
-                                <tr>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400">Datum</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Orders</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Items</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Omzet</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400">Gegenereerd</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Download</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-stone-100">
-                                <tr v-for="report in salesSummaries" :key="report.id" class="hover:bg-[#FFF7ED] transition-colors">
-                                    <td class="px-5 py-3 whitespace-nowrap text-xs font-black text-stone-900">{{ formatReportDate(report.date) }}</td>
-                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-bold text-stone-600">{{ report.orders_count }}</td>
-                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-bold text-stone-600">{{ report.items_count }}</td>
-                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-black text-brand-red">{{ formatter.format(report.gross_total) }}</td>
-                                    <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-stone-600">{{ formatDate(report.generated_at) }}</td>
-                                    <td class="px-5 py-3 text-right whitespace-nowrap">
-                                        <a
-                                            :href="report.download_url"
-                                            class="inline-flex h-8 items-center justify-center rounded-lg bg-brand-gold px-3 text-[9px] font-black uppercase tracking-widest text-white hover:bg-[#854d03] active:scale-[0.98] transition-all shadow-sm"
-                                        >
-                                            Excel
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3">
+                <section class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex-1 min-h-[360px] lg:min-h-0 flex flex-col">
+                    <div class="px-5 py-4 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3 flex-shrink-0">
                         <div>
                             <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Orderregels</h3>
-                            <p class="text-[10px] font-bold text-stone-400">Regels tonen kassabedragen; omzet hierboven is exclusief {{ summary.vat_percentage }}% btw</p>
+                            <p class="text-[10px] font-bold text-stone-600">Regels tonen kassabedragen; omzet hierboven is exclusief {{ summary.vat_percentage }}% btw</p>
                         </div>
-                        <span class="text-[10px] font-bold text-stone-400">{{ lines.length }} resultaten</span>
+                        <span class="text-[10px] font-bold text-stone-600">{{ lines.length }} resultaten</span>
                     </div>
 
-                    <div v-if="isLoading" class="p-12 text-center">
+                    <div v-if="isLoading" class="p-12 text-center flex-1">
                         <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
                     </div>
-                    <div v-else-if="hasLoaded && lines.length === 0" class="p-12 text-center">
-                        <p class="font-black text-stone-300 italic text-sm">Geen afgerekende orderregels in deze periode</p>
+                    <div v-else-if="hasLoaded && lines.length === 0" class="p-12 text-center flex-1">
+                        <p class="font-black text-stone-600 italic text-sm">Geen afgerekende orderregels in deze periode</p>
                     </div>
-                    <div v-else class="overflow-x-auto custom-scrollbar">
+                    <div v-else class="flex-1 min-h-0 overflow-auto custom-scrollbar">
                         <table class="w-full min-w-[760px] text-left">
-                            <thead class="bg-stone-50 border-b border-stone-100">
+                            <thead class="bg-stone-50 border-b border-stone-100 sticky top-0 z-10">
                                 <tr>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400">Datum</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400">Gerecht</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400">Bron</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Prijs</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Aantal</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-400 text-right">Subtotaal</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600">Datum</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600">Gerecht</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600">Bron</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Prijs</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Aantal</th>
+                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Subtotaal</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-stone-100">
@@ -405,7 +402,7 @@ onMounted(() => {
                                     <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-stone-600">{{ formatDate(line.date) }}</td>
                                     <td class="px-5 py-3">
                                         <div class="flex items-center gap-3">
-                                            <span class="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center font-black text-[9px] text-stone-400 border border-stone-200 flex-shrink-0">
+                                            <span class="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center font-black text-[9px] text-stone-600 border border-stone-200 flex-shrink-0">
                                                 {{ line.display_number || 'GD' }}
                                             </span>
                                             <span class="font-black text-xs text-stone-900 leading-tight">{{ line.name }}</span>
