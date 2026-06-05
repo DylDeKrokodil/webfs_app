@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { toastService } from '../services/toastService';
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
@@ -23,12 +23,15 @@ const items = ref([]);
 const orderLines = ref([]);
 const orderHistory = ref([]);
 const tableStatus = ref(null);
+const cooldownRemainingSeconds = ref(0);
 const isLoading = ref(true);
 const isHistoryLoading = ref(false);
 const isSubmitting = ref(false);
+const isRefreshingStatus = ref(false);
 const repeatedSourceOrderId = ref(null);
 const errorMessage = ref('');
 const orderMessage = ref('');
+let cooldownIntervalId = null;
 
 const formatter = new Intl.NumberFormat('nl-NL', {
     style: 'currency',
@@ -53,11 +56,24 @@ const lineCount = computed(() => orderLines.value.reduce((sum, line) => sum + li
 const orderTotal = computed(() =>
     orderLines.value.reduce((sum, line) => sum + line.quantity * Number(line.price), 0),
 );
-const canOrder = computed(() => tableStatus.value?.can_order ?? true);
+const hasRoundsAvailable = computed(() => {
+    if (!tableStatus.value) {
+        return true;
+    }
+
+    return tableStatus.value.rounds_used < tableStatus.value.max_rounds;
+});
+const canOrder = computed(() => hasRoundsAvailable.value && cooldownRemainingSeconds.value === 0);
 const cooldownMinutes = computed(() => {
-    const seconds = tableStatus.value?.cooldown_seconds ?? 0;
+    const seconds = cooldownRemainingSeconds.value;
 
     return Math.max(1, Math.ceil(seconds / 60));
+});
+const cooldownDisplay = computed(() => {
+    const minutes = Math.floor(cooldownRemainingSeconds.value / 60);
+    const seconds = cooldownRemainingSeconds.value % 60;
+
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
 });
 
 const formatOrderDate = (value) => {
@@ -71,6 +87,11 @@ const formatOrderDate = (value) => {
         hour: '2-digit',
         minute: '2-digit',
     }).format(new Date(value));
+};
+
+const setTableStatus = (status) => {
+    tableStatus.value = status;
+    cooldownRemainingSeconds.value = status?.cooldown_seconds ?? 0;
 };
 
 const loadTableStatus = async () => {
@@ -90,7 +111,41 @@ const loadTableStatus = async () => {
     }
 
     const payload = await response.json();
-    tableStatus.value = payload.data ?? null;
+    setTableStatus(payload.data ?? null);
+};
+
+const refreshStatusAfterCooldown = async () => {
+    if (isRefreshingStatus.value || !tableNumber.value) {
+        return;
+    }
+
+    isRefreshingStatus.value = true;
+
+    try {
+        await loadTableStatus();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        isRefreshingStatus.value = false;
+    }
+};
+
+const startCooldownTimer = () => {
+    if (cooldownIntervalId !== null) {
+        return;
+    }
+
+    cooldownIntervalId = window.setInterval(() => {
+        if (cooldownRemainingSeconds.value <= 0) {
+            return;
+        }
+
+        cooldownRemainingSeconds.value -= 1;
+
+        if (cooldownRemainingSeconds.value === 0) {
+            refreshStatusAfterCooldown();
+        }
+    }, 1000);
 };
 
 const loadOrderHistory = async () => {
@@ -273,7 +328,7 @@ const submitOrder = async () => {
 
         if (!response.ok) {
             if (payload.status) {
-                tableStatus.value = payload.status;
+                setTableStatus(payload.status);
             }
 
             throw new Error(payload.message || 'Bestelling plaatsen mislukt.');
@@ -291,7 +346,16 @@ const submitOrder = async () => {
     }
 };
 
-onMounted(loadTabletData);
+onMounted(() => {
+    startCooldownTimer();
+    loadTabletData();
+});
+
+onUnmounted(() => {
+    if (cooldownIntervalId !== null) {
+        window.clearInterval(cooldownIntervalId);
+    }
+});
 </script>
 
 <template>
@@ -325,8 +389,9 @@ onMounted(loadTabletData);
                             <template v-if="canOrder">
                                 Deze tafel kan bestellen.
                             </template>
-                            <template v-else-if="tableStatus.cooldown_seconds > 0">
-                                Nieuwe ronde mogelijk over {{ cooldownMinutes }} min.
+                            <template v-else-if="cooldownRemainingSeconds > 0">
+                                Nieuwe ronde mogelijk over {{ cooldownDisplay }}
+                                <span>({{ cooldownMinutes }} min)</span>
                             </template>
                             <template v-else>
                                 {{ tableStatus.message }}
