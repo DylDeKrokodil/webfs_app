@@ -21,141 +21,70 @@ const formatter = new Intl.NumberFormat('nl-NL', {
 const activeItems = computed(() => items.value.filter((item) => item.is_active));
 const visibleItems = computed(() => {
     const needle = query.value.trim().toLowerCase();
-
     return activeItems.value.filter((item) => {
-        const matchesQuery =
-            needle === '' ||
-            [item.display_number, item.name, item.category]
-                .filter(Boolean)
-                .some((value) => String(value).toLowerCase().includes(needle));
-        const matchesCategory =
-            categoryFilter.value === 'all' ||
-            String(item.menu_category_id) === String(categoryFilter.value);
-
+        const matchesQuery = needle === '' || [item.display_number, item.name, item.category]
+            .filter(Boolean).some((value) => String(value).toLowerCase().includes(needle));
+        const matchesCategory = categoryFilter.value === 'all' || String(item.menu_category_id) === String(categoryFilter.value);
         return matchesQuery && matchesCategory;
     });
 });
 
 const groupedItems = computed(() => {
     const groups = new Map();
-
     visibleItems.value.forEach((item) => {
-        if (!groups.has(item.category)) {
-            groups.set(item.category, []);
-        }
-
+        if (!groups.has(item.category)) groups.set(item.category, []);
         groups.get(item.category).push(item);
     });
-
     return Array.from(groups, ([category, groupItems]) => ({ category, items: groupItems }));
 });
 
 const lineCount = computed(() => orderLines.value.reduce((sum, line) => sum + line.quantity, 0));
-const orderTotal = computed(() =>
-    orderLines.value.reduce((sum, line) => sum + line.quantity * Number(line.price), 0),
-);
+const orderTotal = computed(() => orderLines.value.reduce((sum, line) => sum + line.quantity * Number(line.price), 0));
 
 const loadMenu = async () => {
     isLoading.value = true;
-    errorMessage.value = '';
-
     try {
         const response = await fetch('/api/admin/menu-items', {
-            headers: {
-                Accept: 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
+            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
         });
-
-        if (!response.ok) {
-            throw new Error('De kassamenukaart kon niet worden geladen.');
-        }
-
+        if (!response.ok) throw new Error('Laden mislukt.');
         const payload = await response.json();
-        categories.value = (payload.categories ?? []).filter((category) => category.is_active);
+        categories.value = (payload.categories ?? []).filter((cat) => cat.is_active);
         items.value = payload.items ?? [];
     } catch (error) {
-        errorMessage.value =
-            error instanceof Error ? error.message : 'De kassamenukaart kon niet worden geladen.';
+        errorMessage.value = error.message;
     } finally {
         isLoading.value = false;
     }
 };
 
 const addItem = (item) => {
-    const existingLine = orderLines.value.find((line) => line.id === item.id);
-
-    if (existingLine) {
-        existingLine.quantity += 1;
-        return;
-    }
-
-    orderLines.value.push({
-        id: item.id,
-        display_number: item.display_number,
-        name: item.name,
-        price: Number(item.price),
-        quantity: 1,
-    });
+    const existingLine = orderLines.value.find((l) => l.id === item.id);
+    if (existingLine) { existingLine.quantity += 1; return; }
+    orderLines.value.push({ id: item.id, display_number: item.display_number, name: item.name, price: Number(item.price), quantity: 1 });
 };
 
-const increaseQuantity = (line) => {
-    line.quantity += 1;
-};
-
+const increaseQuantity = (line) => { line.quantity += 1; };
 const decreaseQuantity = (line) => {
-    if (line.quantity <= 1) {
-        orderLines.value = orderLines.value.filter((currentLine) => currentLine.id !== line.id);
-        return;
-    }
-
+    if (line.quantity <= 1) { orderLines.value = orderLines.value.filter((l) => l.id !== line.id); return; }
     line.quantity -= 1;
 };
 
-const clearOrder = () => {
-    orderLines.value = [];
-};
-
 const checkoutOrder = async () => {
-    errorMessage.value = '';
-
-    if (orderLines.value.length === 0) {
-        errorMessage.value = 'Niets geselecteerd.';
-        toastService.error(errorMessage.value, { title: 'Kassa' });
-        return;
-    }
-
+    if (orderLines.value.length === 0) return;
     isCheckingOut.value = true;
-
     try {
         const response = await fetch('/api/admin/orders', {
             method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
-            body: JSON.stringify({
-                lines: orderLines.value.map((line) => ({
-                    menu_item_id: line.id,
-                    quantity: line.quantity,
-                })),
-            }),
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({ lines: orderLines.value.map((l) => ({ menu_item_id: l.id, quantity: l.quantity })) }),
         });
-
-        const payload = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-            throw new Error(payload.message || 'Afrekenen mislukt.');
-        }
-
-        toastService.success(`Bestelling #${payload.order.id} is afgerekend.`, {
-            title: 'Verkoop succesvol',
-        });
-        clearOrder();
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.message || 'Fout bij afrekenen.');
+        toastService.success(`Bestelling #${payload.order.id} afgerekend.`);
+        orderLines.value = [];
     } catch (error) {
-        errorMessage.value = error instanceof Error ? error.message : 'Afrekenen mislukt.';
-        toastService.error(errorMessage.value, { title: 'Afrekenen mislukt' });
+        toastService.error(error.message);
     } finally {
         isCheckingOut.value = false;
     }
@@ -165,141 +94,167 @@ onMounted(loadMenu);
 </script>
 
 <template>
-    <main class="admin-app">
-        <aside class="admin-sidebar" aria-label="Admin navigatie">
-            <a class="admin-brand" href="/admin/menu">
-                <span>GD</span>
-                <strong>Gouden Draak</strong>
-            </a>
-
-            <nav class="admin-nav">
-                <a href="/admin/menu">Menukaart</a>
-                <a class="is-active" href="/admin/kassa">Kassa</a>
-                <a href="/admin/tafels">Tafels</a>
+    <main class="min-h-screen bg-brand-light text-brand-dark flex font-sans antialiased">
+        <!-- Sidebar -->
+        <aside class="w-56 bg-brand-dark text-white flex flex-col sticky top-0 h-screen shadow-xl z-50">
+            <div class="p-5 border-b border-white/5">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-red rounded-lg flex items-center justify-center border border-white/10">
+                        <span class="text-white font-black text-sm">G</span>
+                    </div>
+                    <div>
+                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Gouden Draak</p>
+                        <h2 class="text-[10px] font-bold text-stone-500 uppercase">Admin</h2>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 p-3 space-y-1">
+                <a href="/admin/menu" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs text-stone-400 hover:bg-white/5 hover:text-white transition-all">
+                    <span>Menukaart</span>
+                </a>
+                <a href="/admin/kassa" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs bg-white/10 text-white shadow-inner">
+                    <span>Kassa</span>
+                </a>
+                <a href="/admin/tafels" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs text-stone-400 hover:bg-white/5 hover:text-white transition-all">
+                    <span>Tafels</span>
+                </a>
             </nav>
-
-            <form class="admin-logout" action="/logout" method="POST">
+            <form action="/logout" method="POST" class="p-3 border-t border-white/5">
                 <input type="hidden" name="_token" :value="csrfToken">
-                <button type="submit">Log uit</button>
+                <button type="submit" class="w-full py-2 rounded-lg font-black text-[9px] uppercase tracking-widest text-stone-500 hover:text-red-400 transition-colors">
+                    Log uit
+                </button>
             </form>
         </aside>
 
-        <section class="admin-workspace">
-            <header class="admin-header">
+        <!-- Workspace -->
+        <section class="flex-1 min-w-0 flex flex-col">
+            <header class="bg-white border-b border-brand-border px-6 py-4 sticky top-0 z-40 flex items-center justify-between">
                 <div>
-                    <p>US-9</p>
-                    <h1>Kassa zoeken en filteren</h1>
+                    <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Verkoop</p>
+                    <h1 class="text-xl font-black leading-tight">Kassa</h1>
                 </div>
             </header>
 
-            <p v-if="errorMessage" class="admin-error">{{ errorMessage }}</p>
-
-            <div class="admin-kassa-layout">
-                <section class="admin-list-panel" aria-labelledby="kassa-menu-title">
-                    <div class="admin-panel-header">
-                        <div>
-                            <h2 id="kassa-menu-title">Gerechten zoeken</h2>
-                            <p>{{ visibleItems.length }} actieve gerechten gevonden</p>
-                        </div>
-                    </div>
-
-                    <div class="admin-filters">
-                        <input
-                            v-model="query"
-                            type="search"
-                            placeholder="Zoek op gerechtnaam of gerechtnummer"
-                            autofocus
-                        >
-                        <select v-model="categoryFilter">
-                            <option value="all">Alle categorieen</option>
-                            <option
-                                v-for="category in categories"
-                                :key="category.id"
-                                :value="category.id"
-                            >
-                                {{ category.name }}
-                            </option>
-                        </select>
-                    </div>
-
-                    <p v-if="isLoading" class="admin-empty-state">Kassamenukaart laden...</p>
-                    <p v-else-if="visibleItems.length === 0" class="admin-empty-state">
-                        Geen gerechten gevonden.
-                    </p>
-
-                    <div v-else class="admin-menu-groups">
-                        <section
-                            v-for="group in groupedItems"
-                            :key="group.category"
-                            class="admin-menu-group"
-                        >
-                            <h3>{{ group.category }}</h3>
-                            <button
-                                v-for="item in group.items"
-                                :key="item.id"
-                                class="admin-kassa-menu-row"
-                                type="button"
-                                @click="addItem(item)"
-                            >
-                                <span class="admin-menu-code">{{ item.display_number || '-' }}</span>
-                                <span class="admin-menu-name">
-                                    <strong>{{ item.name }}</strong>
-                                    <small>{{ item.description || item.category }}</small>
-                                </span>
-                                <span class="admin-menu-price">{{ formatter.format(item.price) }}</span>
-                                <span class="admin-add-label">Toevoegen</span>
-                            </button>
-                        </section>
-                    </div>
-                </section>
-
-                <aside class="admin-order-panel" aria-labelledby="current-order-title">
-                    <div class="admin-panel-header">
-                        <div>
-                            <h2 id="current-order-title">Huidige bestelling</h2>
-                            <p>{{ lineCount }} items</p>
-                        </div>
-                        <button class="admin-danger" type="button" @click="clearOrder">
-                            Leeg
-                        </button>
-                    </div>
-
-                    <p v-if="orderLines.length === 0" class="admin-empty-state">
-                        Voeg gerechten toe vanuit de zoekresultaten.
-                    </p>
-
-                    <div v-else class="admin-order-lines">
-                        <article v-for="line in orderLines" :key="line.id" class="admin-order-line">
-                            <div>
-                                <strong>{{ line.display_number || '-' }} {{ line.name }}</strong>
-                                <small>{{ formatter.format(line.price) }} per stuk</small>
+            <div class="flex-1 p-6 overflow-y-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- Kassa List -->
+                    <section class="lg:col-span-7 space-y-4">
+                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col h-[calc(100dvh-140px)]">
+                            <div class="p-4 border-b border-stone-100 bg-brand-light/50 space-y-3 flex-shrink-0">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Snel Zoeken</h3>
+                                    <span class="text-[10px] font-bold text-stone-400">{{ visibleItems.length }} gerechten</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="relative">
+                                        <input v-model="query" type="search" placeholder="Naam of nummer..." autofocus class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 pl-9 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                                        </span>
+                                    </div>
+                                    <select v-model="categoryFilter" class="h-10 bg-white border border-stone-200 rounded-lg px-2 text-xs font-bold outline-none">
+                                        <option value="all">Alle Categorieën</option>
+                                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div class="admin-quantity-control" aria-label="Aantal wijzigen">
-                                <button type="button" @click="decreaseQuantity(line)">-</button>
-                                <span>{{ line.quantity }}</span>
-                                <button type="button" @click="increaseQuantity(line)">+</button>
+                            <div v-if="isLoading" class="p-12 text-center flex-1">
+                                <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
+                            </div>
+                            <div v-else class="divide-y divide-stone-100 flex-1 overflow-y-auto custom-scrollbar">
+                                <div v-for="group in groupedItems" :key="group.category">
+                                    <div class="px-4 py-2 bg-stone-50 text-[9px] font-black uppercase text-stone-400 tracking-widest">{{ group.category }}</div>
+                                    <button
+                                        v-for="item in group.items"
+                                        :key="item.id"
+                                        @click="addItem(item)"
+                                        class="w-full flex items-center gap-4 p-3 text-left transition-all hover:bg-[#FFF7ED] group"
+                                    >
+                                        <span class="w-8 font-black text-xs text-brand-red text-center">{{ item.display_number || '-' }}</span>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="font-black text-stone-900 text-xs truncate leading-tight">{{ item.name }}</h4>
+                                            <p class="text-[9px] font-medium text-stone-400 truncate mt-0.5">{{ item.category }}</p>
+                                        </div>
+                                        <div class="text-right flex items-center gap-4">
+                                            <span class="font-black text-stone-900 text-xs">{{ formatter.format(item.price) }}</span>
+                                            <span class="px-2 py-1 bg-brand-dark text-white text-[8px] font-black uppercase rounded opacity-0 group-hover:opacity-100 transition-opacity">Plus</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Cart -->
+                    <aside class="lg:col-span-5 sticky top-0 self-start mb-6">
+                        <div class="bg-white border border-brand-border rounded-2xl shadow-lg overflow-hidden flex flex-col h-[calc(100dvh-140px)]">
+                            <div class="p-5 border-b border-stone-100 bg-brand-dark text-white flex justify-between items-center flex-shrink-0">
+                                <div>
+                                    <h3 class="font-black text-lg leading-none">Bestelling</h3>
+                                    <p class="text-[9px] uppercase font-bold text-stone-500 mt-1 tracking-widest">Overzicht</p>
+                                </div>
+                                <button v-if="orderLines.length > 0" @click="orderLines = []" class="text-[9px] font-black text-stone-500 hover:text-red-400 uppercase tracking-widest">Leeg</button>
                             </div>
 
-                            <strong>{{ formatter.format(line.quantity * line.price) }}</strong>
-                        </article>
-                    </div>
+                            <div class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
+                                <p v-if="orderLines.length === 0" class="text-stone-300 font-bold text-xs text-center italic py-10">Voeg items toe</p>
+                                <article v-for="line in orderLines" :key="line.id" class="flex items-center gap-3 group">
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-black text-stone-900 text-xs leading-tight truncate">{{ line.display_number }} {{ line.name }}</h4>
+                                        <p class="text-[9px] font-bold text-stone-400 mt-0.5">{{ formatter.format(line.price) }} / stuk</p>
+                                    </div>
+                                    <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
+                                        <button @click="decreaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
+                                        <span class="w-7 text-center font-black text-[10px]">{{ line.quantity }}</span>
+                                        <button @click="increaseQuantity(line)" class="w-7 h-7 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+                                    </div>
+                                    <span class="w-16 text-right font-black text-stone-900 text-xs">{{ formatter.format(line.quantity * line.price) }}</span>
+                                </article>
+                            </div>
 
-                    <footer class="admin-order-total">
-                        <span>Totaal</span>
-                        <strong>{{ formatter.format(orderTotal) }}</strong>
-                    </footer>
+                            <div class="p-6 bg-brand-light border-t border-stone-100 space-y-5 flex-shrink-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-black text-stone-400 uppercase text-[9px] tracking-widest">Subtotaal</span>
+                                    <span class="font-black text-2xl text-brand-red">{{ formatter.format(orderTotal) }}</span>
+                                </div>
 
-                    <button
-                        class="admin-checkout"
-                        type="button"
-                        :disabled="isCheckingOut || orderLines.length === 0"
-                        @click="checkoutOrder"
-                    >
-                        {{ isCheckingOut ? 'Afrekenen...' : 'Afrekenen' }}
-                    </button>
-                </aside>
+                                <button
+                                    @click="checkoutOrder"
+                                    :disabled="isCheckingOut || orderLines.length === 0"
+                                    class="w-full h-12 bg-brand-gold text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-lg hover:bg-[#854d03] active:scale-[0.98] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+                                >
+                                    <span v-if="isCheckingOut" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                                    {{ isCheckingOut ? 'Bezig...' : 'Afrekenen' }}
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
             </div>
         </section>
     </main>
 </template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+.font-sans {
+    font-family: 'DM Sans', sans-serif;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-brand-border);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-brand-gold);
+}
+</style>

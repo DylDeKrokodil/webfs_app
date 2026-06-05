@@ -96,16 +96,16 @@ onMounted(loadTables);
 </script>
 
 <template>
-    <main class="min-h-screen bg-[#FAFAF9] text-[#1C1917] flex font-sans antialiased">
+    <main class="min-h-screen bg-brand-light text-brand-dark flex font-sans antialiased">
         <!-- Sidebar - More Compact -->
-        <aside class="w-56 bg-[#1C1917] text-white flex flex-col sticky top-0 h-screen shadow-xl z-50">
+        <aside class="w-56 bg-brand-dark text-white flex flex-col sticky top-0 h-screen shadow-xl z-50">
             <div class="p-5 border-b border-white/5">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-[#7F1D1D] rounded-lg flex items-center justify-center shadow-lg border border-white/10">
+                    <div class="w-8 h-8 bg-brand-red rounded-lg flex items-center justify-center shadow-lg border border-white/10">
                         <span class="text-white font-black text-sm">G</span>
                     </div>
                     <div>
-                        <p class="text-[9px] uppercase tracking-widest font-black text-[#A16207]">Gouden Draak</p>
+                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Gouden Draak</p>
                         <h2 class="text-[10px] font-bold text-stone-500 uppercase">Admin</h2>
                     </div>
                 </div>
@@ -133,12 +133,12 @@ onMounted(loadTables);
 
         <!-- Workspace -->
         <section class="flex-1 min-w-0 flex flex-col">
-            <header class="bg-white border-b border-[#D6D3D1] px-6 py-4 sticky top-0 z-40 flex items-center justify-between">
+            <header class="bg-white border-b border-brand-border px-6 py-4 sticky top-0 z-40 flex items-center justify-between">
                 <div>
-                    <p class="text-[9px] uppercase tracking-widest font-black text-[#A16207]">Tafelbeheer</p>
+                    <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Tafelbeheer</p>
                     <h1 class="text-xl font-black leading-tight">Actieve Tafels</h1>
                 </div>
-                <button @click="loadTables" class="px-4 py-2 bg-[#FAFAF9] border border-[#D6D3D1] rounded-xl font-black text-[9px] uppercase tracking-widest text-stone-600 hover:bg-stone-50 hover:border-stone-400 active:scale-[0.98] transition-all shadow-sm">
+                <button @click="loadTables" class="px-4 py-2 bg-brand-light border border-brand-border rounded-xl font-black text-[9px] uppercase tracking-widest text-stone-600 hover:bg-stone-50 hover:border-stone-400 active:scale-[0.98] transition-all shadow-sm">
                     Verversen
                 </button>
             </header>
@@ -146,7 +146,7 @@ onMounted(loadTables);
             <div class="flex-1 p-6 overflow-y-auto">
                 <!-- Metrics - More Compact -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div v-for="(val, label) in { 'Actieve Tafels': tables.length, 'Open Items': totalOpenItems, 'Open Bedrag': formatter.format(totalOpenAmount), 'Geselecteerd': selectedTable ? `Tafel ${selectedTable.table_code}` : '-' }" :key="label" class="bg-white border border-[#D6D3D1] p-4 rounded-2xl shadow-sm">
+                    <div v-for="(val, label) in { 'Actieve Tafels': tables.length, 'Open Items': totalOpenItems, 'Open Bedrag': formatter.format(totalOpenAmount), 'Geselecteerd': selectedTable ? `Tafel ${selectedTable.table_code}` : '-' }" :key="label" class="bg-white border border-brand-border p-4 rounded-2xl shadow-sm">
                         <span class="block text-[9px] uppercase font-bold text-stone-400 tracking-wider mb-1">{{ label }}</span>
                         <strong class="block text-lg font-black text-stone-900">{{ val }}</strong>
                     </div>
@@ -155,27 +155,27 @@ onMounted(loadTables);
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     <!-- Tables List -->
                     <section class="lg:col-span-7 space-y-4">
-                        <div class="bg-white border border-[#D6D3D1] rounded-2xl shadow-sm overflow-hidden">
-                            <div class="px-6 py-4 border-b border-stone-100 bg-[#FAFAF9]/50">
+                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col h-[calc(100dvh-240px)]">
+                            <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
                                 <h3 class="font-black text-base text-stone-900">Wachtende Tafels</h3>
                                 <p class="text-[10px] font-bold text-stone-400">Beheer openstaande rekeningen</p>
                             </div>
 
-                            <div v-if="isLoading" class="p-12 text-center">
-                                <div class="w-8 h-8 border-3 border-stone-100 border-t-[#A16207] rounded-full animate-spin mx-auto"></div>
+                            <div v-if="isLoading" class="p-12 text-center flex-1">
+                                <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
                             </div>
-                            <div v-else-if="tables.length === 0" class="p-12 text-center space-y-2">
+                            <div v-else-if="tables.length === 0" class="p-12 text-center space-y-2 flex-1">
                                 <p class="font-black text-stone-300 italic text-sm">Geen openstaande bestellingen</p>
                             </div>
-                            <div v-else class="divide-y divide-stone-100">
+                            <div v-else class="divide-y divide-stone-100 flex-1 overflow-y-auto custom-scrollbar">
                                 <button
                                     v-for="table in tables"
                                     :key="table.table_code"
                                     @click="selectedTableCode = table.table_code"
-                                    class="w-full flex items-center gap-4 p-4 text-left transition-all hover:bg-[#FAFAF9]"
-                                    :class="selectedTable?.table_code === table.table_code ? 'bg-[#FFF7ED] ring-1 ring-inset ring-[#A16207]/30' : ''"
+                                    class="w-full flex items-center gap-4 p-4 text-left transition-all hover:bg-brand-light"
+                                    :class="selectedTable?.table_code === table.table_code ? 'bg-[#FFF7ED] ring-1 ring-inset ring-brand-gold/30' : ''"
                                 >
-                                    <div class="w-12 h-12 bg-[#1C1917] rounded-xl flex flex-col items-center justify-center text-white shadow-md">
+                                    <div class="w-12 h-12 bg-brand-dark rounded-xl flex flex-col items-center justify-center text-white shadow-md">
                                         <span class="text-[8px] uppercase font-bold text-stone-500 mb-px">Tafel</span>
                                         <span class="text-base font-black leading-none">{{ table.table_code }}</span>
                                     </div>
@@ -187,7 +187,7 @@ onMounted(loadTables);
                                         <p class="text-[10px] font-bold text-stone-400">Eerste ronde: {{ formatDate(table.first_order_at) }}</p>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-black text-lg text-[#7F1D1D] leading-none mb-1">{{ formatter.format(table.total) }}</p>
+                                        <p class="font-black text-lg text-brand-red leading-none mb-1">{{ formatter.format(table.total) }}</p>
                                         <p class="text-[8px] font-bold text-stone-400 uppercase tracking-widest">Openstaand</p>
                                     </div>
                                 </button>
@@ -196,9 +196,9 @@ onMounted(loadTables);
                     </section>
 
                     <!-- Receipt Preview -->
-                    <aside class="lg:col-span-5 sticky top-[100px]">
-                        <div class="bg-white border border-[#D6D3D1] rounded-2xl shadow-lg overflow-hidden flex flex-col max-h-[calc(100vh-140px)]">
-                            <div class="p-6 border-b border-stone-100 bg-[#1C1917] text-white">
+                    <aside class="lg:col-span-5 sticky top-0 self-start mb-6">
+                        <div class="bg-white border border-brand-border rounded-2xl shadow-lg overflow-hidden flex flex-col h-[calc(100dvh-240px)]">
+                            <div class="p-6 border-b border-stone-100 bg-brand-dark text-white flex-shrink-0">
                                 <div class="flex justify-between items-start mb-4">
                                     <div>
                                         <h3 class="font-black text-lg leading-none">Rekening</h3>
@@ -240,16 +240,16 @@ onMounted(loadTables);
                                     </div>
                                 </div>
 
-                                <div class="p-6 bg-[#FAFAF9] border-t border-stone-100 space-y-5">
+                                <div class="p-6 bg-brand-light border-t border-stone-100 space-y-5 flex-shrink-0">
                                     <div class="flex items-center justify-between">
                                         <span class="font-black text-stone-400 uppercase text-[9px] tracking-widest">Eindbedrag</span>
-                                        <span class="font-black text-2xl text-[#7F1D1D]">{{ formatter.format(selectedTable.total) }}</span>
+                                        <span class="font-black text-2xl text-brand-red">{{ formatter.format(selectedTable.total) }}</span>
                                     </div>
 
                                     <button
                                         @click="checkoutSelectedTable"
                                         :disabled="isCheckingOut"
-                                        class="w-full h-12 bg-[#A16207] text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-lg hover:bg-[#854d03] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                        class="w-full h-12 bg-brand-gold text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-lg hover:bg-[#854d03] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                     >
                                         <span v-if="isCheckingOut" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
                                         {{ isCheckingOut ? 'Bezig...' : 'Afrekenen (PDF)' }}
@@ -278,10 +278,10 @@ onMounted(loadTables);
     background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #D6D3D1;
+    background: var(--color-brand-border);
     border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #A16207;
+    background: var(--color-brand-gold);
 }
 </style>

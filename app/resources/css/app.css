@@ -8,6 +8,12 @@
         "DM Sans", "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
+
+    --color-brand-red: #7f1d1d;
+    --color-brand-gold: #a16207;
+    --color-brand-dark: #1c1917;
+    --color-brand-light: #fafaf9;
+    --color-brand-border: #d6d3d1;
 }
 
 @font-face {
