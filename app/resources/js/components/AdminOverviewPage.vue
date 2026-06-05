@@ -12,22 +12,10 @@ const formatInputDate = (date) => {
     return `${year}-${month}-${day}`;
 };
 
-const currentWeek = (() => {
-    const start = new Date();
-    const day = start.getDay() || 7;
-    start.setDate(start.getDate() - day + 1);
+const today = formatInputDate(new Date());
 
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    return {
-        start: formatInputDate(start),
-        end: formatInputDate(end),
-    };
-})();
-
-const startDate = ref(currentWeek.start);
-const endDate = ref(currentWeek.end);
+const startDate = ref(today);
+const endDate = ref(today);
 const lines = ref([]);
 const summary = ref({
     lines_count: 0,
@@ -39,7 +27,7 @@ const summary = ref({
 });
 const isLoading = ref(false);
 const hasLoaded = ref(false);
-const activePreset = ref('this_week');
+const activePreset = ref('today');
 
 const formatter = new Intl.NumberFormat('nl-NL', {
     style: 'currency',
@@ -72,6 +60,18 @@ const getWeekRange = (date) => {
 };
 
 const periodPresets = [
+    {
+        key: 'today',
+        label: 'Vandaag',
+        range: () => {
+            const todayDate = new Date();
+
+            return {
+                start: todayDate,
+                end: todayDate,
+            };
+        },
+    },
     {
         key: 'this_week',
         label: 'Deze week',
