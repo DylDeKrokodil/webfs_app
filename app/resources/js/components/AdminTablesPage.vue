@@ -121,6 +121,9 @@ onMounted(loadTables);
                 <a href="/admin/tafels" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs bg-white/10 text-white shadow-inner">
                     <span>Tafels</span>
                 </a>
+                <a href="/admin/overzicht" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs text-stone-400 hover:bg-white/5 hover:text-white transition-all">
+                    <span>Overzicht</span>
+                </a>
             </nav>
 
             <form action="/logout" method="POST" class="p-3 border-t border-white/5">
