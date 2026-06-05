@@ -4,7 +4,7 @@ const dragonSmallFlipped = '/images/dragon-small-flipped.png';
 const dragonLarge = '/images/dragon-large.png';
 
 const navigationItems = [
-    { label: 'Menukaart', href: '/api/menu-items' },
+    { label: 'Menukaart', href: '/menukaart' },
     { label: 'Nieuws', href: '/#nieuws' },
     { label: 'Contact', href: '/contact' },
 ];
@@ -60,7 +60,7 @@ const frameCells = Array.from({ length: 81 }, (_, index) => {
         <header class="legacy-topbar">
             <div class="legacy-brand legacy-brand-left" aria-label="De Gouden Draak">
                 <img :src="dragonSmall" alt="">
-                <span>DE GOUDEN DRAAK</span>
+                <span>De Gouden Draak</span>
                 <img :src="dragonSmallFlipped" alt="">
             </div>
 
@@ -70,7 +70,7 @@ const frameCells = Array.from({ length: 81 }, (_, index) => {
 
             <div class="legacy-brand" aria-label="De Gouden Draak">
                 <img :src="dragonSmall" alt="">
-                <span>DE GOUDEN DRAAK</span>
+                <span>De Gouden Draak</span>
                 <img :src="dragonSmallFlipped" alt="">
             </div>
         </header>
