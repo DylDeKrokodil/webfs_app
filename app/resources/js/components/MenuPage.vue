@@ -16,6 +16,12 @@ const menuPages = [
 <template>
     <LegacyPageShell>
         <section class="legacy-menu-page" aria-label="Menukaart">
+            <div class="legacy-menu-actions">
+                <a class="legacy-menu-download" href="/menukaart.pdf">
+                    Download actuele menukaart als PDF
+                </a>
+            </div>
+
             <img
                 v-for="menuPage in menuPages"
                 :key="menuPage.src"

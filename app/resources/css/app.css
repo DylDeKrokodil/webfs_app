@@ -455,6 +455,32 @@
     gap: 0;
 }
 
+.legacy-menu-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 0 12px;
+}
+
+.legacy-menu-download {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    border: 2px solid #d7b56d;
+    background: #7f1d1d;
+    color: #fff7d6;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 8px 14px;
+    text-decoration: none;
+}
+
+.legacy-menu-download:hover,
+.legacy-menu-download:focus {
+    background: #5f1515;
+    color: #fff7d6;
+}
+
 .legacy-menu-image {
     display: block;
     width: 100%;

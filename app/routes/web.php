@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\TableReceiptController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MenuItemController;
+use App\Http\Controllers\MenuPdfController;
 use App\Http\Controllers\OrderLineNoteSuggestionController;
 use App\Http\Controllers\TabletOrderController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,7 @@ Route::get('/', function () {
 
 Route::view('/contact', 'app');
 Route::view('/menukaart', 'app');
+Route::get('/menukaart.pdf', MenuPdfController::class)->name('public.menu.pdf');
 Route::view('/tablet', 'app');
 Route::view('/tablet/{tableNumber}', 'app')
     ->whereNumber('tableNumber');
