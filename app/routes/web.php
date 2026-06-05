@@ -11,6 +11,7 @@ use App\Http\Controllers\MenuPdfController;
 use App\Http\Controllers\OrderLineNoteSuggestionController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\TabletOrderController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -74,3 +75,13 @@ Route::get('/api/tablet/tables/{tableNumber}/status', [TabletOrderController::cl
 Route::get('/api/tablet/tables/{tableNumber}/history', [TabletOrderController::class, 'history'])
     ->whereNumber('tableNumber');
 Route::post('/api/tablet/orders', [TabletOrderController::class, 'store']);
+
+Route::fallback(function (Request $request) {
+    if ($request->is('api/*')) {
+        return response()->json([
+            'message' => 'Niet gevonden.',
+        ], 404);
+    }
+
+    return response()->view('app', [], 404);
+});

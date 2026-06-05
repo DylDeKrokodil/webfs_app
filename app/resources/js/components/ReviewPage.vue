@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 
+const brandLogo = '/images/brand/de-gouden-draak-emblem.png';
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 const token = window.location.pathname.match(/^\/review\/([A-Za-z0-9]+)$/)?.[1] ?? '';
 
@@ -146,9 +147,13 @@ onMounted(loadInvite);
         <section class="min-h-screen px-4 py-6 sm:px-6 lg:px-8 flex items-center">
             <div class="w-full max-w-3xl mx-auto">
                 <div class="flex items-center justify-between gap-4 mb-6">
-                    <a href="/" class="inline-flex items-center gap-3 text-stone-800 font-black">
-                        <span class="w-10 h-10 bg-[#8b1e1e] text-white rounded-lg flex items-center justify-center shadow-lg">GD</span>
-                        <span>De Gouden Draak</span>
+                    <a href="/" class="brand-lockup text-stone-800 font-black">
+                        <img
+                            class="brand-lockup-mark"
+                            :src="brandLogo"
+                            alt="De Gouden Draak logo"
+                        >
+                        <span class="brand-lockup-wordmark text-[#8b1e1e]">De Gouden Draak</span>
                     </a>
                     <span class="text-xs font-black uppercase tracking-[0.2em] text-[#a6792f]">{{ tableLabel }}</span>
                 </div>

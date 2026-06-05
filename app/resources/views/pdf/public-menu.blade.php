@@ -27,16 +27,9 @@
         }
 
         .logo {
-            display: inline-block;
-            width: 15mm;
-            height: 15mm;
-            border: 0.5mm solid #d7b56d;
-            background: #7f1d1d;
-            color: #fff7d6;
-            font-size: 15px;
-            font-weight: 800;
-            line-height: 14mm;
-            text-align: center;
+            width: 26mm;
+            height: 26mm;
+            object-fit: contain;
         }
 
         h1,
@@ -157,7 +150,7 @@
 </head>
 <body>
     <header class="header">
-        <div class="logo">GD</div>
+        <img class="logo" src="{{ public_path('images/brand/de-gouden-draak-emblem.png') }}" alt="De Gouden Draak logo">
         <h1>Menukaart De Gouden Draak</h1>
         <p class="meta">Gegenereerd op {{ $generatedAt->format('d-m-Y H:i') }}</p>
     </header>
@@ -187,7 +180,7 @@
 
         <section class="offers-page">
             <header class="header">
-                <div class="logo">GD</div>
+                <img class="logo" src="{{ public_path('images/brand/de-gouden-draak-emblem.png') }}" alt="De Gouden Draak logo">
                 <h1>Aanbiedingen</h1>
                 <p class="meta">Actuele aanbiedingen bij De Gouden Draak</p>
             </header>

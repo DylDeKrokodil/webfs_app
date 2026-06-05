@@ -67,6 +67,14 @@ class ReviewController extends Controller
 
     private function invite(string $token): ReviewInvite
     {
-        return ReviewInvite::where('token', $token)->firstOrFail();
+        $invite = ReviewInvite::where('token', $token)->first();
+
+        if (! $invite) {
+            abort(response()->json([
+                'message' => 'Deze reviewlink is niet geldig of is verlopen.',
+            ], 404));
+        }
+
+        return $invite;
     }
 }

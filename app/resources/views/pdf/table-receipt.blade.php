@@ -31,16 +31,9 @@
         }
 
         .receipt-logo {
-            display: inline-block;
-            width: 10mm;
-            height: 10mm;
-            border: 0.4mm solid #d7b56d;
-            background: #7f1d1d;
-            color: #fff7d6;
-            font-size: 10px;
-            font-weight: 800;
-            line-height: 9.2mm;
-            text-align: center;
+            width: 16mm;
+            height: 16mm;
+            object-fit: contain;
         }
 
         h1 {
@@ -195,7 +188,7 @@
 <body>
     <main class="receipt">
         <header class="receipt-header">
-            <div class="receipt-logo">GD</div>
+            <img class="receipt-logo" src="{{ public_path('images/brand/de-gouden-draak-emblem.png') }}" alt="De Gouden Draak logo">
             <h1>De Gouden Draak</h1>
             <div>Restaurantrekening</div>
         </header>

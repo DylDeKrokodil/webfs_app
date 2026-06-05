@@ -7,6 +7,7 @@ import AdminTablesPage from './AdminTablesPage.vue';
 import ContactPage from './ContactPage.vue';
 import HomePage from './HomePage.vue';
 import MenuPage from './MenuPage.vue';
+import NotFoundPage from './NotFoundPage.vue';
 import ReviewPage from './ReviewPage.vue';
 import TabletPage from './TabletPage.vue';
 import ToastHost from './ToastHost.vue';
@@ -31,7 +32,7 @@ const currentPage = computed(() => {
         return ReviewPage;
     }
 
-    return pageComponents[window.location.pathname] ?? HomePage;
+    return pageComponents[window.location.pathname] ?? NotFoundPage;
 });
 </script>
 

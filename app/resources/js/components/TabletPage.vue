@@ -6,6 +6,7 @@ import { currencyFormatter as formatter } from '../services/formatters';
 import { fetchPublicMenuItems } from '../services/menuApi';
 import { toastService } from '../services/toastService';
 
+const brandLogo = '/images/brand/de-gouden-draak-emblem.png';
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 const params = new URLSearchParams(window.location.search);
 const pathTableNumber = window.location.pathname.match(/^\/tablet\/(\d+)$/)?.[1] ?? '';
@@ -224,12 +225,14 @@ onUnmounted(() => {
         <!-- Compact Header -->
         <header class="bg-white border-b border-brand-border px-5 py-3 sticky top-0 z-50 shadow-sm">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center shadow-md">
-                        <span class="text-white font-black text-lg">D</span>
-                    </div>
+                <div class="brand-lockup">
+                    <img
+                        class="brand-lockup-mark"
+                        :src="brandLogo"
+                        alt="De Gouden Draak logo"
+                    >
                     <div>
-                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Gouden Draak</p>
+                        <p class="brand-lockup-wordmark text-brand-gold">De Gouden Draak</p>
                         <h1 class="text-xl font-black leading-none">
                             {{ tableNumber ? `Tafel ${tableNumber}` : 'Geen tafel' }}
                         </h1>

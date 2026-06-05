@@ -1,4 +1,6 @@
 <script setup>
+const brandLogo = '/images/brand/de-gouden-draak-emblem.png';
+
 defineProps({
     isOpen: {
         type: Boolean,
@@ -31,12 +33,14 @@ defineEmits(['close']);
         :class="isOpen ? 'translate-x-0' : '-translate-x-full'"
     >
         <div class="p-5 border-b border-white/5 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-brand-red rounded-lg flex items-center justify-center border border-white/10">
-                    <span class="text-white font-black text-sm">G</span>
-                </div>
-                <div>
-                    <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Gouden Draak</p>
+            <div class="flex items-center gap-2 min-w-0">
+                <img
+                    class="brand-lockup-mark w-10 h-10"
+                    :src="brandLogo"
+                    alt="De Gouden Draak logo"
+                >
+                <div class="min-w-0">
+                    <p class="brand-lockup-wordmark is-small text-brand-gold">De Gouden Draak</p>
                     <h2 class="text-[10px] font-bold text-stone-500 uppercase">Admin</h2>
                 </div>
             </div>
