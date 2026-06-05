@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\ReviewInvite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -85,6 +86,10 @@ class AdminTableReceiptTest extends TestCase
             ->assertHeader('Content-Type', 'application/pdf');
 
         $this->assertStringStartsWith('%PDF', $response->baseResponse->getContent());
+        $this->assertDatabaseHas('review_invites', [
+            'table_code' => '12',
+        ]);
+        $this->assertCount(1, ReviewInvite::all());
     }
 
     private function adminUser(): User
