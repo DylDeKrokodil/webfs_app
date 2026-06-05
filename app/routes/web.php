@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\TableReceiptController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\TabletOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::redirect('/admin', '/admin/menu');
+    Route::view('/admin/tafels', 'app');
     Route::view('/admin/kassa', 'app');
     Route::view('/admin/menu', 'app');
 
@@ -35,7 +37,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::apiResource('menu-items', AdminMenuItemController::class)
             ->only(['index', 'store', 'update', 'destroy']);
         Route::post('orders', [AdminOrderController::class, 'store']);
+        Route::get('table-receipts', [TableReceiptController::class, 'index']);
+        Route::post('table-receipts/{tableCode}/checkout', [TableReceiptController::class, 'checkout'])
+            ->where('tableCode', '[A-Za-z0-9_-]+');
     });
+
+    Route::get('/admin/table-receipts/{tableCode}.pdf', [TableReceiptController::class, 'pdf'])
+        ->where('tableCode', '[A-Za-z0-9_-]+')
+        ->name('admin.table-receipts.pdf');
 });
 
 Route::get('/api/menu-items', [MenuItemController::class, 'index']);

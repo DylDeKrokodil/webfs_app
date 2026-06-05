@@ -100,8 +100,9 @@ class TabletOrderController extends Controller
     {
         $orders = Order::query()
             ->where('channel', 'tablet')
+            ->where('status', 'submitted')
+            ->whereNull('paid_at')
             ->where('table_code', (string) $tableNumber)
-            ->whereDate('created_at', today())
             ->latest()
             ->get(['id', 'created_at']);
 

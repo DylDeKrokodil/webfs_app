@@ -128,6 +128,28 @@ class TabletOrderTest extends TestCase
             ]);
     }
 
+    public function test_paid_table_orders_do_not_count_towards_new_table_rounds(): void
+    {
+        Carbon::setTestNow('2026-06-05 12:00:00');
+
+        $this->createTabletOrder(tableNumber: 1, minutesAgo: 20)
+            ->update([
+                'status' => 'paid',
+                'paid_at' => now()->subMinutes(5),
+            ]);
+        $this->createTabletOrder(tableNumber: 1, minutesAgo: 15)
+            ->update([
+                'status' => 'paid',
+                'paid_at' => now()->subMinutes(5),
+            ]);
+
+        $this->getJson('/api/tablet/tables/1/status')
+            ->assertOk()
+            ->assertJsonPath('data.can_order', true)
+            ->assertJsonPath('data.rounds_used', 0)
+            ->assertJsonPath('data.cooldown_seconds', 0);
+    }
+
     private function createMenuItem(float $price = 9.50): MenuItem
     {
         $category = MenuCategory::create([

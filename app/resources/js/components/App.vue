@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import AdminKassaPage from './AdminKassaPage.vue';
 import AdminMenuPage from './AdminMenuPage.vue';
+import AdminTablesPage from './AdminTablesPage.vue';
 import ContactPage from './ContactPage.vue';
 import HomePage from './HomePage.vue';
 import MenuPage from './MenuPage.vue';
@@ -15,6 +16,7 @@ const pageComponents = {
     '/tablet': TabletPage,
     '/admin/kassa': AdminKassaPage,
     '/admin/menu': AdminMenuPage,
+    '/admin/tafels': AdminTablesPage,
 };
 
 const currentPage = computed(() => {
