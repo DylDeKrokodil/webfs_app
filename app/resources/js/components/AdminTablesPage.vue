@@ -1,8 +1,10 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import AdminSidebar from './AdminSidebar.vue';
 import { toastService } from '../services/toastService';
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+const isSidebarOpen = ref(false);
 
 const tables = ref([]);
 const selectedTableCode = ref('');
@@ -97,49 +99,19 @@ onMounted(loadTables);
 
 <template>
     <main class="min-h-screen bg-brand-light text-brand-dark flex font-sans antialiased">
-        <!-- Sidebar - More Compact -->
-        <aside class="w-56 bg-brand-dark text-white flex flex-col sticky top-0 h-screen shadow-xl z-50">
-            <div class="p-5 border-b border-white/5">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-brand-red rounded-lg flex items-center justify-center shadow-lg border border-white/10">
-                        <span class="text-white font-black text-sm">G</span>
-                    </div>
-                    <div>
-                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Gouden Draak</p>
-                        <h2 class="text-[10px] font-bold text-stone-500 uppercase">Admin</h2>
-                    </div>
-                </div>
-            </div>
-
-            <nav class="flex-1 p-3 space-y-1">
-                <a href="/admin/menu" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs text-stone-400 hover:bg-white/5 hover:text-white transition-all">
-                    <span>Menukaart</span>
-                </a>
-                <a href="/admin/kassa" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs text-stone-400 hover:bg-white/5 hover:text-white transition-all">
-                    <span>Kassa</span>
-                </a>
-                <a href="/admin/tafels" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs bg-white/10 text-white shadow-inner">
-                    <span>Tafels</span>
-                </a>
-                <a href="/admin/overzicht" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs text-stone-400 hover:bg-white/5 hover:text-white transition-all">
-                    <span>Overzicht</span>
-                </a>
-            </nav>
-
-            <form action="/logout" method="POST" class="p-3 border-t border-white/5">
-                <input type="hidden" name="_token" :value="csrfToken">
-                <button type="submit" class="w-full py-2 rounded-lg font-black text-[9px] uppercase tracking-widest text-stone-500 hover:text-red-400 transition-colors">
-                    Log uit
-                </button>
-            </form>
-        </aside>
+        <AdminSidebar :is-open="isSidebarOpen" active-page="tafels" :csrf-token="csrfToken" @close="isSidebarOpen = false" />
 
         <!-- Workspace -->
         <section class="flex-1 min-w-0 flex flex-col">
             <header class="bg-white border-b border-brand-border px-6 py-4 sticky top-0 z-40 flex items-center justify-between">
-                <div>
-                    <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Tafelbeheer</p>
-                    <h1 class="text-xl font-black leading-tight">Actieve Tafels</h1>
+                <div class="flex items-center gap-4">
+                    <button @click="isSidebarOpen = true" class="lg:hidden p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                    <div>
+                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Tafelbeheer</p>
+                        <h1 class="text-xl font-black leading-tight">Actieve Tafels</h1>
+                    </div>
                 </div>
                 <button @click="loadTables" class="px-4 py-2 bg-brand-light border border-brand-border rounded-xl font-black text-[9px] uppercase tracking-widest text-stone-600 hover:bg-stone-50 hover:border-stone-400 active:scale-[0.98] transition-all shadow-sm">
                     Verversen
