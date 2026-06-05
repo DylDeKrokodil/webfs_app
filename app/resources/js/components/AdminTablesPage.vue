@@ -8,9 +8,11 @@ import { toastService } from '../services/toastService';
 const { csrfToken, isSidebarOpen } = useAdminShell();
 
 const tables = ref([]);
+const assistanceRequests = ref([]);
 const selectedTableCode = ref('');
 const isLoading = ref(true);
 const isCheckingOut = ref(false);
+const resolvingAssistanceRequestId = ref(null);
 const errorMessage = ref('');
 
 const selectedTable = computed(() =>
@@ -25,6 +27,8 @@ const totalOpenItems = computed(() =>
     tables.value.reduce((sum, table) => sum + Number(table.items_count), 0),
 );
 
+const openAssistanceCount = computed(() => assistanceRequests.value.length);
+
 const formatDate = (value) => {
     if (!value) return '-';
     return dateFormatter.format(new Date(value));
@@ -35,13 +39,22 @@ const loadTables = async () => {
     errorMessage.value = '';
 
     try {
-        const response = await fetch('/api/admin/table-receipts', {
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
-        });
+        const [tableResponse, assistanceResponse] = await Promise.all([
+            fetch('/api/admin/table-receipts', {
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            }),
+            fetch('/api/admin/table-assistance-requests', {
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            }),
+        ]);
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(payload.message || 'Laden mislukt.');
-        tables.value = payload.tables ?? [];
+        const tablePayload = await tableResponse.json().catch(() => ({}));
+        if (!tableResponse.ok) throw new Error(tablePayload.message || 'Tafels laden mislukt.');
+        tables.value = tablePayload.tables ?? [];
+
+        const assistancePayload = await assistanceResponse.json().catch(() => ({}));
+        if (!assistanceResponse.ok) throw new Error(assistancePayload.message || 'Hulpvragen laden mislukt.');
+        assistanceRequests.value = assistancePayload.data ?? [];
 
         if (tables.value.length > 0 && !tables.value.some((table) => table.table_code === selectedTableCode.value)) {
             selectedTableCode.value = tables.value[0].table_code;
@@ -51,6 +64,30 @@ const loadTables = async () => {
         toastService.error(errorMessage.value);
     } finally {
         isLoading.value = false;
+    }
+};
+
+const resolveAssistanceRequest = async (request) => {
+    resolvingAssistanceRequestId.value = request.id;
+    try {
+        const response = await fetch(`/api/admin/table-assistance-requests/${request.id}/resolve`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.message || 'Afmelden mislukt.');
+
+        toastService.success(payload.message || `Hulpvraag tafel ${request.table_code} afgemeld.`);
+        assistanceRequests.value = assistanceRequests.value.filter((item) => item.id !== request.id);
+    } catch (error) {
+        toastService.error(error.message);
+    } finally {
+        resolvingAssistanceRequestId.value = null;
     }
 };
 
@@ -109,12 +146,50 @@ onMounted(loadTables);
 
             <div class="flex-1 min-h-0 p-4 lg:p-6 overflow-y-auto lg:overflow-hidden flex flex-col gap-4">
                 <!-- Metrics - More Compact -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 flex-shrink-0">
-                    <div v-for="(val, label) in { 'Actieve Tafels': tables.length, 'Open Items': totalOpenItems, 'Open Bedrag': formatter.format(totalOpenAmount), 'Geselecteerd': selectedTable ? `Tafel ${selectedTable.table_code}` : '-' }" :key="label" class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 flex-shrink-0">
+                    <div v-for="(val, label) in { 'Actieve Tafels': tables.length, 'Open Items': totalOpenItems, 'Hulpvragen': openAssistanceCount, 'Open Bedrag': formatter.format(totalOpenAmount), 'Geselecteerd': selectedTable ? `Tafel ${selectedTable.table_code}` : '-' }" :key="label" class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
                         <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">{{ label }}</span>
                         <strong class="block text-lg font-black text-stone-900 leading-none">{{ val }}</strong>
                     </div>
                 </div>
+
+                <section
+                    v-if="assistanceRequests.length > 0"
+                    class="bg-white border border-brand-gold/40 rounded-2xl shadow-sm overflow-hidden flex-shrink-0"
+                >
+                    <div class="px-5 py-3 bg-[#FFF7ED] border-b border-[#FED7AA] flex items-center justify-between gap-3">
+                        <div>
+                            <h2 class="font-black text-sm text-stone-900">Hulpvragen</h2>
+                            <p class="text-[10px] font-bold text-stone-600">{{ assistanceRequests.length }} tafel(s) wachten op een ober</p>
+                        </div>
+                        <span class="w-9 h-9 rounded-xl bg-brand-gold text-white flex items-center justify-center font-black text-sm">
+                            {{ assistanceRequests.length }}
+                        </span>
+                    </div>
+                    <div class="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                        <article
+                            v-for="request in assistanceRequests"
+                            :key="request.id"
+                            class="border border-stone-100 rounded-xl p-3 flex items-center gap-3"
+                        >
+                            <div class="w-11 h-11 bg-brand-dark rounded-xl flex flex-col items-center justify-center text-white shadow-sm flex-shrink-0">
+                                <span class="text-[7px] uppercase font-bold text-stone-300 mb-px">Tafel</span>
+                                <span class="text-sm font-black leading-none">{{ request.table_code }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-black text-stone-900 text-xs">Ober gevraagd</p>
+                                <p class="text-[9px] font-bold text-stone-600">{{ formatDate(request.created_at) }}</p>
+                            </div>
+                            <button
+                                @click="resolveAssistanceRequest(request)"
+                                :disabled="resolvingAssistanceRequestId === request.id"
+                                class="h-9 px-3 bg-brand-gold text-white rounded-lg font-black uppercase tracking-widest text-[8px] disabled:opacity-50"
+                            >
+                                {{ resolvingAssistanceRequestId === request.id ? '...' : 'Afmelden' }}
+                            </button>
+                        </article>
+                    </div>
+                </section>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch flex-1 min-h-0">
                     <!-- Tables List -->

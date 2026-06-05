@@ -27,6 +27,7 @@ const cooldownRemainingSeconds = ref(0);
 const isLoading = ref(true);
 const isHistoryLoading = ref(false);
 const isSubmitting = ref(false);
+const isRequestingAssistance = ref(false);
 const isRefreshingStatus = ref(false);
 const activeTabletPanel = ref('menu');
 const activeMenuCategory = ref('');
@@ -88,6 +89,7 @@ const hasRoundsAvailable = computed(() => {
 });
 
 const canOrder = computed(() => hasRoundsAvailable.value && cooldownRemainingSeconds.value === 0);
+const activeAssistanceRequest = computed(() => tableStatus.value?.assistance_request ?? null);
 const cooldownDisplay = computed(() => {
     const minutes = Math.floor(cooldownRemainingSeconds.value / 60);
     const seconds = cooldownRemainingSeconds.value % 60;
@@ -210,6 +212,30 @@ const submitOrder = async () => {
     } finally { isSubmitting.value = false; }
 };
 
+const requestAssistance = async () => {
+    if (!tableNumber.value || activeAssistanceRequest.value || isRequestingAssistance.value) return;
+    isRequestingAssistance.value = true;
+    try {
+        const response = await fetch(`/api/tablet/tables/${tableNumber.value}/assistance-requests`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.message || 'Hulpvraag kon niet worden verstuurd.');
+
+        toastService.success(payload.message || 'Een ober komt zo naar uw tafel.');
+        await loadTableStatus();
+    } catch (error) {
+        toastService.error(error.message);
+    } finally {
+        isRequestingAssistance.value = false;
+    }
+};
+
 onMounted(() => {
     startCooldownTimer();
     loadTabletData();
@@ -240,6 +266,14 @@ onUnmounted(() => {
                 </div>
 
                 <div class="flex items-center gap-5">
+                    <button
+                        @click="requestAssistance"
+                        :disabled="!tableNumber || !!activeAssistanceRequest || isRequestingAssistance"
+                        class="hidden sm:flex h-10 px-4 items-center justify-center gap-2 bg-brand-dark text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-sm transition-all active:scale-[0.98] disabled:opacity-45"
+                    >
+                        <span v-if="isRequestingAssistance" class="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                        {{ activeAssistanceRequest ? 'Ober onderweg' : 'Ober roepen' }}
+                    </button>
                     <div v-if="tableStatus" class="flex gap-3">
                         <div class="text-right hidden sm:block">
                             <p class="text-[9px] uppercase font-bold text-stone-600">Ronde</p>
@@ -351,6 +385,32 @@ onUnmounted(() => {
 
             <!-- Right Side: Order Summary -->
             <aside class="lg:col-span-4 space-y-5 sticky top-[80px] self-start max-h-[calc(100dvh-100px)] overflow-y-auto custom-scrollbar pr-1">
+                <!-- Assistance -->
+                <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="font-black text-xs uppercase tracking-widest text-stone-700">Hulp nodig?</h2>
+                            <p class="text-[10px] font-bold text-stone-600 mt-1">
+                                {{ activeAssistanceRequest ? 'Een ober is gewaarschuwd.' : 'Roep een ober naar uw tafel.' }}
+                            </p>
+                        </div>
+                        <span
+                            class="w-9 h-9 rounded-xl flex items-center justify-center border"
+                            :class="activeAssistanceRequest ? 'bg-[#FFF7ED] border-[#FED7AA] text-brand-gold' : 'bg-stone-50 border-stone-100 text-stone-700'"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        </span>
+                    </div>
+                    <button
+                        @click="requestAssistance"
+                        :disabled="!tableNumber || !!activeAssistanceRequest || isRequestingAssistance"
+                        class="w-full h-11 bg-brand-dark text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-md transition-all active:scale-[0.98] disabled:opacity-45 flex items-center justify-center gap-2"
+                    >
+                        <span v-if="isRequestingAssistance" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                        {{ activeAssistanceRequest ? 'Ober is onderweg' : 'Ober roepen' }}
+                    </button>
+                </div>
+
                 <!-- Current Order -->
                 <div class="bg-white border border-brand-border rounded-2xl shadow-lg flex flex-col h-fit">
                     <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">

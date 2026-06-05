@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MenuItem;
 use App\Models\Order;
+use App\Models\TableAssistanceRequest;
 use App\Support\OrderLineNoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -157,7 +158,27 @@ class TabletOrderController extends Controller
             'max_rounds' => self::MAX_ROUNDS_PER_TABLE,
             'cooldown_seconds' => $cooldownSeconds,
             'next_order_at' => $cooldownSeconds > 0 ? $cooldownEndsAt?->toIso8601String() : null,
+            'assistance_request' => $this->openAssistanceRequest($tableNumber),
             'message' => $message,
+        ];
+    }
+
+    private function openAssistanceRequest(int $tableNumber): ?array
+    {
+        $request = TableAssistanceRequest::query()
+            ->where('table_code', (string) $tableNumber)
+            ->whereNull('resolved_at')
+            ->latest()
+            ->first();
+
+        if ($request === null) {
+            return null;
+        }
+
+        return [
+            'id' => $request->id,
+            'table_code' => $request->table_code,
+            'created_at' => $request->created_at?->toIso8601String(),
         ];
     }
 

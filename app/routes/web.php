@@ -5,11 +5,13 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\OrderLineOverviewController;
 use App\Http\Controllers\Admin\SalesSummaryController;
 use App\Http\Controllers\Admin\TableReceiptController;
+use App\Http\Controllers\Admin\TableAssistanceRequestController as AdminTableAssistanceRequestController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MenuPdfController;
 use App\Http\Controllers\OrderLineNoteSuggestionController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\TableAssistanceRequestController;
 use App\Http\Controllers\TabletOrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +52,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('orders', [AdminOrderController::class, 'store']);
         Route::get('order-line-overview', [OrderLineOverviewController::class, 'index']);
         Route::get('sales-summaries', [SalesSummaryController::class, 'index']);
+        Route::get('table-assistance-requests', [AdminTableAssistanceRequestController::class, 'index']);
+        Route::post('table-assistance-requests/{tableAssistanceRequest}/resolve', [AdminTableAssistanceRequestController::class, 'resolve'])
+            ->whereNumber('tableAssistanceRequest');
         Route::get('table-receipts', [TableReceiptController::class, 'index']);
         Route::post('table-receipts/{tableCode}/checkout', [TableReceiptController::class, 'checkout'])
             ->where('tableCode', '[A-Za-z0-9_-]+');
@@ -73,6 +78,8 @@ Route::post('/api/reviews/{token}', [ReviewController::class, 'store'])
 Route::get('/api/tablet/tables/{tableNumber}/status', [TabletOrderController::class, 'status'])
     ->whereNumber('tableNumber');
 Route::get('/api/tablet/tables/{tableNumber}/history', [TabletOrderController::class, 'history'])
+    ->whereNumber('tableNumber');
+Route::post('/api/tablet/tables/{tableNumber}/assistance-requests', [TableAssistanceRequestController::class, 'store'])
     ->whereNumber('tableNumber');
 Route::post('/api/tablet/orders', [TabletOrderController::class, 'store']);
 
