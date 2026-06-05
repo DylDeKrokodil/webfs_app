@@ -33,6 +33,7 @@ const activeTabletPanel = ref('menu');
 const activeMenuCategory = ref('');
 const menuSearchQuery = ref('');
 const repeatedSourceOrderId = ref(null);
+const checkoutData = ref(null);
 const errorMessage = ref('');
 const orderMessage = ref('');
 let cooldownIntervalId = null;
@@ -172,6 +173,14 @@ const loadTabletData = async () => {
     } finally { isLoading.value = false; }
 };
 
+const resetTablet = () => {
+    checkoutData.value = null;
+    tableStatus.value = null;
+    orderHistory.value = [];
+    clearOrderLines();
+    loadTabletData(); // Re-fetch status for the next guest
+};
+
 const repeatOrder = (order) => {
     setOrderLinesFromHistory(order.lines);
     repeatedSourceOrderId.value = order.id;
@@ -236,9 +245,38 @@ const requestAssistance = async () => {
     }
 };
 
+const setupRealtime = () => {
+    if (!window.Echo || !tableNumber.value) return;
+
+    window.Echo.channel('admin-notifications')
+        .listen('.TableAssistanceRequestResolved', (data) => {
+            console.log('Real-time: Assistance Resolved', data);
+            if (tableStatus.value?.assistance_request?.id === data.id) {
+                tableStatus.value.assistance_request = null;
+                toastService.info('De ober heeft uw hulpvraag afgemeld.');
+            }
+        })
+        .listen('.TableAssistanceRequestCreated', (data) => {
+            console.log('Real-time: Assistance Created', data);
+            // If another device on the same table created it, we should know
+            if (String(data.table_code) === String(tableNumber.value)) {
+                if (!tableStatus.value) tableStatus.value = {};
+                tableStatus.value.assistance_request = data;
+            }
+        });
+
+    window.Echo.channel(`table.${tableNumber.value}`)
+        .listen('.TableCheckoutInitiated', (data) => {
+            console.log('Real-time: Table Checkout', data);
+            checkoutData.value = data;
+            clearOrderLines();
+        });
+};
+
 onMounted(() => {
     startCooldownTimer();
     loadTabletData();
+    setupRealtime();
 });
 
 onUnmounted(() => {
@@ -293,6 +331,49 @@ onUnmounted(() => {
                 </div>
             </div>
         </header>
+
+        <!-- Checkout Success Overlay -->
+        <Transition
+            enter-active-class="transition duration-300 ease-out"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+        >
+            <div v-if="checkoutData" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
+                <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-brand-gold/20">
+                    <div class="w-20 h-20 bg-brand-light rounded-2xl flex items-center justify-center mx-auto mb-6 text-brand-gold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+
+                    <h2 class="text-3xl font-black text-stone-900 mb-2">Bedankt!</h2>
+                    <p class="text-stone-600 font-bold mb-8">We hopen dat u genoten heeft van uw bezoek aan De Gouden Draak.</p>
+
+                    <div class="bg-stone-50 rounded-2xl p-6 mb-8 border border-stone-100">
+                        <p class="text-[10px] uppercase font-black text-stone-500 tracking-widest mb-1">Totaalbedrag betaald</p>
+                        <p class="text-4xl font-black text-brand-red">{{ formatter.format(checkoutData.total_amount) }}</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <a
+                            :href="checkoutData.review_url"
+                            class="block w-full h-14 bg-brand-gold text-white rounded-xl font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg hover:bg-[#854d03] transition-all"
+                        >
+                            <span>Laat een review achter</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </a>
+
+                        <button
+                            @click="resetTablet"
+                            class="block w-full py-4 text-stone-500 font-black uppercase tracking-widest text-[10px] hover:text-stone-900 transition-colors"
+                        >
+                            Nieuwe Tafel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
 
         <div class="max-w-7xl mx-auto p-4 md:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
             <!-- Left Side: Menu -->

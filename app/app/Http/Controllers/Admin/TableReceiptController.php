@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\TableCheckoutInitiated;
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteMenuItem;
 use App\Models\Order;
@@ -90,6 +91,15 @@ class TableReceiptController extends Controller
             'tableCode' => $tableCode,
             'orders' => $orders->pluck('id')->implode(','),
         ]);
+
+        $reviewInvite = app(ReviewInviteService::class)->findOrCreateForReceipt($tableCode, $orders);
+        $totalAmount = $orders->sum('total');
+
+        TableCheckoutInitiated::dispatch(
+            $tableCode,
+            $reviewInvite->token,
+            (float) $totalAmount
+        );
 
         return response()->json([
             'message' => "Tafel {$tableCode} is afgerekend.",

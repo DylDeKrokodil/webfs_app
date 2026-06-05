@@ -120,7 +120,29 @@ const checkoutSelectedTable = async () => {
     }
 };
 
-onMounted(loadTables);
+const setupRealtime = () => {
+    if (!window.Echo) return;
+
+    window.Echo.channel('admin-notifications')
+        .listen('.TableAssistanceRequestCreated', (data) => {
+            if (!assistanceRequests.value.some((r) => r.id === data.id)) {
+                assistanceRequests.value.push(data);
+                toastService.info(`Tafel ${data.table_code} vraagt om assistentie!`);
+            }
+        })
+        .listen('.TableAssistanceRequestResolved', (data) => {
+            assistanceRequests.value = assistanceRequests.value.filter((r) => r.id !== data.id);
+        })
+        .listen('.OrderPlaced', (data) => {
+            toastService.info(`Nieuwe bestelling voor Tafel ${data.table_code}!`);
+            loadTables(); // Refresh the list and totals
+        });
+};
+
+onMounted(() => {
+    loadTables();
+    setupRealtime();
+});
 </script>
 
 <template>
@@ -139,9 +161,6 @@ onMounted(loadTables);
                         <h1 class="text-xl font-black leading-tight">Actieve Tafels</h1>
                     </div>
                 </div>
-                <button @click="loadTables" class="px-4 py-2 bg-brand-light border border-brand-border rounded-xl font-black text-[9px] uppercase tracking-widest text-stone-600 hover:bg-stone-50 hover:border-stone-400 active:scale-[0.98] transition-all shadow-sm">
-                    Verversen
-                </button>
             </header>
 
             <div class="flex-1 min-h-0 p-4 lg:p-6 overflow-y-auto lg:overflow-hidden flex flex-col gap-4">

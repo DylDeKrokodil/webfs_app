@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\TableAssistanceRequestResolved;
 use App\Http\Controllers\Controller;
 use App\Models\TableAssistanceRequest;
 use Illuminate\Http\JsonResponse;
@@ -28,6 +29,8 @@ class TableAssistanceRequestController extends Controller
             $tableAssistanceRequest->update([
                 'resolved_at' => now(),
             ]);
+
+            TableAssistanceRequestResolved::dispatch($tableAssistanceRequest);
         }
 
         return response()->json([

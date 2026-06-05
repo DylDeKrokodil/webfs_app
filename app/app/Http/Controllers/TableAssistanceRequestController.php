@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TableAssistanceRequestCreated;
 use App\Models\TableAssistanceRequest;
 use Illuminate\Http\JsonResponse;
 
@@ -21,6 +22,9 @@ class TableAssistanceRequestController extends Controller
             $request = TableAssistanceRequest::create([
                 'table_code' => $tableCode,
             ]);
+
+            \Illuminate\Support\Facades\Log::info("Broadcasting assistance request for table {$tableCode}");
+            TableAssistanceRequestCreated::dispatch($request);
         }
 
         return response()->json([

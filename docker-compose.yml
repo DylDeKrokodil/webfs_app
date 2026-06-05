@@ -8,6 +8,7 @@ services:
       - "8080:80"
     depends_on:
       - app
+      - reverb
 
   app:
     build:
@@ -37,10 +38,25 @@ services:
       dockerfile: docker/php/Dockerfile
     container_name: gouden_draak_reverb
     working_dir: /var/www/html/app
-    command: php artisan reverb:start --host=0.0.0.0 --port=8008
+    command: php artisan reverb:start --host=0.0.0.0 --port=8008 --debug
     environment:
       - REVERB_SERVER_HOST=0.0.0.0
       - REVERB_SERVER_PORT=8008
+      - REVERB_DEBUG=true
+    ports:
+      - "8008:8008"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: gouden_draak_worker
+    working_dir: /var/www/html/app
+    command: php artisan queue:work --tries=3 --timeout=90
     volumes:
       - .:/var/www/html
     depends_on:

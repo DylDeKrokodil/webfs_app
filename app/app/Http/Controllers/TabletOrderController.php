@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPlaced;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\TableAssistanceRequest;
@@ -119,6 +120,8 @@ class TabletOrderController extends Controller
 
             return $order;
         });
+
+        OrderPlaced::dispatch($order);
 
         return response()->json([
             'message' => 'Bestelling ontvangen',
