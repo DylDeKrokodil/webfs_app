@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import { toastService } from '../services/toastService';
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 
@@ -10,7 +11,6 @@ const categoryFilter = ref('all');
 const orderLines = ref([]);
 const isLoading = ref(true);
 const isCheckingOut = ref(false);
-const checkoutMessage = ref('');
 const errorMessage = ref('');
 
 const formatter = new Intl.NumberFormat('nl-NL', {
@@ -117,11 +117,11 @@ const clearOrder = () => {
 };
 
 const checkoutOrder = async () => {
-    checkoutMessage.value = '';
     errorMessage.value = '';
 
     if (orderLines.value.length === 0) {
         errorMessage.value = 'Niets geselecteerd.';
+        toastService.error(errorMessage.value, { title: 'Kassa' });
         return;
     }
 
@@ -149,10 +149,13 @@ const checkoutOrder = async () => {
             throw new Error(payload.message || 'Afrekenen mislukt.');
         }
 
-        checkoutMessage.value = `Verkoop succesvol. Bestelling #${payload.order.id} is afgerekend.`;
+        toastService.success(`Bestelling #${payload.order.id} is afgerekend.`, {
+            title: 'Verkoop succesvol',
+        });
         clearOrder();
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : 'Afrekenen mislukt.';
+        toastService.error(errorMessage.value, { title: 'Afrekenen mislukt' });
     } finally {
         isCheckingOut.value = false;
     }
@@ -189,7 +192,6 @@ onMounted(loadMenu);
             </header>
 
             <p v-if="errorMessage" class="admin-error">{{ errorMessage }}</p>
-            <p v-if="checkoutMessage" class="admin-notice">{{ checkoutMessage }}</p>
 
             <div class="admin-kassa-layout">
                 <section class="admin-list-panel" aria-labelledby="kassa-menu-title">

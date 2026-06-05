@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import { toastService } from '../services/toastService';
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 
@@ -11,7 +12,6 @@ const categoryFilter = ref('all');
 const statusFilter = ref('all');
 const isLoading = ref(true);
 const isSaving = ref(false);
-const notice = ref('');
 const errorMessage = ref('');
 
 const emptyForm = () => ({
@@ -151,7 +151,6 @@ const loadMenu = async () => {
 
 const saveItem = async () => {
     isSaving.value = true;
-    notice.value = '';
     errorMessage.value = '';
 
     const payload = {
@@ -184,9 +183,10 @@ const saveItem = async () => {
         }
 
         selectItem(savedItem);
-        notice.value = 'Gerecht opgeslagen.';
+        toastService.success('Gerecht opgeslagen.', { title: 'Menukaart' });
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : 'Opslaan mislukt.';
+        toastService.error(errorMessage.value, { title: 'Opslaan mislukt' });
     } finally {
         isSaving.value = false;
     }
@@ -199,13 +199,12 @@ const deleteItem = async () => {
     }
 
     isSaving.value = true;
-    notice.value = '';
     errorMessage.value = '';
 
     try {
         await apiRequest(`/api/admin/menu-items/${form.value.id}`, { method: 'DELETE' });
         items.value = items.value.filter((item) => item.id !== form.value.id);
-        notice.value = 'Gerecht verwijderd.';
+        toastService.success('Gerecht verwijderd.', { title: 'Menukaart' });
 
         if (items.value.length > 0) {
             selectItem(items.value[0]);
@@ -214,6 +213,7 @@ const deleteItem = async () => {
         }
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : 'Verwijderen mislukt.';
+        toastService.error(errorMessage.value, { title: 'Verwijderen mislukt' });
     } finally {
         isSaving.value = false;
     }
@@ -271,7 +271,6 @@ onMounted(loadMenu);
                 </div>
             </div>
 
-            <p v-if="notice" class="admin-notice">{{ notice }}</p>
             <p v-if="errorMessage" class="admin-error">{{ errorMessage }}</p>
 
             <div class="admin-content">

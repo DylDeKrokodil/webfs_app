@@ -6,6 +6,7 @@ Modernisering van de oude website en kassa van De Gouden Draak.
 
 De implementatie volgt de geselecteerde user stories uit `WEBFS - Nieuwe Functionaliteit v2.xlsx`:
 
+- `US-1`: tablet bestellen per tafel
 - `US-4`: rekening opslaan als PDF
 - `US-6`: herhalingsbestelling vanuit historie
 - `US-7`: cocktail-inspiratie via externe API

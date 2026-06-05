@@ -455,10 +455,332 @@
     height: auto;
 }
 
-.admin-app {
-    display: grid;
-    grid-template-columns: 248px minmax(0, 1fr);
+.tablet-app {
     min-height: 100vh;
+    background: #f7f3ea;
+    color: #1f2933;
+    font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+}
+
+.tablet-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 22px 0;
+}
+
+.tablet-header {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #d8d4ca;
+    padding-bottom: 16px;
+}
+
+.tablet-header p,
+.tablet-panel-header span {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.84rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.tablet-header h1,
+.tablet-panel-header h2 {
+    margin: 2px 0 0;
+    color: #111827;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.tablet-header h1 {
+    font-size: 1.8rem;
+}
+
+.tablet-header > strong {
+    color: #7f1d1d;
+    font-size: 1.5rem;
+}
+
+.tablet-notice,
+.tablet-error {
+    margin: 0 0 12px;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-weight: 800;
+}
+
+.tablet-notice {
+    border: 1px solid #86efac;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.tablet-error {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #991b1b;
+}
+
+.tablet-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+    gap: 14px;
+    align-items: start;
+}
+
+.tablet-menu,
+.tablet-order {
+    min-width: 0;
+    border: 1px solid #d8d4ca;
+    border-radius: 8px;
+    background: #fffdf8;
+    padding: 16px;
+}
+
+.tablet-order {
+    position: sticky;
+    top: 16px;
+}
+
+.tablet-status {
+    display: grid;
+    grid-template-columns: 96px 120px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    background: #f0fdf4;
+    padding: 12px;
+    color: #166534;
+}
+
+.tablet-status.is-blocked {
+    border-color: #fed7aa;
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+.tablet-status div {
+    display: grid;
+    gap: 2px;
+}
+
+.tablet-status span {
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.tablet-status strong {
+    color: #111827;
+    font-size: 1.08rem;
+    font-weight: 900;
+}
+
+.tablet-status p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-align: right;
+}
+
+.tablet-panel-header {
+    display: flex;
+    gap: 12px;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.tablet-panel-header button {
+    min-height: 34px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+    color: #991b1b;
+    padding: 0 12px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.tablet-panel-header button:disabled,
+.tablet-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.tablet-empty {
+    margin: 26px 0;
+    color: #64748b;
+    font-weight: 800;
+    text-align: center;
+}
+
+.tablet-menu-groups,
+.tablet-order-lines {
+    display: grid;
+    gap: 16px;
+}
+
+.tablet-menu-group h3 {
+    margin: 0 0 8px;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.tablet-menu-item {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 86px;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    min-height: 58px;
+    border: 1px solid transparent;
+    border-top-color: #e5e7eb;
+    background: transparent;
+    padding: 10px 8px;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.tablet-menu-item:hover,
+.tablet-menu-item:focus {
+    border-color: #c9b98d;
+    background: #fff7df;
+    outline: none;
+}
+
+.tablet-item-code {
+    color: #7f1d1d;
+    font-weight: 900;
+}
+
+.tablet-item-copy {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.tablet-item-copy strong,
+.tablet-item-copy small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tablet-item-copy strong {
+    color: #111827;
+    font-size: 0.96rem;
+}
+
+.tablet-item-copy small {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.tablet-item-price {
+    font-weight: 900;
+    text-align: right;
+}
+
+.tablet-order-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 10px;
+    align-items: center;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 10px;
+}
+
+.tablet-order-line strong,
+.tablet-order-line small {
+    display: block;
+}
+
+.tablet-order-line strong {
+    overflow-wrap: anywhere;
+}
+
+.tablet-order-line small {
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.tablet-quantity {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+}
+
+.tablet-quantity button {
+    min-height: 34px;
+    border: 0;
+    background: #f8fafc;
+    color: #111827;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.tablet-quantity span {
+    font-weight: 900;
+    text-align: center;
+}
+
+.tablet-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    border-top: 2px solid #d8d4ca;
+    padding-top: 14px;
+    color: #111827;
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.tablet-submit {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 14px;
+    border: 1px solid #166534;
+    border-radius: 6px;
+    background: #166534;
+    color: white;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.tablet-submit:hover,
+.tablet-submit:focus {
+    background: #14532d;
+    outline: none;
+}
+
+.admin-app {
+    --admin-sidebar-width: 248px;
+
+    display: grid;
+    grid-template-columns: var(--admin-sidebar-width) minmax(0, 1fr);
+    height: 100dvh;
+    min-height: 100vh;
+    overflow: hidden;
     background: #f4f2ed;
     color: #1f2933;
     font-family:
@@ -471,7 +793,9 @@
     top: 0;
     display: flex;
     flex-direction: column;
+    height: 100dvh;
     min-height: 100vh;
+    overflow: hidden;
     border-right: 1px solid #d8d4ca;
     background: #171a1f;
     padding: 18px 14px;
@@ -541,6 +865,8 @@
 
 .admin-workspace {
     min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
     padding: 24px;
 }
 
@@ -661,6 +987,124 @@
     border: 1px solid #fecaca;
     background: #fff1f2;
     color: #991b1b;
+}
+
+.toast-stack {
+    position: fixed;
+    z-index: 50;
+    right: 18px;
+    bottom: 18px;
+    display: grid;
+    width: min(420px, calc(100vw - 32px));
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast-message {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 32px;
+    gap: 10px;
+    align-items: start;
+    overflow: hidden;
+    border: 1px solid #d8d4ca;
+    border-left: 4px solid #475569;
+    border-radius: 8px;
+    background: #fffdf8;
+    box-shadow: 0 18px 42px rgb(15 23 42 / 18%);
+    color: #1f2933;
+    padding: 12px;
+    pointer-events: auto;
+}
+
+.toast-message.is-success {
+    border-left-color: #166534;
+}
+
+.toast-message.is-error {
+    border-left-color: #991b1b;
+}
+
+.toast-message.is-info {
+    border-left-color: #2563eb;
+}
+
+.toast-icon {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.76rem;
+    font-weight: 900;
+}
+
+.toast-message.is-success .toast-icon {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.toast-message.is-error .toast-icon {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.toast-message.is-info .toast-icon {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.toast-copy {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.toast-copy strong {
+    color: #111827;
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.toast-copy span {
+    color: #475569;
+    font-size: 0.88rem;
+    line-height: 1.35;
+}
+
+.toast-message button {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.toast-message button:hover,
+.toast-message button:focus {
+    background: #f1f5f9;
+    color: #111827;
+    outline: none;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+    transition:
+        opacity 160ms ease,
+        transform 160ms ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
 }
 
 .admin-content {
@@ -1005,6 +1449,14 @@
         padding-inline: 20px;
     }
 
+    .tablet-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .tablet-order {
+        position: static;
+    }
+
     .admin-content,
     .admin-kassa-layout {
         grid-template-columns: 1fr;
@@ -1154,13 +1606,57 @@
         text-align: center;
     }
 
+    .tablet-shell {
+        width: calc(100% - 24px);
+        padding: 14px 0;
+    }
+
+    .tablet-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .tablet-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .tablet-menu,
+    .tablet-order {
+        padding: 12px;
+    }
+
+    .tablet-status {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .tablet-status p {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    .tablet-menu-item {
+        grid-template-columns: 46px minmax(0, 1fr) 76px;
+    }
+
+    .tablet-order-line {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tablet-quantity {
+        width: min(100%, 180px);
+    }
+
     .admin-app {
         grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
     }
 
     .admin-sidebar {
         position: static;
+        height: auto;
         min-height: 0;
+        overflow: visible;
     }
 
     .admin-nav {
@@ -1173,7 +1669,19 @@
     }
 
     .admin-workspace {
+        overflow: visible;
         padding: 16px;
+    }
+
+    .toast-stack {
+        right: 12px;
+        bottom: 12px;
+        width: calc(100vw - 24px);
+    }
+
+    .toast-message {
+        grid-template-columns: 30px minmax(0, 1fr) 30px;
+        padding: 10px;
     }
 
     .admin-header,

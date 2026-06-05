@@ -4,6 +4,7 @@ use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\TabletOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -12,6 +13,9 @@ Route::get('/', function () {
 
 Route::view('/contact', 'app');
 Route::view('/menukaart', 'app');
+Route::view('/tablet', 'app');
+Route::view('/tablet/{tableNumber}', 'app')
+    ->whereNumber('tableNumber');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
@@ -35,3 +39,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::get('/api/menu-items', [MenuItemController::class, 'index']);
+Route::get('/api/tablet/tables/{tableNumber}/status', [TabletOrderController::class, 'status'])
+    ->whereNumber('tableNumber');
+Route::post('/api/tablet/orders', [TabletOrderController::class, 'store']);
