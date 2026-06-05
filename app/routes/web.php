@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,11 +24,13 @@ Route::post('/logout', [LoginController::class, 'destroy'])
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::redirect('/admin', '/admin/menu');
+    Route::view('/admin/kassa', 'app');
     Route::view('/admin/menu', 'app');
 
     Route::prefix('/api/admin')->group(function () {
         Route::apiResource('menu-items', AdminMenuItemController::class)
             ->only(['index', 'store', 'update', 'destroy']);
+        Route::post('orders', [AdminOrderController::class, 'store']);
     });
 });
 

@@ -232,6 +232,7 @@ onMounted(loadMenu);
 
             <nav class="admin-nav">
                 <a class="is-active" href="/admin/menu">Menukaart</a>
+                <a href="/admin/kassa">Kassa</a>
             </nav>
 
             <form class="admin-logout" action="/logout" method="POST">

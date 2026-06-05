@@ -670,13 +670,22 @@
     align-items: start;
 }
 
+.admin-kassa-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+    gap: 14px;
+    align-items: start;
+}
+
 .admin-list-panel,
-.admin-editor {
+.admin-editor,
+.admin-order-panel {
     min-width: 0;
     padding: 16px;
 }
 
-.admin-editor {
+.admin-editor,
+.admin-order-panel {
     position: sticky;
     top: 24px;
 }
@@ -694,6 +703,10 @@
     grid-template-columns: minmax(220px, 1fr) 180px 150px;
     gap: 8px;
     margin-bottom: 14px;
+}
+
+.admin-kassa-layout .admin-filters {
+    grid-template-columns: minmax(220px, 1fr) 220px;
 }
 
 .admin-filters input,
@@ -756,9 +769,27 @@
     cursor: pointer;
 }
 
+.admin-kassa-menu-row {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) 92px 84px;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    border: 1px solid transparent;
+    border-top-color: #e5e7eb;
+    background: transparent;
+    padding: 10px 8px;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
 .admin-menu-row:hover,
 .admin-menu-row:focus,
-.admin-menu-row.is-selected {
+.admin-menu-row.is-selected,
+.admin-kassa-menu-row:hover,
+.admin-kassa-menu-row:focus {
     border-color: #c9b98d;
     background: #fff7df;
     outline: none;
@@ -813,6 +844,109 @@
 .admin-status.is-muted {
     background: #f1f5f9;
     color: #64748b;
+}
+
+.admin-add-label {
+    border-radius: 6px;
+    background: #7f1d1d;
+    color: white;
+    padding: 6px 8px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.admin-order-panel {
+    border: 1px solid #d8d4ca;
+    border-radius: 8px;
+    background: #fffdf8;
+}
+
+.admin-order-lines {
+    display: grid;
+    gap: 8px;
+}
+
+.admin-order-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 108px 86px;
+    gap: 10px;
+    align-items: center;
+    border-top: 1px solid #e5e7eb;
+    padding: 10px 0;
+}
+
+.admin-order-line strong,
+.admin-order-line small {
+    display: block;
+}
+
+.admin-order-line small {
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.admin-order-line > strong {
+    text-align: right;
+}
+
+.admin-quantity-control {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) 32px;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+}
+
+.admin-quantity-control button {
+    min-height: 32px;
+    border: 0;
+    background: #f8fafc;
+    color: #111827;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-quantity-control span {
+    font-weight: 800;
+    text-align: center;
+}
+
+.admin-order-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    border-top: 2px solid #d8d4ca;
+    padding-top: 14px;
+    color: #111827;
+    font-size: 1.18rem;
+    font-weight: 800;
+}
+
+.admin-checkout {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 14px;
+    border: 1px solid #166534;
+    border-radius: 6px;
+    background: #166534;
+    color: white;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.admin-checkout:hover {
+    background: #14532d;
+}
+
+.admin-checkout:disabled {
+    cursor: not-allowed;
+    opacity: 0.62;
 }
 
 .admin-form {
@@ -871,11 +1005,13 @@
         padding-inline: 20px;
     }
 
-    .admin-content {
+    .admin-content,
+    .admin-kassa-layout {
         grid-template-columns: 1fr;
     }
 
-    .admin-editor {
+    .admin-editor,
+    .admin-order-panel {
         position: static;
     }
 
@@ -1028,7 +1164,7 @@
     }
 
     .admin-nav {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
 
     .admin-nav a,
@@ -1056,8 +1192,25 @@
         grid-template-columns: 48px minmax(0, 1fr) 76px;
     }
 
+    .admin-kassa-menu-row {
+        grid-template-columns: 48px minmax(0, 1fr) 76px;
+    }
+
     .admin-status {
         grid-column: 2 / -1;
         width: fit-content;
+    }
+
+    .admin-add-label {
+        grid-column: 2 / -1;
+        width: fit-content;
+    }
+
+    .admin-order-line {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-order-line > strong {
+        text-align: left;
     }
 }
