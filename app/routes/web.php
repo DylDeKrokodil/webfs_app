@@ -50,4 +50,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::get('/api/menu-items', [MenuItemController::class, 'index']);
 Route::get('/api/tablet/tables/{tableNumber}/status', [TabletOrderController::class, 'status'])
     ->whereNumber('tableNumber');
+Route::get('/api/tablet/tables/{tableNumber}/history', [TabletOrderController::class, 'history'])
+    ->whereNumber('tableNumber');
 Route::post('/api/tablet/orders', [TabletOrderController::class, 'store']);

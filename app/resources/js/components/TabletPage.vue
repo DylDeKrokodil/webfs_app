@@ -21,9 +21,12 @@ const tableNumber = computed(() => {
 
 const items = ref([]);
 const orderLines = ref([]);
+const orderHistory = ref([]);
 const tableStatus = ref(null);
 const isLoading = ref(true);
+const isHistoryLoading = ref(false);
 const isSubmitting = ref(false);
+const repeatedSourceOrderId = ref(null);
 const errorMessage = ref('');
 const orderMessage = ref('');
 
@@ -57,6 +60,19 @@ const cooldownMinutes = computed(() => {
     return Math.max(1, Math.ceil(seconds / 60));
 });
 
+const formatOrderDate = (value) => {
+    if (!value) {
+        return 'Onbekend tijdstip';
+    }
+
+    return new Intl.DateTimeFormat('nl-NL', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(value));
+};
+
 const loadTableStatus = async () => {
     if (!tableNumber.value) {
         return;
@@ -77,6 +93,32 @@ const loadTableStatus = async () => {
     tableStatus.value = payload.data ?? null;
 };
 
+const loadOrderHistory = async () => {
+    if (!tableNumber.value) {
+        return;
+    }
+
+    isHistoryLoading.value = true;
+
+    try {
+        const response = await fetch(`/api/tablet/tables/${tableNumber.value}/history`, {
+            headers: {
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('De bestelgeschiedenis kon niet worden geladen.');
+        }
+
+        const payload = await response.json();
+        orderHistory.value = payload.data ?? [];
+    } finally {
+        isHistoryLoading.value = false;
+    }
+};
+
 const loadTabletData = async () => {
     if (!tableNumber.value) {
         isLoading.value = false;
@@ -88,7 +130,7 @@ const loadTabletData = async () => {
     errorMessage.value = '';
 
     try {
-        await loadTableStatus();
+        await Promise.all([loadTableStatus(), loadOrderHistory()]);
 
         const response = await fetch('/api/menu-items', {
             headers: {
@@ -112,11 +154,11 @@ const loadTabletData = async () => {
     }
 };
 
-const addItem = (item) => {
+const addOrderLine = (item, quantity = 1) => {
     const existingLine = orderLines.value.find((line) => line.id === item.id);
 
     if (existingLine) {
-        existingLine.quantity += 1;
+        existingLine.quantity += quantity;
         return;
     }
 
@@ -124,9 +166,47 @@ const addItem = (item) => {
         id: item.id,
         display_number: item.display_number,
         name: item.name,
-        price: Number(item.price),
-        quantity: 1,
+        price: Number(item.price ?? item.current_price),
+        quantity,
     });
+};
+
+const addItem = (item) => {
+    addOrderLine(item);
+};
+
+const repeatOrder = (order) => {
+    const activeLines = order.lines.filter((line) => line.is_active);
+
+    orderLines.value = activeLines.map((line) => ({
+        id: line.menu_item_id,
+        display_number: line.display_number,
+        name: line.name,
+        price: Number(line.current_price),
+        quantity: line.quantity,
+    }));
+    repeatedSourceOrderId.value = order.id;
+};
+
+const repeatHistoryLine = (order, line) => {
+    if (!line.is_active) {
+        return;
+    }
+
+    const currentSourceOrderId = repeatedSourceOrderId.value;
+
+    addOrderLine(
+        {
+            id: line.menu_item_id,
+            display_number: line.display_number,
+            name: line.name,
+            price: Number(line.current_price),
+        },
+        line.quantity,
+    );
+
+    repeatedSourceOrderId.value =
+        orderLines.value.length === 1 || currentSourceOrderId === order.id ? order.id : null;
 };
 
 const decreaseQuantity = (line) => {
@@ -144,6 +224,7 @@ const increaseQuantity = (line) => {
 
 const clearOrder = () => {
     orderLines.value = [];
+    repeatedSourceOrderId.value = null;
 };
 
 const submitOrder = async () => {
@@ -180,6 +261,7 @@ const submitOrder = async () => {
             },
             body: JSON.stringify({
                 table_number: tableNumber.value,
+                source_order_id: repeatedSourceOrderId.value,
                 lines: orderLines.value.map((line) => ({
                     menu_item_id: line.id,
                     quantity: line.quantity,
@@ -200,7 +282,7 @@ const submitOrder = async () => {
         orderMessage.value = `Bestelling #${payload.order.id} is doorgestuurd naar de keuken.`;
         toastService.success(orderMessage.value, { title: `Tafel ${tableNumber.value}` });
         clearOrder();
-        await loadTableStatus();
+        await Promise.all([loadTableStatus(), loadOrderHistory()]);
     } catch (error) {
         errorMessage.value = error instanceof Error ? error.message : 'Bestelling plaatsen mislukt.';
         toastService.error(errorMessage.value, { title: 'Bestellen mislukt' });
@@ -286,6 +368,60 @@ onMounted(loadTabletData);
                 </section>
 
                 <aside class="tablet-order" aria-labelledby="tablet-order-title">
+                    <section class="tablet-history" aria-labelledby="tablet-history-title">
+                        <div class="tablet-panel-header">
+                            <div>
+                                <h2 id="tablet-history-title">Eerdere rondes</h2>
+                                <span>{{ orderHistory.length }} bestellingen</span>
+                            </div>
+                        </div>
+
+                        <p v-if="isHistoryLoading" class="tablet-empty">Geschiedenis laden...</p>
+                        <p v-else-if="orderHistory.length === 0" class="tablet-empty">
+                            Nog geen eerdere bestelling voor deze tafel.
+                        </p>
+
+                        <div v-else class="tablet-history-list">
+                            <article
+                                v-for="order in orderHistory"
+                                :key="order.id"
+                                class="tablet-history-order"
+                            >
+                                <header>
+                                    <div>
+                                        <strong>Bestelling #{{ order.id }}</strong>
+                                        <span>{{ formatOrderDate(order.created_at) }}</span>
+                                    </div>
+                                    <button type="button" @click="repeatOrder(order)">
+                                        Alles
+                                    </button>
+                                </header>
+
+                                <button
+                                    v-for="line in order.lines"
+                                    :key="`${order.id}-${line.menu_item_id}`"
+                                    class="tablet-history-line"
+                                    type="button"
+                                    :disabled="!line.is_active"
+                                    @click="repeatHistoryLine(order, line)"
+                                >
+                                    <span>
+                                        {{ line.quantity }}x {{ line.display_number || '-' }}
+                                        {{ line.name }}
+                                    </span>
+                                    <small>
+                                        <template v-if="line.is_active">
+                                            {{ formatter.format(line.current_price) }}
+                                        </template>
+                                        <template v-else>
+                                            Niet beschikbaar
+                                        </template>
+                                    </small>
+                                </button>
+                            </article>
+                        </div>
+                    </section>
+
                     <div class="tablet-panel-header">
                         <div>
                             <h2 id="tablet-order-title">Bestelling</h2>

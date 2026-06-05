@@ -6,7 +6,9 @@ use App\Models\MenuItem;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TabletOrderController extends Controller
 {
@@ -20,16 +22,51 @@ class TabletOrderController extends Controller
         ]);
     }
 
+    public function history(int $tableNumber): JsonResponse
+    {
+        $orders = $this->openTableOrders($tableNumber)
+            ->with(['lines.menuItem.category'])
+            ->limit(self::MAX_ROUNDS_PER_TABLE)
+            ->get()
+            ->map(fn (Order $order): array => [
+                'id' => $order->id,
+                'table_number' => (int) $order->table_code,
+                'total' => (float) $order->total,
+                'created_at' => $order->created_at?->toIso8601String(),
+                'lines' => $order->lines
+                    ->filter(fn ($line): bool => $line->menuItem !== null)
+                    ->map(fn ($line): array => [
+                        'menu_item_id' => $line->menu_item_id,
+                        'display_number' => trim(($line->menuItem->number ?? '').($line->menuItem->suffix ?? '')),
+                        'name' => $line->menuItem->name,
+                        'category' => $line->menuItem->category?->name ?? 'Overig',
+                        'quantity' => $line->quantity,
+                        'unit_price' => (float) $line->unit_price,
+                        'current_price' => (float) $line->menuItem->price,
+                        'is_active' => (bool) $line->menuItem->is_active,
+                    ])
+                    ->values(),
+            ])
+            ->filter(fn (array $order): bool => $order['lines']->isNotEmpty())
+            ->values();
+
+        return response()->json([
+            'data' => $orders,
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'table_number' => ['required', 'integer', 'min:1', 'max:999'],
+            'source_order_id' => ['nullable', 'integer', 'exists:orders,id'],
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.menu_item_id' => ['required', 'integer', 'exists:menu_items,id'],
             'lines.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
-        $status = $this->tableStatus((int) $validated['table_number']);
+        $tableNumber = (int) $validated['table_number'];
+        $status = $this->tableStatus($tableNumber);
 
         if (! $status['can_order']) {
             return response()->json([
@@ -38,23 +75,10 @@ class TabletOrderController extends Controller
             ], 429);
         }
 
-        $quantities = collect($validated['lines'])
-            ->groupBy('menu_item_id')
-            ->map(fn ($lines): int => (int) $lines->sum('quantity'));
+        $sourceOrderId = $this->validSourceOrderId($validated['source_order_id'] ?? null, $tableNumber);
+        ['menuItems' => $menuItems, 'quantities' => $quantities] = $this->validatedOrderLines($validated['lines']);
 
-        $menuItems = MenuItem::query()
-            ->whereIn('id', $quantities->keys())
-            ->where('is_active', true)
-            ->get()
-            ->keyBy('id');
-
-        if ($menuItems->count() !== $quantities->count()) {
-            return response()->json([
-                'message' => 'Een of meer gerechten zijn niet meer actief.',
-            ], 422);
-        }
-
-        $order = DB::transaction(function () use ($menuItems, $quantities, $validated): Order {
+        $order = DB::transaction(function () use ($menuItems, $quantities, $sourceOrderId, $validated): Order {
             $total = $quantities->reduce(
                 fn (float $sum, int $quantity, int $menuItemId): float =>
                     $sum + ((float) $menuItems[$menuItemId]->price * $quantity),
@@ -62,6 +86,7 @@ class TabletOrderController extends Controller
             );
 
             $order = Order::create([
+                'source_order_id' => $sourceOrderId,
                 'channel' => 'tablet',
                 'status' => 'submitted',
                 'table_code' => (string) $validated['table_number'],
@@ -98,12 +123,7 @@ class TabletOrderController extends Controller
 
     private function tableStatus(int $tableNumber): array
     {
-        $orders = Order::query()
-            ->where('channel', 'tablet')
-            ->where('status', 'submitted')
-            ->whereNull('paid_at')
-            ->where('table_code', (string) $tableNumber)
-            ->latest()
+        $orders = $this->openTableOrders($tableNumber)
             ->get(['id', 'created_at']);
 
         $lastOrder = $orders->first();
@@ -128,6 +148,59 @@ class TabletOrderController extends Controller
             'cooldown_seconds' => $cooldownSeconds,
             'next_order_at' => $cooldownSeconds > 0 ? $cooldownEndsAt?->toIso8601String() : null,
             'message' => $message,
+        ];
+    }
+
+    private function openTableOrders(int $tableNumber)
+    {
+        return Order::query()
+            ->where('channel', 'tablet')
+            ->where('status', 'submitted')
+            ->whereNull('paid_at')
+            ->where('table_code', (string) $tableNumber)
+            ->latest();
+    }
+
+    private function validSourceOrderId(?int $sourceOrderId, int $tableNumber): ?int
+    {
+        if ($sourceOrderId === null) {
+            return null;
+        }
+
+        $existsForTable = $this->openTableOrders($tableNumber)
+            ->whereKey($sourceOrderId)
+            ->exists();
+
+        if (! $existsForTable) {
+            throw ValidationException::withMessages([
+                'source_order_id' => 'De herhaalbestelling hoort niet bij deze tafel.',
+            ]);
+        }
+
+        return $sourceOrderId;
+    }
+
+    private function validatedOrderLines(array $lines): array
+    {
+        $quantities = collect($lines)
+            ->groupBy('menu_item_id')
+            ->map(fn (Collection $lines): int => (int) $lines->sum('quantity'));
+
+        $menuItems = MenuItem::query()
+            ->whereIn('id', $quantities->keys())
+            ->where('is_active', true)
+            ->get()
+            ->keyBy('id');
+
+        if ($menuItems->count() !== $quantities->count()) {
+            throw ValidationException::withMessages([
+                'lines' => 'Een of meer gerechten zijn niet meer actief.',
+            ]);
+        }
+
+        return [
+            'menuItems' => $menuItems,
+            'quantities' => $quantities,
         ];
     }
 }

@@ -150,18 +150,84 @@ class TabletOrderTest extends TestCase
             ->assertJsonPath('data.cooldown_seconds', 0);
     }
 
-    private function createMenuItem(float $price = 9.50): MenuItem
+    public function test_tablet_history_returns_open_orders_for_the_current_table(): void
     {
-        $category = MenuCategory::create([
+        Carbon::setTestNow('2026-06-05 12:00:00');
+        $menuItem = $this->createMenuItem(price: 12.50);
+        $visibleOrder = $this->createTabletOrder(tableNumber: 6, minutesAgo: 20);
+        $visibleOrder->lines()->create([
+            'menu_item_id' => $menuItem->id,
+            'quantity' => 2,
+            'unit_price' => 12.50,
+            'line_total' => 25,
+        ]);
+
+        $this->createTabletOrder(tableNumber: 7, minutesAgo: 20);
+        $this->createTabletOrder(tableNumber: 6, minutesAgo: 30)
+            ->update([
+                'status' => 'paid',
+                'paid_at' => now()->subMinutes(5),
+            ]);
+
+        $this->getJson('/api/tablet/tables/6/history')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $visibleOrder->id)
+            ->assertJsonPath('data.0.lines.0.menu_item_id', $menuItem->id)
+            ->assertJsonPath('data.0.lines.0.quantity', 2)
+            ->assertJsonPath('data.0.lines.0.is_active', true);
+    }
+
+    public function test_tablet_repeat_order_records_source_order_for_the_same_table(): void
+    {
+        Carbon::setTestNow('2026-06-05 12:00:00');
+        $menuItem = $this->createMenuItem(price: 8.25);
+        $sourceOrder = $this->createTabletOrder(tableNumber: 9, minutesAgo: 20);
+
+        $this->postJson('/api/tablet/orders', [
+            'table_number' => 9,
+            'source_order_id' => $sourceOrder->id,
+            'lines' => [
+                ['menu_item_id' => $menuItem->id, 'quantity' => 2],
+            ],
+        ])->assertCreated();
+
+        $repeatOrder = Order::query()->latest('id')->firstOrFail();
+
+        $this->assertSame($sourceOrder->id, $repeatOrder->source_order_id);
+        $this->assertSame('9', $repeatOrder->table_code);
+    }
+
+    public function test_tablet_repeat_order_rejects_source_order_from_another_table(): void
+    {
+        Carbon::setTestNow('2026-06-05 12:00:00');
+        $menuItem = $this->createMenuItem();
+        $sourceOrder = $this->createTabletOrder(tableNumber: 2, minutesAgo: 20);
+
+        $this->postJson('/api/tablet/orders', [
+            'table_number' => 3,
+            'source_order_id' => $sourceOrder->id,
+            'lines' => [
+                ['menu_item_id' => $menuItem->id, 'quantity' => 1],
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('source_order_id');
+    }
+
+    private function createMenuItem(float $price = 9.50, int $number = 701, string $name = 'Tablet gerecht'): MenuItem
+    {
+        $category = MenuCategory::firstOrCreate([
             'name' => 'Tablet test',
+        ], [
             'sort_order' => 1,
             'is_active' => true,
         ]);
 
         return MenuItem::create([
             'menu_category_id' => $category->id,
-            'number' => 701,
-            'name' => 'Tablet gerecht',
+            'number' => $number,
+            'name' => $name,
             'price' => $price,
             'is_active' => true,
         ]);

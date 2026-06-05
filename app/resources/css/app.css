@@ -624,7 +624,8 @@
 }
 
 .tablet-menu-groups,
-.tablet-order-lines {
+.tablet-order-lines,
+.tablet-history-list {
     display: grid;
     gap: 16px;
 }
@@ -701,6 +702,102 @@
     align-items: center;
     border-top: 1px solid #e5e7eb;
     padding-top: 10px;
+}
+
+.tablet-history {
+    margin-bottom: 18px;
+    border-bottom: 1px solid #d8d4ca;
+    padding-bottom: 18px;
+}
+
+.tablet-history .tablet-empty {
+    margin: 14px 0;
+}
+
+.tablet-history-order {
+    display: grid;
+    gap: 8px;
+}
+
+.tablet-history-order header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tablet-history-order header div {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.tablet-history-order header strong {
+    overflow: hidden;
+    color: #111827;
+    font-size: 0.92rem;
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tablet-history-order header span {
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.tablet-history-order header button,
+.tablet-history-line {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+    color: #111827;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.tablet-history-order header button {
+    min-height: 32px;
+    padding: 0 10px;
+}
+
+.tablet-history-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    min-height: 38px;
+    padding: 7px 9px;
+    text-align: left;
+}
+
+.tablet-history-line:hover,
+.tablet-history-line:focus,
+.tablet-history-order header button:hover,
+.tablet-history-order header button:focus {
+    border-color: #c9b98d;
+    background: #fff7df;
+    outline: none;
+}
+
+.tablet-history-line:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.tablet-history-line span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tablet-history-line small {
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 900;
 }
 
 .tablet-order-line strong,
