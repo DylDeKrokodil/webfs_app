@@ -1,49 +1,42 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import AdminSidebar from './AdminSidebar.vue';
+import { useAdminShell } from '../composables/useAdminShell';
+import { useMenuItems } from '../composables/useMenuItems';
+import { useOrderLines } from '../composables/useOrderLines';
+import { currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
 
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
-const isSidebarOpen = ref(false);
+const { csrfToken, isSidebarOpen } = useAdminShell();
 
 const categories = ref([]);
 const items = ref([]);
 const query = ref('');
 const categoryFilter = ref('all');
-const orderLines = ref([]);
 const commonNoteSuggestions = ref([]);
-const customNoteInputs = ref({});
 const isLoading = ref(true);
 const isCheckingOut = ref(false);
 const errorMessage = ref('');
 
-const formatter = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
-});
+const {
+    orderLines,
+    customNoteInputs,
+    lineCount,
+    orderTotal,
+    addItem,
+    clearOrderLines,
+    increaseQuantity,
+    decreaseQuantity,
+    addNoteToLine,
+    removeNoteFromLine,
+} = useOrderLines();
 
-const activeItems = computed(() => items.value.filter((item) => item.is_active));
-const visibleItems = computed(() => {
-    const needle = query.value.trim().toLowerCase();
-    return activeItems.value.filter((item) => {
-        const matchesQuery = needle === '' || [item.display_number, item.name, item.category]
-            .filter(Boolean).some((value) => String(value).toLowerCase().includes(needle));
-        const matchesCategory = categoryFilter.value === 'all' || String(item.menu_category_id) === String(categoryFilter.value);
-        return matchesQuery && matchesCategory;
-    });
+const { visibleItems, groupedItems } = useMenuItems({
+    items,
+    query,
+    categoryFilter,
+    activeOnly: true,
 });
-
-const groupedItems = computed(() => {
-    const groups = new Map();
-    visibleItems.value.forEach((item) => {
-        if (!groups.has(item.category)) groups.set(item.category, []);
-        groups.get(item.category).push(item);
-    });
-    return Array.from(groups, ([category, groupItems]) => ({ category, items: groupItems }));
-});
-
-const lineCount = computed(() => orderLines.value.reduce((sum, line) => sum + line.quantity, 0));
-const orderTotal = computed(() => orderLines.value.reduce((sum, line) => sum + line.quantity * Number(line.price), 0));
 
 const loadMenu = async () => {
     isLoading.value = true;
@@ -75,45 +68,6 @@ const loadNoteSuggestions = async () => {
     }
 };
 
-const cleanNote = (note) => note.replace(/\s+/g, ' ').trim();
-const normalizeNote = (note) => cleanNote(note).toLowerCase();
-
-const addItem = (item) => {
-    const existingLine = orderLines.value.find((l) => l.id === item.id);
-    if (existingLine) { existingLine.quantity += 1; return; }
-    orderLines.value.push({
-        id: item.id,
-        display_number: item.display_number,
-        name: item.name,
-        price: Number(item.price),
-        quantity: 1,
-        notes: [],
-    });
-};
-
-const increaseQuantity = (line) => { line.quantity += 1; };
-const decreaseQuantity = (line) => {
-    if (line.quantity <= 1) { orderLines.value = orderLines.value.filter((l) => l.id !== line.id); return; }
-    line.quantity -= 1;
-};
-
-const addNoteToLine = (line, note) => {
-    const cleanedNote = cleanNote(note);
-    if (!cleanedNote) return;
-    if (line.notes.some((existingNote) => normalizeNote(existingNote) === normalizeNote(cleanedNote))) return;
-    if (line.notes.length >= 5) {
-        toastService.error('Maximaal 5 opmerkingen per gerecht.');
-        return;
-    }
-
-    line.notes.push(cleanedNote);
-    customNoteInputs.value[line.id] = '';
-};
-
-const removeNoteFromLine = (line, note) => {
-    line.notes = line.notes.filter((existingNote) => existingNote !== note);
-};
-
 const checkoutOrder = async () => {
     if (orderLines.value.length === 0) return;
     isCheckingOut.value = true;
@@ -132,7 +86,7 @@ const checkoutOrder = async () => {
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.message || 'Fout bij afrekenen.');
         toastService.success(`Bestelling #${payload.order.id} afgerekend.`);
-        orderLines.value = [];
+        clearOrderLines();
     } catch (error) {
         toastService.error(error.message);
     } finally {
@@ -223,7 +177,7 @@ onMounted(() => {
                                     <h3 class="font-black text-lg leading-none">Bestelling</h3>
                                     <p class="text-[9px] uppercase font-bold text-stone-500 mt-1 tracking-widest">Overzicht</p>
                                 </div>
-                                <button v-if="orderLines.length > 0" @click="orderLines = []" class="text-[9px] font-black text-stone-500 hover:text-red-400 uppercase tracking-widest">Leeg</button>
+                                <button v-if="orderLines.length > 0" @click="clearOrderLines" class="text-[9px] font-black text-stone-500 hover:text-red-400 uppercase tracking-widest">Leeg</button>
                             </div>
 
                             <div class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">

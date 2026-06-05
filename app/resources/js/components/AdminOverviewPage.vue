@@ -1,10 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import AdminSidebar from './AdminSidebar.vue';
+import { useAdminShell } from '../composables/useAdminShell';
+import { currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
 
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
-const isSidebarOpen = ref(false);
+const { csrfToken, isSidebarOpen } = useAdminShell();
 
 const overview = ref(null);
 
@@ -34,11 +35,6 @@ const isLoading = ref(false);
 const isLoadingSummaries = ref(false);
 const hasLoaded = ref(false);
 const activePreset = ref('today');
-
-const formatter = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
-});
 
 const dateFormatter = new Intl.DateTimeFormat('nl-NL', {
     day: '2-digit',

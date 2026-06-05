@@ -1,6 +1,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import CocktailPage from './CocktailPage.vue';
+import { useOrderLines } from '../composables/useOrderLines';
+import { currencyFormatter as formatter } from '../services/formatters';
+import { fetchPublicMenuItems } from '../services/menuApi';
 import { toastService } from '../services/toastService';
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
@@ -16,10 +19,8 @@ const tableNumber = computed(() => {
 });
 
 const items = ref([]);
-const orderLines = ref([]);
 const orderHistory = ref([]);
 const commonNoteSuggestions = ref([]);
-const customNoteInputs = ref({});
 const tableStatus = ref(null);
 const cooldownRemainingSeconds = ref(0);
 const isLoading = ref(true);
@@ -34,10 +35,20 @@ const errorMessage = ref('');
 const orderMessage = ref('');
 let cooldownIntervalId = null;
 
-const formatter = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
-});
+const {
+    orderLines,
+    customNoteInputs,
+    lineCount,
+    orderTotal,
+    itemQuantityById,
+    addItem,
+    setOrderLinesFromHistory,
+    clearOrderLines,
+    increaseQuantity,
+    decreaseQuantity,
+    addNoteToLine,
+    removeNoteFromLine,
+} = useOrderLines();
 
 const groupedItems = computed(() => {
     const groups = new Map();
@@ -51,7 +62,6 @@ const groupedItems = computed(() => {
 });
 
 const menuCategories = computed(() => groupedItems.value.map((group) => group.category));
-const itemQuantityById = computed(() => new Map(orderLines.value.map((line) => [line.id, line.quantity])));
 
 const filteredGroupedItems = computed(() => {
     const query = menuSearchQuery.value.trim().toLowerCase();
@@ -70,8 +80,6 @@ const filteredGroupedItems = computed(() => {
 });
 
 const filteredItemCount = computed(() => filteredGroupedItems.value.reduce((sum, group) => sum + group.items.length, 0));
-const lineCount = computed(() => orderLines.value.reduce((sum, line) => sum + line.quantity, 0));
-const orderTotal = computed(() => orderLines.value.reduce((sum, line) => sum + line.quantity * Number(line.price), 0));
 
 const hasRoundsAvailable = computed(() => {
     if (!tableStatus.value) return true;
@@ -154,73 +162,16 @@ const loadTabletData = async () => {
     isLoading.value = true;
     try {
         await Promise.all([loadTableStatus(), loadOrderHistory(), loadNoteSuggestions()]);
-        const response = await fetch('/api/menu-items', {
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
-        });
-        if (!response.ok) throw new Error('Menukaart kon niet worden geladen.');
-        const payload = await response.json();
-        items.value = payload.data ?? [];
+        items.value = await fetchPublicMenuItems({ csrfToken });
     } catch (error) {
         errorMessage.value = error.message;
         toastService.error(errorMessage.value);
     } finally { isLoading.value = false; }
 };
 
-const cleanNote = (note) => note.replace(/\s+/g, ' ').trim();
-const normalizeNote = (note) => cleanNote(note).toLowerCase();
-
-const addItem = (item) => {
-    const existingLine = orderLines.value.find((line) => line.id === item.id);
-    if (existingLine) {
-        existingLine.quantity += 1;
-        return;
-    }
-    orderLines.value.push({
-        id: item.id,
-        display_number: item.display_number,
-        name: item.name,
-        price: Number(item.price ?? item.current_price),
-        quantity: 1,
-        notes: [],
-    });
-};
-
 const repeatOrder = (order) => {
-    const activeLines = order.lines.filter((line) => line.is_active);
-    orderLines.value = activeLines.map((line) => ({
-        id: line.menu_item_id,
-        display_number: line.display_number,
-        name: line.name,
-        price: Number(line.current_price),
-        quantity: line.quantity,
-        notes: [...(line.notes ?? [])],
-    }));
+    setOrderLinesFromHistory(order.lines);
     repeatedSourceOrderId.value = order.id;
-};
-
-const decreaseQuantity = (line) => {
-    if (line.quantity <= 1) {
-        orderLines.value = orderLines.value.filter((l) => l.id !== line.id);
-        return;
-    }
-    line.quantity -= 1;
-};
-
-const addNoteToLine = (line, note) => {
-    const cleanedNote = cleanNote(note);
-    if (!cleanedNote) return;
-    if (line.notes.some((existingNote) => normalizeNote(existingNote) === normalizeNote(cleanedNote))) return;
-    if (line.notes.length >= 5) {
-        toastService.error('Maximaal 5 opmerkingen per gerecht.');
-        return;
-    }
-
-    line.notes.push(cleanedNote);
-    customNoteInputs.value[line.id] = '';
-};
-
-const removeNoteFromLine = (line, note) => {
-    line.notes = line.notes.filter((existingNote) => existingNote !== note);
 };
 
 const submitOrder = async () => {
@@ -250,7 +201,7 @@ const submitOrder = async () => {
             throw new Error(payload.message || 'Fout bij bestellen.');
         }
         toastService.success(`Bestelling #${payload.order.id} geplaatst.`);
-        orderLines.value = [];
+        clearOrderLines();
         repeatedSourceOrderId.value = null;
         await Promise.all([loadTableStatus(), loadOrderHistory()]);
     } catch (error) {
@@ -406,7 +357,7 @@ onUnmounted(() => {
                         </div>
                         <button
                             v-if="orderLines.length > 0"
-                            @click="orderLines = []"
+                            @click="clearOrderLines"
                             class="text-[9px] uppercase font-black text-stone-300 hover:text-red-500 transition-colors"
                         >
                             Wissen
@@ -424,7 +375,7 @@ onUnmounted(() => {
                                 <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
                                     <button @click="decreaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
                                     <span class="w-6 text-center font-black text-[10px]">{{ line.quantity }}</span>
-                                    <button @click="line.quantity++" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
+                                    <button @click="increaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
                                 </div>
                             </div>
 

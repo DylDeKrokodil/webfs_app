@@ -1,28 +1,17 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import AdminSidebar from './AdminSidebar.vue';
+import { useAdminShell } from '../composables/useAdminShell';
+import { adminDateTimeFormatter as dateFormatter, currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
 
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
-const isSidebarOpen = ref(false);
+const { csrfToken, isSidebarOpen } = useAdminShell();
 
 const tables = ref([]);
 const selectedTableCode = ref('');
 const isLoading = ref(true);
 const isCheckingOut = ref(false);
 const errorMessage = ref('');
-
-const formatter = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
-});
-
-const dateFormatter = new Intl.DateTimeFormat('nl-NL', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-});
 
 const selectedTable = computed(() =>
     tables.value.find((table) => table.table_code === selectedTableCode.value) ?? tables.value[0] ?? null,

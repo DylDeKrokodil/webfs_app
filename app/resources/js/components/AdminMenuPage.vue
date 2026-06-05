@@ -1,10 +1,12 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import AdminSidebar from './AdminSidebar.vue';
+import { useAdminShell } from '../composables/useAdminShell';
+import { useMenuItems } from '../composables/useMenuItems';
+import { currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
 
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
-const isSidebarOpen = ref(false);
+const { csrfToken, isSidebarOpen } = useAdminShell();
 
 const categories = ref([]);
 const items = ref([]);
@@ -29,37 +31,23 @@ const emptyForm = () => ({
 
 const form = ref(emptyForm());
 
-const formatter = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
+const {
+    activeItems,
+    inactiveItems,
+    visibleItems,
+    groupedItems,
+} = useMenuItems({
+    items,
+    query,
+    categoryFilter,
+    statusFilter,
+    searchableFields: ['display_number', 'name', 'description', 'category'],
 });
 
-const activeItems = computed(() => items.value.filter((item) => item.is_active));
-const inactiveItems = computed(() => items.value.filter((item) => !item.is_active));
 const averagePrice = computed(() => {
     if (items.value.length === 0) return formatter.format(0);
     const total = items.value.reduce((sum, item) => sum + Number(item.price), 0);
     return formatter.format(total / items.value.length);
-});
-
-const visibleItems = computed(() => {
-    const needle = query.value.trim().toLowerCase();
-    return items.value.filter((item) => {
-        const matchesQuery = needle === '' || [item.display_number, item.name, item.description, item.category]
-            .filter(Boolean).some((value) => String(value).toLowerCase().includes(needle));
-        const matchesCategory = categoryFilter.value === 'all' || String(item.menu_category_id) === String(categoryFilter.value);
-        const matchesStatus = statusFilter.value === 'all' || (statusFilter.value === 'active' && item.is_active) || (statusFilter.value === 'inactive' && !item.is_active);
-        return matchesQuery && matchesCategory && matchesStatus;
-    });
-});
-
-const groupedItems = computed(() => {
-    const groups = new Map();
-    visibleItems.value.forEach((item) => {
-        if (!groups.has(item.category)) groups.set(item.category, []);
-        groups.get(item.category).push(item);
-    });
-    return Array.from(groups, ([category, groupItems]) => ({ category, items: groupItems }));
 });
 
 const selectItem = (item) => {

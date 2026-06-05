@@ -1,6 +1,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import LegacyPageShell from './LegacyPageShell.vue';
+import { currencyFormatter as formatter } from '../services/formatters';
+import { fetchPublicMenuItems } from '../services/menuApi';
 
 const FAVORITES_COOKIE_NAME = 'gouden_draak_favorite_menu_items';
 const FAVORITES_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -12,11 +14,6 @@ const menuSortMode = ref('default');
 const favoritesSortMode = ref('number');
 const isLoading = ref(true);
 const errorMessage = ref('');
-
-const formatter = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
-});
 
 const parseNumber = (item) => {
     const parsed = Number(item.number);
@@ -113,14 +110,7 @@ const loadMenu = async () => {
     errorMessage.value = '';
 
     try {
-        const response = await fetch('/api/menu-items', {
-            headers: { Accept: 'application/json' },
-        });
-
-        if (!response.ok) throw new Error('Menukaart kon niet worden geladen.');
-
-        const payload = await response.json();
-        items.value = payload.data ?? [];
+        items.value = await fetchPublicMenuItems();
     } catch (error) {
         errorMessage.value = error.message;
     } finally {
