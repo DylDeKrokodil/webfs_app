@@ -11,6 +11,21 @@
         <link rel="icon" type="image/png" href="/favicon-32x32.png">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+        <style>
+            :root {
+                --legacy-menu-bg: url("{{ asset('images/menu_bg_gradient.png') }}");
+            }
+
+            @font-face {
+                font-family: "chinese_takeawayregular";
+                font-style: normal;
+                font-weight: 400;
+                src:
+                    url("{{ asset('fonts/chinesetakeaway-webfont.woff2') }}") format("woff2"),
+                    url("{{ asset('fonts/chinesetakeaway-webfont.woff') }}") format("woff");
+            }
+        </style>
+
         @vite(['resources/css/app.css'])
     </head>
     <body class="kassa-login-body">

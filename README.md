@@ -21,7 +21,7 @@ De implementatie volgt de geselecteerde user stories uit `WEBFS - Nieuwe Functio
 
 - Backend: Laravel
 - Frontend: Vue 3 met Vite
-- Webserver: Apache 2.4
+- Webserver: nginx als front-door, Apache/PHP als interne Laravel-runtime
 - Database: MySQL 8
 - Development: Docker Compose
 
@@ -69,7 +69,7 @@ Start de omgeving:
 docker compose up --build
 ```
 
-Dit start Laravel, Vite met live reload, MySQL en phpMyAdmin.
+Dit start nginx, Laravel, Vite met live reload, MySQL en phpMyAdmin. nginx is de publieke ingang op poort 8080 en proxy't intern naar de Laravel-runtime.
 
 De nieuwe Laravel-app gebruikt database `gouden_draak_app`. De legacy-app gebruikt database `gouden_draak_legacy`, zodat legacy-data en nieuwe Laravel-migraties elkaar niet raken.
 
@@ -97,6 +97,26 @@ Open daarna:
 - Applicatie: http://localhost:8080
 - Oude website/kassa: http://localhost:8090
 - phpMyAdmin: http://localhost:8081
+
+## OTAP
+
+De repo bevat een concrete OTAP-inrichting:
+
+- Ontwikkel: `docker-compose.yml`, app op http://localhost:8080
+- Test: `docker-compose.yml` + `docker-compose.test.yml`, app op http://localhost:8082
+- Acceptatie: `docker-compose.yml` + `docker-compose.acceptance.yml`, app op http://localhost:8084
+- Productie: build/deploy volgens het runbook
+
+De OTAP-poorten worden door nginx gepubliceerd. De Laravel app-container blijft intern beschikbaar via Docker service naam `app`, zodat de webserverlaag per omgeving kan meegroeien zonder de applicatiecontainer zelf publiek te maken.
+
+Gebruik alleen echte `.env` bestanden lokaal of op de server. Commit alleen templates zoals:
+
+- `app/.env.example`
+- `app/.env.test.example`
+- `app/.env.acceptance.example`
+- `app/.env.production.example`
+
+Het volledige proces staat in `docs/otap.md`.
 
 ## Oude site
 

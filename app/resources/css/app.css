@@ -16,17 +16,6 @@
     --color-brand-border: #d6d3d1;
 }
 
-@font-face {
-    font-family: "chinese_takeawayregular";
-    font-style: normal;
-    font-weight: 400;
-    src:
-        url("http://localhost:8080/fonts/chinesetakeaway-webfont.woff2")
-        format("woff2"),
-        url("http://localhost:8080/fonts/chinesetakeaway-webfont.woff")
-        format("woff");
-}
-
 .brand-lockup {
     display: inline-flex;
     align-items: center;
@@ -323,9 +312,7 @@
     border-collapse: separate;
     margin-top: 36px;
     border: 0;
-    background:
-        url("http://localhost:8080/images/menu_bg_gradient.png") center / 100% 100%
-        no-repeat;
+    background: var(--legacy-menu-bg) center / 100% 100% no-repeat;
     color: white;
     font-family: "Times New Roman", Times, serif;
     font-size: 20px;

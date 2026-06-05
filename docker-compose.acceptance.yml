@@ -1,0 +1,46 @@
+services:
+  nginx:
+    container_name: gouden_draak_acc_nginx
+    ports: !override
+      - "8084:80"
+
+  app:
+    container_name: gouden_draak_acc_app
+    env_file:
+      - app/.env.acceptance
+    depends_on:
+      - mysql
+
+  vite:
+    container_name: gouden_draak_acc_vite
+    command: npm run dev -- --host 0.0.0.0 --port 5175
+    env_file:
+      - app/.env.acceptance
+    ports: !override
+      - "5175:5175"
+
+  mysql:
+    container_name: gouden_draak_acc_mysql
+    environment:
+      MYSQL_DATABASE: gouden_draak_acc
+      MYSQL_USER: gouden_draak
+      MYSQL_PASSWORD: gouden_draak
+      MYSQL_ROOT_PASSWORD: root
+    ports: !override
+      - "3309:3306"
+    volumes:
+      - mysql_acceptance_data:/var/lib/mysql
+      - ./webfs_old/gouden_draak_create_script.sql:/legacy-source/gouden_draak_create_script.sql:ro
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+
+  phpmyadmin:
+    container_name: gouden_draak_acc_phpmyadmin
+    ports: !override
+      - "8085:80"
+
+  legacy:
+    profiles:
+      - legacy
+
+volumes:
+  mysql_acceptance_data:
