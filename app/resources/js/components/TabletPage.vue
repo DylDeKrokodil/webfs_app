@@ -236,53 +236,53 @@ onUnmounted(() => {
 
 <template>
     <main class="min-h-screen bg-[#FAFAF9] text-[#1C1917] font-sans antialiased">
-        <!-- Premium Header -->
-        <header class="bg-white border-b border-[#D6D3D1] px-6 py-4 sticky top-0 z-50 shadow-sm">
+        <!-- Compact Header -->
+        <header class="bg-white border-b border-[#D6D3D1] px-5 py-3 sticky top-0 z-50 shadow-sm">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-[#7F1D1D] rounded-xl flex items-center justify-center shadow-lg">
-                        <span class="text-white font-black text-xl">D</span>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#7F1D1D] rounded-lg flex items-center justify-center shadow-md">
+                        <span class="text-white font-black text-lg">D</span>
                     </div>
                     <div>
-                        <p class="text-[10px] uppercase tracking-widest font-black text-[#A16207]">Gouden Draak Tablet</p>
-                        <h1 class="text-2xl font-black leading-none">
+                        <p class="text-[9px] uppercase tracking-widest font-black text-[#A16207]">Gouden Draak</p>
+                        <h1 class="text-xl font-black leading-none">
                             {{ tableNumber ? `Tafel ${tableNumber}` : 'Geen tafel' }}
                         </h1>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-6">
-                    <div v-if="tableStatus" class="flex gap-4">
+                <div class="flex items-center gap-5">
+                    <div v-if="tableStatus" class="flex gap-3">
                         <div class="text-right hidden sm:block">
-                            <p class="text-[10px] uppercase font-bold text-stone-500">Ronde</p>
-                            <p class="font-black text-lg text-stone-900 leading-none">
-                                {{ tableStatus.rounds_used }} <span class="text-stone-400 font-medium">/</span> {{ tableStatus.max_rounds }}
+                            <p class="text-[9px] uppercase font-bold text-stone-400">Ronde</p>
+                            <p class="font-black text-stone-900 leading-none">
+                                {{ tableStatus.rounds_used }} <span class="text-stone-300">/</span> {{ tableStatus.max_rounds }}
                             </p>
                         </div>
-                        <div v-if="!canOrder" class="px-3 py-1 bg-[#FFF7ED] border border-[#FED7AA] rounded-lg flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-[#A16207] animate-pulse"></div>
-                            <span class="text-xs font-black text-[#A16207] uppercase">{{ cooldownDisplay }}</span>
+                        <div v-if="!canOrder" class="px-2 py-0.5 bg-[#FFF7ED] border border-[#FED7AA] rounded-md flex items-center gap-1.5">
+                            <div class="w-1.5 h-1.5 rounded-full bg-[#A16207] animate-pulse"></div>
+                            <span class="text-[10px] font-black text-[#A16207] uppercase">{{ cooldownDisplay }}</span>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-[10px] uppercase font-bold text-stone-500">Subtotaal</p>
-                        <p class="font-black text-2xl text-[#7F1D1D] leading-none">{{ formatter.format(orderTotal) }}</p>
+                        <p class="text-[9px] uppercase font-bold text-stone-400">Totaal</p>
+                        <p class="font-black text-xl text-[#7F1D1D] leading-none">{{ formatter.format(orderTotal) }}</p>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="max-w-7xl mx-auto p-4 md:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
             <!-- Left Side: Menu -->
-            <section class="lg:col-span-8 space-y-6">
+            <section class="lg:col-span-8 space-y-5">
                 <!-- Navigation Tabs -->
-                <div class="flex p-1 bg-stone-200 rounded-xl">
+                <div class="flex p-1 bg-stone-200 rounded-xl max-w-xs">
                     <button
                         v-for="panel in ['menu', 'cocktails']"
                         :key="panel"
                         @click="activeTabletPanel = panel"
-                        class="flex-1 py-3 px-4 rounded-lg font-black text-sm uppercase tracking-wide transition-all duration-200"
-                        :class="activeTabletPanel === panel ? 'bg-[#1C1917] text-white shadow-md' : 'text-stone-600 hover:text-stone-900'"
+                        class="flex-1 py-2 px-4 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all"
+                        :class="activeTabletPanel === panel ? 'bg-[#1C1917] text-white shadow-sm' : 'text-stone-500 hover:text-stone-900'"
                     >
                         {{ panel === 'menu' ? 'Gerechten' : 'Cocktails' }}
                     </button>
@@ -290,82 +290,67 @@ onUnmounted(() => {
 
                 <template v-if="activeTabletPanel === 'menu'">
                     <!-- Search & Filters -->
-                    <div class="bg-white border border-[#D6D3D1] rounded-2xl p-4 shadow-sm space-y-4">
-                        <div class="relative">
+                    <div class="bg-white border border-[#D6D3D1] rounded-2xl p-3 shadow-sm flex flex-col md:flex-row gap-3">
+                        <div class="relative flex-1">
                             <input
                                 v-model="menuSearchQuery"
                                 type="text"
-                                placeholder="Zoek op nummer of naam..."
-                                class="w-full h-12 bg-stone-100 border-none rounded-xl px-4 pl-12 font-bold text-stone-800 focus:ring-2 focus:ring-[#A16207] outline-none transition-all"
+                                placeholder="Zoek nummer of naam..."
+                                class="w-full h-10 bg-stone-50 border-none rounded-xl px-4 pl-10 font-bold text-stone-800 text-sm focus:ring-1 focus:ring-[#A16207] outline-none"
                             >
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                             </span>
                         </div>
 
-                        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <div class="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide md:max-w-sm">
                             <button
-                                @click="activeMenuCategory = ''"
-                                class="px-5 py-2 rounded-full whitespace-nowrap font-bold text-sm transition-all"
-                                :class="activeMenuCategory === '' ? 'bg-[#A16207] text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'"
-                            >
-                                Alles
-                            </button>
-                            <button
-                                v-for="cat in menuCategories"
+                                v-for="cat in ['', ...menuCategories]"
                                 :key="cat"
                                 @click="activeMenuCategory = cat"
-                                class="px-5 py-2 rounded-full whitespace-nowrap font-bold text-sm transition-all"
-                                :class="activeMenuCategory === cat ? 'bg-[#A16207] text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'"
+                                class="px-4 py-1.5 rounded-full whitespace-nowrap font-bold text-[10px] uppercase tracking-wide transition-all"
+                                :class="activeMenuCategory === cat ? 'bg-[#A16207] text-white' : 'bg-stone-50 text-stone-500 hover:bg-stone-100'"
                             >
-                                {{ cat }}
+                                {{ cat === '' ? 'Alles' : cat }}
                             </button>
                         </div>
                     </div>
 
                     <!-- Items Grid -->
-                    <div v-if="isLoading" class="py-20 text-center space-y-4">
-                        <div class="w-12 h-12 border-4 border-stone-200 border-t-[#A16207] rounded-full animate-spin mx-auto"></div>
-                        <p class="font-black text-stone-400 uppercase tracking-widest text-sm">Gerechten laden...</p>
+                    <div v-if="isLoading" class="py-20 text-center">
+                        <div class="w-8 h-8 border-3 border-stone-100 border-t-[#A16207] rounded-full animate-spin mx-auto"></div>
                     </div>
-                    <div v-else-if="filteredGroupedItems.length === 0" class="py-20 text-center space-y-2 text-stone-400">
-                        <p class="font-black text-lg">Geen gerechten gevonden</p>
-                        <p class="font-medium">Probeer een andere zoekterm of categorie.</p>
-                    </div>
-                    <div v-else class="space-y-10">
-                        <section v-for="group in filteredGroupedItems" :key="group.category" class="space-y-4">
+                    <div v-else class="space-y-8">
+                        <section v-for="group in filteredGroupedItems" :key="group.category" class="space-y-3">
                             <h3 class="flex items-center gap-3">
-                                <span class="text-stone-900 font-black uppercase tracking-widest text-sm">{{ group.category }}</span>
-                                <div class="flex-1 h-px bg-[#D6D3D1]"></div>
-                                <span class="text-stone-400 text-xs font-bold">{{ group.items.length }} items</span>
+                                <span class="text-stone-900 font-black uppercase tracking-widest text-[10px]">{{ group.category }}</span>
+                                <div class="flex-1 h-px bg-stone-200"></div>
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <button
                                     v-for="item in group.items"
                                     :key="item.id"
                                     @click="addItem(item)"
-                                    class="group flex items-start gap-4 p-4 bg-white border border-[#D6D3D1] rounded-2xl text-left transition-all duration-200 hover:border-[#A16207] hover:shadow-lg active:scale-[0.98]"
-                                    :class="itemQuantityById.has(item.id) ? 'ring-2 ring-[#A16207] border-transparent bg-stone-50' : ''"
+                                    class="group flex items-center gap-3 p-3 bg-white border border-[#D6D3D1] rounded-xl text-left transition-all hover:border-[#A16207] hover:shadow-md"
+                                    :class="itemQuantityById.has(item.id) ? 'ring-1 ring-[#A16207] border-transparent bg-stone-50' : ''"
                                 >
                                     <div
-                                        class="w-12 h-12 flex-shrink-0 rounded-xl flex items-center justify-center font-black text-sm transition-colors"
-                                        :class="itemQuantityById.has(item.id) ? 'bg-[#A16207] text-white' : 'bg-stone-100 text-stone-500 group-hover:bg-[#A16207] group-hover:text-white'"
+                                        class="w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center font-black text-xs transition-colors"
+                                        :class="itemQuantityById.has(item.id) ? 'bg-[#A16207] text-white' : 'bg-stone-50 text-stone-400 group-hover:bg-stone-900 group-hover:text-white'"
                                     >
                                         {{ item.display_number || '-' }}
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="flex justify-between items-start gap-2">
-                                            <h4 class="font-black text-stone-900 truncate leading-tight">{{ item.name }}</h4>
-                                            <span class="font-black text-[#7F1D1D] whitespace-nowrap">{{ formatter.format(item.price) }}</span>
+                                        <div class="flex justify-between items-center gap-2">
+                                            <h4 class="font-black text-stone-900 text-xs truncate">{{ item.name }}</h4>
+                                            <span class="font-black text-[#7F1D1D] text-xs">{{ formatter.format(item.price) }}</span>
                                         </div>
-                                        <p class="text-xs text-stone-500 font-medium line-clamp-2 mt-1 leading-relaxed">
+                                        <p class="text-[10px] text-stone-400 font-medium truncate mt-0.5">
                                             {{ item.description || item.category }}
                                         </p>
                                     </div>
-                                    <div v-if="itemQuantityById.has(item.id)" class="flex-shrink-0">
-                                        <div class="bg-[#1C1917] text-white w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black shadow-md">
-                                            {{ itemQuantityById.get(item.id) }}x
-                                        </div>
+                                    <div v-if="itemQuantityById.has(item.id)" class="bg-[#1C1917] text-white w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black">
+                                        {{ itemQuantityById.get(item.id) }}
                                     </div>
                                 </button>
                             </div>
@@ -377,90 +362,71 @@ onUnmounted(() => {
             </section>
 
             <!-- Right Side: Order Summary -->
-            <aside class="lg:col-span-4 space-y-6 sticky top-[100px] self-start max-h-[calc(100dvh-120px)] overflow-y-auto pr-2 custom-scrollbar">
+            <aside class="lg:col-span-4 space-y-5 sticky top-[80px] self-start max-h-[calc(100dvh-100px)] overflow-y-auto custom-scrollbar pr-1">
                 <!-- Current Order -->
-                <div class="bg-white border border-[#D6D3D1] rounded-3xl shadow-xl flex flex-col h-fit">
-                    <div class="p-6 border-b border-stone-100 flex items-center justify-between">
+                <div class="bg-white border border-[#D6D3D1] rounded-2xl shadow-lg flex flex-col h-fit">
+                    <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
                         <div>
-                            <h2 class="font-black text-xl">Bestelling</h2>
-                            <p class="text-[10px] uppercase font-bold text-stone-400">{{ lineCount }} items geselecteerd</p>
+                            <h2 class="font-black text-base">Bestelling</h2>
+                            <p class="text-[9px] uppercase font-bold text-stone-400">{{ lineCount }} items</p>
                         </div>
                         <button
                             v-if="orderLines.length > 0"
                             @click="orderLines = []"
-                            class="text-[10px] uppercase font-black text-stone-400 hover:text-red-600 transition-colors"
+                            class="text-[9px] uppercase font-black text-stone-300 hover:text-red-500 transition-colors"
                         >
-                            Leegmaken
+                            Wissen
                         </button>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto max-h-[40vh] p-6 space-y-4">
-                        <div v-if="orderLines.length === 0" class="py-10 text-center space-y-3">
-                            <div class="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center mx-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D6D3D1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                            </div>
-                            <p class="text-stone-400 font-bold text-sm italic">Kies gerechten om te beginnen</p>
-                        </div>
-
-                        <article v-for="line in orderLines" :key="line.id" class="flex items-center gap-4 group">
+                    <div class="p-5 space-y-3">
+                        <p v-if="orderLines.length === 0" class="text-stone-300 font-bold text-[10px] text-center italic py-4">Kies gerechten</p>
+                        <article v-for="line in orderLines" :key="line.id" class="flex items-center gap-3">
                             <div class="flex-1 min-w-0">
-                                <p class="font-black text-stone-900 text-sm truncate leading-tight">{{ line.display_number }} {{ line.name }}</p>
-                                <p class="text-[10px] font-bold text-stone-400">{{ formatter.format(line.price) }} / stuk</p>
+                                <p class="font-black text-stone-900 text-[11px] truncate">{{ line.display_number }} {{ line.name }}</p>
+                                <p class="text-[9px] font-bold text-stone-400">{{ formatter.format(line.price) }} / st.</p>
                             </div>
-                            <div class="flex items-center bg-stone-100 rounded-lg p-1">
-                                <button @click="decreaseQuantity(line)" class="w-8 h-8 flex items-center justify-center font-black text-stone-500 hover:bg-white hover:text-stone-900 rounded-md transition-all">-</button>
-                                <span class="w-8 text-center font-black text-sm">{{ line.quantity }}</span>
-                                <button @click="line.quantity++" class="w-8 h-8 flex items-center justify-center font-black text-stone-500 hover:bg-white hover:text-stone-900 rounded-md transition-all">+</button>
+                            <div class="flex items-center bg-stone-50 rounded-lg p-0.5 border border-stone-100">
+                                <button @click="decreaseQuantity(line)" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">-</button>
+                                <span class="w-6 text-center font-black text-[10px]">{{ line.quantity }}</span>
+                                <button @click="line.quantity++" class="w-6 h-6 flex items-center justify-center font-black text-stone-400 hover:text-stone-900">+</button>
                             </div>
                         </article>
                     </div>
 
-                    <div class="p-6 bg-stone-50 rounded-b-3xl border-t border-stone-100 space-y-4">
+                    <div class="p-5 bg-stone-50 rounded-b-2xl border-t border-stone-100 space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-stone-500 uppercase text-[10px] tracking-widest">Totaal bedrag</span>
-                            <span class="font-black text-2xl text-[#7F1D1D]">{{ formatter.format(orderTotal) }}</span>
+                            <span class="font-bold text-stone-400 uppercase text-[9px] tracking-widest">Totaal</span>
+                            <span class="font-black text-xl text-[#7F1D1D]">{{ formatter.format(orderTotal) }}</span>
                         </div>
 
                         <button
                             @click="submitOrder"
                             :disabled="!canOrder || orderLines.length === 0 || isSubmitting"
-                            class="w-full h-14 bg-[#1C1917] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-stone-200 transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-3"
+                            class="w-full h-11 bg-[#1C1917] text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-md transition-all active:scale-[0.98] disabled:opacity-40 disabled:grayscale flex items-center justify-center gap-2"
                         >
-                            <span v-if="isSubmitting" class="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                            {{ isSubmitting ? 'Versturen...' : 'Bestelling plaatsen' }}
+                            <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                            {{ isSubmitting ? 'Bezig...' : 'Bestellen' }}
                         </button>
-
-                        <p v-if="!canOrder && tableStatus" class="text-center text-[10px] font-bold text-[#A16207] uppercase bg-[#FFF7ED] py-2 rounded-lg border border-[#FED7AA]">
-                            {{ tableStatus.message }}
-                        </p>
                     </div>
                 </div>
 
                 <!-- Previous Rounds -->
-                <div class="bg-white border border-[#D6D3D1] rounded-3xl p-6 shadow-sm space-y-4">
-                    <h2 class="font-black text-lg">Eerdere rondes</h2>
-
-                    <div v-if="isHistoryLoading" class="py-10 text-center">
-                        <div class="w-8 h-8 border-3 border-stone-100 border-t-[#A16207] rounded-full animate-spin mx-auto"></div>
+                <div class="bg-white border border-[#D6D3D1] rounded-2xl p-5 shadow-sm space-y-3">
+                    <h2 class="font-black text-xs uppercase tracking-widest text-stone-400">Eerdere rondes</h2>
+                    <div v-if="orderHistory.length === 0" class="text-center py-4 text-stone-300 font-bold text-[10px] italic border border-dashed border-stone-100 rounded-xl">
+                        Geen geschiedenis
                     </div>
-                    <p v-else-if="orderHistory.length === 0" class="text-center py-4 text-stone-400 font-bold text-xs italic border-2 border-dashed border-stone-100 rounded-xl">
-                        Nog geen eerdere rondes
-                    </p>
-                    <div v-else class="space-y-4">
-                        <div v-for="order in orderHistory" :key="order.id" class="border border-stone-100 rounded-xl overflow-hidden">
-                            <div class="bg-stone-50 px-4 py-2 flex items-center justify-between border-b border-stone-100">
-                                <div>
-                                    <p class="font-black text-[10px] text-stone-900 uppercase">Ronde #{{ order.id }}</p>
-                                    <p class="text-[9px] font-bold text-stone-400">{{ formatOrderDate(order.created_at) }}</p>
-                                </div>
-                                <button @click="repeatOrder(order)" class="text-[10px] font-black text-[#A16207] hover:underline uppercase">Herhaal</button>
+                    <div v-else class="space-y-3">
+                        <div v-for="order in orderHistory" :key="order.id" class="border border-stone-100 rounded-xl overflow-hidden text-[10px]">
+                            <div class="bg-stone-50 px-3 py-1.5 flex items-center justify-between border-b border-stone-100">
+                                <p class="font-black text-stone-900 uppercase">Ronde #{{ order.id }}</p>
+                                <button @click="repeatOrder(order)" class="font-black text-[#A16207] uppercase">Herhaal</button>
                             </div>
-                            <div class="p-3 space-y-1">
-                                <div v-for="line in order.lines" :key="line.menu_item_id" class="flex justify-between items-center text-[11px]">
-                                    <span class="text-stone-600 font-medium">
-                                        <span class="font-black text-stone-900">{{ line.quantity }}x</span> {{ line.name }}
-                                    </span>
-                                    <span v-if="!line.is_active" class="text-[9px] font-black text-red-500 uppercase bg-red-50 px-1.5 py-0.5 rounded">Niet meer beschikbaar</span>
+                            <div class="p-2.5 space-y-0.5">
+                                <div v-for="line in order.lines" :key="line.menu_item_id" class="flex justify-between items-center text-[10px]">
+                                    <span class="text-stone-500"><span class="font-black text-stone-900">{{ line.quantity }}x</span> {{ line.name }}</span>
+                                    <span v-if="!line.is_active" class="text-[7px] font-black text-red-500 uppercase bg-red-50 px-1 rounded">OP</span>
                                 </div>
                             </div>
                         </div>
@@ -479,7 +445,7 @@ onUnmounted(() => {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
