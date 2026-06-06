@@ -1,6 +1,8 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
 import LegacyPageShell from './LegacyPageShell.vue';
 
+const { t } = useI18n();
 const contactMap = '/images/contact-map.png';
 </script>
 
@@ -9,8 +11,7 @@ const contactMap = '/images/contact-map.png';
         <section class="legacy-contact-page" aria-labelledby="contact-title">
             <div class="legacy-contact-card">
                 <h2 id="contact-title">
-                    De Gouden Draak is eenvoudig te vinden, vlak bij het centrum,
-                    5 minuten lopen achter het centraal station.
+                    {{ t('contact.find_us') }}
                 </h2>
 
                 <address>
@@ -22,7 +23,7 @@ const contactMap = '/images/contact-map.png';
             <img
                 class="legacy-contact-map"
                 :src="contactMap"
-                alt="Kaart naar Onderwijsboulevard 215 in 's-Hertogenbosch"
+                :alt="t('contact.map_alt')"
             >
         </section>
     </LegacyPageShell>

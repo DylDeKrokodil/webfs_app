@@ -64,24 +64,38 @@ class PublicOrderController extends Controller
         });
     }
 
-    public function show(string $token, OrderQrCodeService $qrCodeService): JsonResponse
+    public function show(Request $request, string $token, OrderQrCodeService $qrCodeService, \App\Services\TranslationService $translator): JsonResponse
     {
+        $targetLang = $request->header('X-Locale', 'nl');
         $order = Order::where('table_code', $token)
             ->where('channel', 'web')
             ->with('lines.menuItem')
             ->firstOrFail();
+
+        $lines = $order->lines->map(fn($line) => [
+            'name' => $line->menuItem?->name,
+            'number' => trim(($line->menuItem?->number ?? '').($line->menuItem?->suffix ?? '')),
+            'quantity' => $line->quantity,
+            'price' => (float) $line->unit_price,
+        ]);
+
+        if (strtolower($targetLang) !== 'nl') {
+            $names = array_values(array_unique(array_filter($lines->pluck('name')->toArray())));
+            $translatedMap = $translator->translateArray($names, $targetLang);
+            $lookup = array_combine($names, $translatedMap);
+
+            $lines = $lines->map(function($line) use ($lookup) {
+                $line['name'] = $lookup[$line['name']] ?? $line['name'];
+                return $line;
+            });
+        }
 
         return response()->json([
             'order' => [
                 'id' => $order->id,
                 'total' => (float) $order->total,
                 'paid_at' => $order->paid_at?->toIso8601String(),
-                'lines' => $order->lines->map(fn($line) => [
-                    'name' => $line->menuItem?->name,
-                    'number' => trim(($line->menuItem?->number ?? '').($line->menuItem?->suffix ?? '')),
-                    'quantity' => $line->quantity,
-                    'price' => (float) $line->unit_price,
-                ]),
+                'lines' => $lines,
             ],
             'qr_code' => $qrCodeService->generateForOrder($order),
         ]);

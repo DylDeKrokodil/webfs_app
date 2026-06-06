@@ -76,6 +76,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::get('/api/menu-items', [MenuItemController::class, 'index']);
+Route::get('/api/locales/{lang}', [\App\Http\Controllers\LocaleController::class, 'show']);
 Route::post('/api/takeaway/orders', [PublicOrderController::class, 'store']);
 Route::get('/api/takeaway/orders/{token}', [PublicOrderController::class, 'show'])
     ->where('token', 'WEB-[A-Z0-9]+');

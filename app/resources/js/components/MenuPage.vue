@@ -1,10 +1,13 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useMenuSync } from '../composables/useMenuSync';
 import { useCart } from '../composables/useCart';
 import LegacyPageShell from './LegacyPageShell.vue';
 import { currencyFormatter as formatter } from '../services/formatters';
 import { fetchPublicMenuItems } from '../services/menuApi';
+
+const { t, locale } = useI18n();
 
 const FAVORITES_COOKIE_NAME = 'gouden_draak_favorite_menu_items';
 const FAVORITES_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -119,6 +122,10 @@ const toggleFavorite = (item) => {
     writeFavoriteCookie();
 };
 
+watch(locale, () => {
+    loadMenu();
+});
+
 const loadMenu = async () => {
     isLoading.value = true;
     errorMessage.value = '';
@@ -126,7 +133,7 @@ const loadMenu = async () => {
     try {
         items.value = await fetchPublicMenuItems();
     } catch (error) {
-        errorMessage.value = error.message;
+        errorMessage.value = error.message || t('menu.errors.load_failed');
     } finally {
         isLoading.value = false;
     }
@@ -143,6 +150,7 @@ const checkout = async () => {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+                'X-Locale': locale.value
             },
             body: JSON.stringify({
                 items: cartItems.value.map((i) => ({ id: i.id, quantity: i.quantity })),
@@ -150,7 +158,7 @@ const checkout = async () => {
         });
 
         const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Bestellen mislukt');
+        if (!response.ok) throw new Error(data.message || t('menu.errors.checkout_failed'));
 
         clearCart();
         window.location.href = `/bestelling/${data.token}`;
@@ -177,20 +185,20 @@ onMounted(() => {
 
 <template>
     <LegacyPageShell>
-        <section class="legacy-menu-page" aria-label="Menukaart">
+        <section class="legacy-menu-page" :aria-label="t('nav.menu')">
             <div class="legacy-menu-panel">
                 <header class="legacy-menu-header">
                     <div>
-                        <p>Actuele menukaart</p>
-                        <h2>Gerechten uit de database</h2>
+                        <p>{{ t('menu.current_menu') }}</p>
+                        <h2>{{ t('menu.database_dishes') }}</h2>
                     </div>
 
                     <a class="legacy-menu-download" href="/menukaart.pdf">
-                        Download PDF
+                        {{ t('menu.download_pdf') }}
                     </a>
                 </header>
 
-                <div class="legacy-menu-tabs" role="tablist" aria-label="Menukaart tabs">
+                <div class="legacy-menu-tabs" role="tablist" :aria-label="t('menu.current_menu')">
                     <button
                         type="button"
                         role="tab"
@@ -198,7 +206,7 @@ onMounted(() => {
                         :class="{ 'is-active': activeTab === 'menu' }"
                         @click="activeTab = 'menu'"
                     >
-                        Menu
+                        {{ t('menu.tabs.menu') }}
                     </button>
                     <button
                         type="button"
@@ -207,7 +215,7 @@ onMounted(() => {
                         :class="{ 'is-active': activeTab === 'favorites' }"
                         @click="activeTab = 'favorites'"
                     >
-                        Favorieten
+                        {{ t('menu.tabs.favorites') }}
                         <span>{{ favoriteItems.length }}</span>
                     </button>
                     <button
@@ -217,33 +225,33 @@ onMounted(() => {
                         :class="{ 'is-active': activeTab === 'cart' }"
                         @click="activeTab = 'cart'"
                     >
-                        Winkelmandje
+                        {{ t('menu.tabs.cart') }}
                         <span v-if="cartCount > 0">{{ cartCount }}</span>
                     </button>
                 </div>
 
                 <div v-if="activeTab === 'menu'" class="legacy-menu-toolbar">
                     <label>
-                        Sorteer menu
+                        {{ t('menu.sorting.label_menu') }}
                         <select v-model="menuSortMode">
-                            <option value="default">Standaard volgorde</option>
-                            <option value="favorites-first">Favorieten bovenaan op nummer</option>
-                            <option value="favorites-alpha">Favorieten alfabetisch bovenaan</option>
+                            <option value="default">{{ t('menu.sorting.default') }}</option>
+                            <option value="favorites-first">{{ t('menu.sorting.favorites_first') }}</option>
+                            <option value="favorites-alpha">{{ t('menu.sorting.favorites_alpha') }}</option>
                         </select>
                     </label>
                 </div>
 
                 <div v-else class="legacy-menu-toolbar">
                     <label>
-                        Sorteer favorieten
+                        {{ t('menu.sorting.label_favorites') }}
                         <select v-model="favoritesSortMode">
-                            <option value="number">Op nummer</option>
-                            <option value="alpha">Alfabetisch</option>
+                            <option value="number">{{ t('menu.sorting.by_number') }}</option>
+                            <option value="alpha">{{ t('menu.sorting.alpha') }}</option>
                         </select>
                     </label>
                 </div>
 
-                <p v-if="isLoading" class="legacy-menu-state">Menukaart laden...</p>
+                <p v-if="isLoading" class="legacy-menu-state">{{ t('menu.states.loading') }}</p>
                 <p v-else-if="errorMessage" class="legacy-menu-state is-error">{{ errorMessage }}</p>
 
                 <div v-else-if="activeTab === 'menu'" class="legacy-menu-list">
@@ -259,7 +267,7 @@ onMounted(() => {
                                 :checked="isFavorite(item)"
                                 @change="toggleFavorite(item)"
                             >
-                            <span>Favoriet</span>
+                            <span>{{ t('menu.actions.favorite') }}</span>
                         </label>
 
                         <div class="legacy-menu-code">{{ item.display_number || '-' }}</div>
@@ -276,7 +284,7 @@ onMounted(() => {
                                 @click="addToCart(item)"
                                 class="legacy-menu-add-btn"
                             >
-                                + Bestel
+                                {{ t('menu.actions.add_to_cart') }}
                             </button>
                         </div>
                     </article>
@@ -294,7 +302,7 @@ onMounted(() => {
                                 checked
                                 @change="toggleFavorite(item)"
                             >
-                            <span>Favoriet</span>
+                            <span>{{ t('menu.actions.favorite') }}</span>
                         </label>
 
                         <div class="legacy-menu-code">{{ item.display_number || '-' }}</div>
@@ -311,7 +319,7 @@ onMounted(() => {
                                 @click="addToCart(item)"
                                 class="legacy-menu-add-btn"
                             >
-                                + Bestel
+                                {{ t('menu.actions.add_to_cart') }}
                             </button>
                         </div>
                     </article>
@@ -327,17 +335,17 @@ onMounted(() => {
                             <div class="legacy-menu-code">{{ item.number || '-' }}</div>
                             <div class="legacy-menu-copy">
                                 <h3>{{ item.name }}</h3>
-                                <p>{{ formatter.format(item.price) }} per stuk</p>
+                                <p>{{ t('common.price_per_piece', { price: formatter.format(item.price) }) }}</p>
                             </div>
                             
                             <div class="legacy-cart-actions">
                                 <div class="legacy-quantity-selector">
-                                    <button @click="updateQuantity(item.id, -1)" aria-label="Minder">-</button>
+                                    <button @click="updateQuantity(item.id, -1)" :aria-label="t('menu.actions.less')">-</button>
                                     <span>{{ item.quantity }}</span>
-                                    <button @click="updateQuantity(item.id, 1)" aria-label="Meer">+</button>
+                                    <button @click="updateQuantity(item.id, 1)" :aria-label="t('menu.actions.more')">+</button>
                                 </div>
                                 <div class="legacy-menu-price">{{ formatter.format(item.price * item.quantity) }}</div>
-                                <button @click="removeFromCart(item.id)" class="legacy-cart-remove" title="Verwijderen">
+                                <button @click="removeFromCart(item.id)" class="legacy-cart-remove" :title="t('menu.actions.remove')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                 </button>
                             </div>
@@ -345,7 +353,7 @@ onMounted(() => {
 
                         <div class="legacy-cart-summary">
                             <div class="legacy-total-row">
-                                <span class="label">Totaalbedrag:</span>
+                                <span class="label">{{ t('menu.cart.total') }}</span>
                                 <span class="value">{{ formatter.format(cartTotal) }}</span>
                             </div>
                             <button
@@ -353,17 +361,17 @@ onMounted(() => {
                                 :disabled="isSubmitting"
                                 class="legacy-checkout-btn"
                             >
-                                {{ isSubmitting ? 'Bezig...' : 'Bestelling Plaatsen' }}
+                                {{ isSubmitting ? t('menu.actions.submitting') : t('menu.actions.place_order') }}
                             </button>
                         </div>
                     </div>
                     <p v-else class="legacy-menu-state">
-                        Je winkelmandje is nog leeg. Voeg gerechten toe vanuit het menu.
+                        {{ t('menu.states.empty_cart') }}
                     </p>
                 </div>
 
                 <p v-else-if="activeTab === 'favorites' && favoriteItems.length === 0" class="legacy-menu-state">
-                    Je hebt nog geen favoriete gerechten aangevinkt.
+                    {{ t('menu.states.empty_favorites') }}
                 </p>
             </div>
         </section>

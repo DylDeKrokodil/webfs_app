@@ -1,0 +1,202 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "Chińskie i indyjskie specjały",
+        "loading": "Ładowanie...",
+        "error": "Wystąpił błąd",
+        "back": "Powrót",
+        "next": "Dalej",
+        "send": "Wyślij",
+        "sending": "Wyślij...",
+        "total": "Razem",
+        "unknown": "Nieznane",
+        "price_per_piece": "{price} za sztukę",
+        "items": "pozycje",
+        "order_number": "Numer zamówienia"
+    },
+    "nav": {
+        "menu": "Menu",
+        "news": "Aktualności",
+        "contact": "Kontakt"
+    },
+    "home": {
+        "intro_p1": "Od lat De Gouden Draak jest synonimem najlepszych dań na wynos w 's-Hertogenbosch.",
+        "intro_p2": "Z przyjemnością zapraszamy Państwa na autentyczne dania kuchni kantońskiej.",
+        "student_offer_title": "Specjalna oferta dla studentów",
+        "student_offer_subtitle": "Chiński zestaw ryżowy (dla 2 osób)",
+        "student_offer_instruction": "Wybierz 3 dania z poniższej listy:",
+        "student_offer_sides": "Z białym ryżem. Za dodatkową opłatą można zamówić nasi lub bami.",
+        "student_offer_price": "Cena: {price}",
+        "to_contact": "Do strony Kontakt",
+        "dishes": {
+            "koe_loe_yuk": "Koe Loe Yuk",
+            "foe_yong_hai": "Foe Yong Hai",
+            "tjap_tjoy": "Tjap Tjoy",
+            "prawns_garlic": "Krewetki z smażonym czosnkiem",
+            "babi_pangang": "Babi Pangang",
+            "chicken_black_bean": "Filet z kurczaka w sosie z czarnej fasoli"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "Witamy na stronie De Gouden Draak. Kliknij ten tekst, aby zobaczyć oferty tygodnia!"
+    },
+    "menu": {
+        "current_menu": "Aktualne menu",
+        "database_dishes": "Potrawy z bazy danych",
+        "download_pdf": "Pobierz plik PDF",
+        "tabs": {
+            "menu": "Menu",
+            "favorites": "Ulubione",
+            "cart": "Koszyk"
+        },
+        "sorting": {
+            "label_menu": "Menu sortowania",
+            "label_favorites": "Sortuj ulubione",
+            "default": "Standardowa kolejność",
+            "favorites_first": "Ulubione na górze według numeru",
+            "favorites_alpha": "Ulubione w porządku alfabetycznym na górze",
+            "by_number": "Pod numerem",
+            "alpha": "Alfabetycznie"
+        },
+        "states": {
+            "loading": "Ładowanie menu...",
+            "empty_cart": "Twój koszyk jest jeszcze pusty. Dodaj potrawy z menu.",
+            "empty_favorites": "Nie zaznaczyłeś jeszcze żadnych ulubionych potraw."
+        },
+        "actions": {
+            "favorite": "Ulubione",
+            "add_to_cart": "+ Zamów",
+            "less": "Mniej",
+            "more": "Więcej",
+            "remove": "Usuń",
+            "place_order": "Złożenie zamówienia",
+            "submitting": "W trakcie..."
+        },
+        "cart": {
+            "total": "Łączna kwota:"
+        },
+        "errors": {
+            "load_failed": "Nie udało się załadować menu.",
+            "checkout_failed": "Nie udało się złożyć zamówienia"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak łatwo tu trafić, znajduje się niedaleko centrum, 5 minut spacerem za dworcem głównym.",
+        "map_alt": "Mapa do Onderwijsboulevard 215 w 's-Hertogenbosch"
+    },
+    "confirmation": {
+        "loading": "Ładowanie zamówienia...",
+        "not_found": "Nie znaleziono zamówienia",
+        "back_to_menu": "Powrót do menu",
+        "success_title": "Zamówienie zostało zrealizowane",
+        "success_message": "Dziękujemy za zamówienie!",
+        "your_dishes": "Twoje dania",
+        "total_paid": "Łączna kwota do zapłaty:",
+        "scan_label": "Skanuj przy odbiorze",
+        "qr_alt": "Zamówienie kodu QR",
+        "qr_help": "Pokaż ten kod naszemu pracownikowi, aby od razu odebrać swoje zamówienie.",
+        "print_receipt": "Wydrukuj potwierdzenie odbioru",
+        "order_more": "Chcesz jeszcze coś zamówić?",
+        "pickup_location": "Odbiór osobisty"
+    },
+    "review": {
+        "loading": "Ładowanie formularza opinii...",
+        "expired_title": "Link wygasł",
+        "expired_message": "Nie możemy otworzyć tego formularza opinii.",
+        "received_title": "Otrzymano recenzję",
+        "received_message": "Dziękujemy za opinię.",
+        "received_copy": "Twoja recenzja została zapisana. Nasz zespół wykorzystuje te informacje, aby stale ulepszać jakość jedzenia, obsługę i szybkość obsługi.",
+        "steps": {
+            "step_x_of_y": "Krok {x} ze strony {y}",
+            "overall_title": "Jakie były ogólne wrażenia?",
+            "overall_copy": "Wybierz opcję, która najlepiej pasuje do Twojej wizyty.",
+            "food_title": "Jak smakowało jedzenie?",
+            "food_copy": "Od pierwszego kęsa aż po ostatnią łyżkę sosu.",
+            "service_title": "Jak wyglądała obsługa?",
+            "service_copy": "Pamiętaj o uprzejmości, trosce i sprawnym załatwianiu spraw.",
+            "speed_title": "Jak szybko to wszystko się działo?",
+            "speed_copy": "Od złożenia zamówienia do zapłaty.",
+            "details_title": "Co warto zapamiętać?",
+            "details_copy": "Ulubione danie lub krótka wskazówka to bezpośrednia pomoc dla zespołu."
+        },
+        "scores": {
+            "1": "Może być lepiej",
+            "2": "Umiarkowany",
+            "3": "Świetnie",
+            "4": "Dobrze",
+            "5": "Na górę"
+        },
+        "fields": {
+            "favorite_dish": "Ulubione danie",
+            "favorite_placeholder": "Na przykład Babi Pangang",
+            "comment": "Uwaga lub wskazówka",
+            "comment_placeholder": "Co się udało, a co można poprawić?",
+            "permission": "De Gouden Draak możecie wykorzystać moją opinię do wewnętrznych celów w celu poprawy jakości obsługi i potraw."
+        },
+        "actions": {
+            "submit": "Wyślij recenzję"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "Złożono zamówienie nr{id}.",
+            "assistance_sent": "Kelner zaraz podejdzie do Państwa stolika.",
+            "assistance_resolved": "Kelner odnotował, że nie potrzebujesz już pomocy.",
+            "assistance_created": "Poproszono o pomoc w sprawie tego stołu."
+        },
+        "table_number": "Stół „{number}”",
+        "no_table": "Brak stołu",
+        "assistance": {
+            "title": "Potrzebujesz pomocy?",
+            "warned": "Kelner został ostrzeżony.",
+            "call_prompt": "Poproś kelnera, aby podszedł do Państwa stolika.",
+            "button_calling": "Kelner w drodze",
+            "button_call": "Wezwać kelnera"
+        },
+        "round": "Runda",
+        "checkout": {
+            "thanks": "Dziękuję!",
+            "hope_enjoyed": "Mamy nadzieję, że wizyta na stronie De Gouden Draak sprawiła Państwu przyjemność.",
+            "total_paid": "Łączna kwota zapłacona",
+            "leave_review": "Napisz recenzję",
+            "new_table": "Nowy stół"
+        },
+        "tabs": {
+            "dishes": "Dania",
+            "cocktails": "Koktajle"
+        },
+        "search_placeholder": "Wyszukaj numer lub nazwisko...",
+        "all_categories": "Wszystko",
+        "clear": "Wyczyść",
+        "empty_cart": "Wybierz dania",
+        "note_placeholder": "Uwaga...",
+        "add_note": "Dodaj",
+        "order_button": "Zamów",
+        "history": {
+            "title": "Poprzednie rundy",
+            "empty": "Brak historii",
+            "repeat": "Powtórz",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "Błąd podczas składania zamówienia.",
+            "assistance_failed": "Nie udało się wysłać prośby o pomoc.",
+            "load_status": "Nie udało się załadować statusu.",
+            "load_history": "Nie udało się załadować historii.",
+            "invalid_table": "Podaj prawidłowy numer stołu."
+        }
+    },
+    "cocktails": {
+        "alcoholic": "Alkoholowy",
+        "non_alcoholic": "Bezalkoholowe",
+        "type": "Typ",
+        "search": "Wyszukiwanie",
+        "search_placeholder": "Na przykład mojito...",
+        "category": "Kategoria",
+        "all_categories": "Wszystkie kategorie",
+        "found_singular": "Znaleziono 1 koktajl",
+        "found_plural": "{count} znaleziono koktajli",
+        "clear_filters": "Wyczyść filtry",
+        "not_found": "Nie znaleziono koktajli"
+    }
+}

@@ -1,5 +1,7 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import LanguageSwitcher from './LanguageSwitcher.vue';
 import CocktailPage from './CocktailPage.vue';
 import { useMenuSync } from '../composables/useMenuSync';
 import { useOrderLines } from '../composables/useOrderLines';
@@ -8,8 +10,11 @@ import { currencyFormatter as formatter } from '../services/formatters';
 import { fetchPublicMenuItems } from '../services/menuApi';
 import { toastService } from '../services/toastService';
 
+const { t, locale } = useI18n();
+
 const brandLogo = '/images/brand/de-gouden-draak-emblem.png';
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+
 const params = new URLSearchParams(window.location.search);
 const pathTableNumber = window.location.pathname.match(/^\/tablet\/(\d+)$/)?.[1] ?? '';
 const rawTableNumber = pathTableNumber || params.get('tafel') || params.get('table') || '';
@@ -102,8 +107,8 @@ const cooldownDisplay = computed(() => {
 });
 
 const formatOrderDate = (value) => {
-    if (!value) return 'Onbekend';
-    return new Intl.DateTimeFormat('nl-NL', {
+    if (!value) return t('common.unknown');
+    return new Intl.DateTimeFormat(locale.value, {
         hour: '2-digit',
         minute: '2-digit',
     }).format(new Date(value));
@@ -119,7 +124,7 @@ const loadTableStatus = async () => {
     const response = await fetch(`/api/tablet/tables/${tableNumber.value}/status`, {
         headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
     });
-    if (!response.ok) throw new Error('Status kon niet worden geladen.');
+    if (!response.ok) throw new Error(t('tablet.errors.load_status'));
     const payload = await response.json();
     setTableStatus(payload.data ?? null);
 };
@@ -144,9 +149,13 @@ const loadOrderHistory = async () => {
     isHistoryLoading.value = true;
     try {
         const response = await fetch(`/api/tablet/tables/${tableNumber.value}/history`, {
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            headers: { 
+                Accept: 'application/json', 
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Locale': locale.value
+            },
         });
-        if (!response.ok) throw new Error('Geschiedenis kon niet worden geladen.');
+        if (!response.ok) throw new Error(t('tablet.errors.load_history'));
         const payload = await response.json();
         orderHistory.value = payload.data ?? [];
     } finally { isHistoryLoading.value = false; }
@@ -154,17 +163,25 @@ const loadOrderHistory = async () => {
 
 const loadNoteSuggestions = async () => {
     const response = await fetch('/api/order-line-note-suggestions', {
-        headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        headers: { 
+            Accept: 'application/json', 
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Locale': locale.value
+        },
     });
     if (!response.ok) return;
     const payload = await response.json();
     commonNoteSuggestions.value = payload.data ?? [];
 };
 
+watch(locale, () => {
+    loadTabletData();
+});
+
 const loadTabletData = async () => {
     if (!tableNumber.value) {
         isLoading.value = false;
-        errorMessage.value = 'Geef een geldig tafelnummer mee.';
+        errorMessage.value = t('tablet.errors.invalid_table');
         return;
     }
     isLoading.value = true;
@@ -205,16 +222,16 @@ const submitOrder = async () => {
                     notes: line.notes,
                 })),
             },
-            errorMessage: 'Fout bij bestellen.',
+            errorMessage: t('tablet.errors.order_failed'),
         });
 
-        toastService.success(`Bestelling #${payload.order.id} geplaatst.`);
+        toastService.success(t('tablet.notifications.order_placed', { id: payload.order.id }));
         clearOrderLines();
         repeatedSourceOrderId.value = null;
         await Promise.all([loadTableStatus(), loadOrderHistory()]);
     } catch (error) {
         if (error.payload?.status) setTableStatus(error.payload.status);
-        toastService.error(error.message);
+        toastService.error(error.message || t('tablet.errors.order_failed'));
     } finally { isSubmitting.value = false; }
 };
 
@@ -224,10 +241,10 @@ const requestAssistance = async () => {
     try {
         const payload = await postRequest(`/api/tablet/tables/${tableNumber.value}/assistance-requests`, {
             csrfToken,
-            errorMessage: 'Hulpvraag kon niet worden verstuurd.',
+            errorMessage: t('tablet.errors.assistance_failed'),
         });
 
-        toastService.success(payload.message || 'Een ober komt zo naar uw tafel.');
+        toastService.success(payload.message || t('tablet.notifications.assistance_sent'));
         await loadTableStatus();
     } catch (error) {
         toastService.error(error.message);
@@ -244,7 +261,7 @@ const setupRealtime = () => {
             console.log('Real-time: Assistance Resolved', data);
             if (tableStatus.value?.assistance_request?.id === data.id) {
                 tableStatus.value.assistance_request = null;
-                toastService.info('De ober heeft uw hulpvraag afgemeld.');
+                toastService.info(t('tablet.notifications.assistance_resolved'));
             }
         })
         .listen('.TableAssistanceRequestCreated', (data) => {
@@ -253,6 +270,7 @@ const setupRealtime = () => {
             if (String(data.table_code) === String(tableNumber.value)) {
                 if (!tableStatus.value) tableStatus.value = {};
                 tableStatus.value.assistance_request = data;
+                toastService.info(t('tablet.notifications.assistance_created'));
             }
         });
 
@@ -281,46 +299,49 @@ onUnmounted(() => {
 <template>
     <main class="min-h-screen bg-brand-light text-brand-dark font-sans antialiased">
         <!-- Compact Header -->
-        <header class="bg-white border-b border-brand-border px-5 py-3 sticky top-0 z-50 shadow-sm">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="brand-lockup">
+        <header class="bg-white border-b border-brand-border px-3 sm:px-5 py-2 sm:py-3 sticky top-0 z-50 shadow-sm">
+            <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+                <div class="brand-lockup min-w-0 flex-shrink">
                     <img
-                        class="brand-lockup-mark"
+                        class="brand-lockup-mark hidden sm:block"
                         :src="brandLogo"
                         alt="De Gouden Draak logo"
                     >
-                    <div>
-                        <p class="brand-lockup-wordmark text-brand-gold">De Gouden Draak</p>
-                        <h1 class="text-xl font-black leading-none">
-                            {{ tableNumber ? `Tafel ${tableNumber}` : 'Geen tafel' }}
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <p class="brand-lockup-wordmark text-brand-gold truncate text-xs sm:text-base md:text-xl">{{ t('common.restaurant_name') }}</p>
+                            <LanguageSwitcher variant="tablet" />
+                        </div>
+                        <h1 class="text-xs sm:text-lg md:text-xl font-black leading-none mt-0.5 sm:mt-1 truncate">
+                            {{ tableNumber ? t('tablet.table_number', { number: tableNumber }) : t('tablet.no_table') }}
                         </h1>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-5">
+                <div class="flex items-center gap-2 sm:gap-5 flex-shrink-0">
                     <button
                         @click="requestAssistance"
                         :disabled="!tableNumber || !!activeAssistanceRequest || isRequestingAssistance"
-                        class="hidden sm:flex h-10 px-4 items-center justify-center gap-2 bg-brand-dark text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-sm transition-all active:scale-[0.98] disabled:opacity-45"
+                        class="hidden md:flex h-9 sm:h-10 px-3 sm:px-4 items-center justify-center gap-2 bg-brand-dark text-white rounded-xl font-black uppercase tracking-widest text-[8px] sm:text-[9px] shadow-sm transition-all active:scale-[0.98] disabled:opacity-45"
                     >
-                        <span v-if="isRequestingAssistance" class="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                        {{ activeAssistanceRequest ? 'Ober onderweg' : 'Ober roepen' }}
+                        <span v-if="isRequestingAssistance" class="w-3 sm:w-3.5 h-3 sm:h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                        {{ activeAssistanceRequest ? t('tablet.assistance.button_calling') : t('tablet.assistance.button_call') }}
                     </button>
-                    <div v-if="tableStatus" class="flex gap-3">
+                    <div v-if="tableStatus" class="flex gap-2 sm:gap-3">
                         <div class="text-right hidden sm:block">
-                            <p class="text-[9px] uppercase font-bold text-stone-600">Ronde</p>
-                            <p class="font-black text-stone-900 leading-none">
+                            <p class="text-[8px] sm:text-[9px] uppercase font-bold text-stone-600">{{ t('tablet.round') }}</p>
+                            <p class="font-black text-[10px] sm:text-base text-stone-900 leading-none">
                                 {{ tableStatus.rounds_used }} <span class="text-stone-600">/</span> {{ tableStatus.max_rounds }}
                             </p>
                         </div>
-                        <div v-if="!canOrder" class="px-2 py-0.5 bg-brand-gold-light border border-brand-gold/30 rounded-md flex items-center gap-1.5">
+                        <div v-if="!canOrder" class="px-1.5 sm:px-2 py-0.5 bg-brand-gold-light border border-brand-gold/30 rounded-md flex items-center gap-1 sm:gap-1.5">
                             <div class="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse"></div>
-                            <span class="text-[10px] font-black text-brand-gold uppercase">{{ cooldownDisplay }}</span>
+                            <span class="text-[8px] sm:text-[10px] font-black text-brand-gold uppercase">{{ cooldownDisplay }}</span>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-[9px] uppercase font-bold text-stone-600">Totaal</p>
-                        <p class="font-black text-xl text-brand-red leading-none">{{ formatter.format(orderTotal) }}</p>
+                        <p class="text-[8px] sm:text-[9px] uppercase font-bold text-stone-600 hidden sm:block">{{ t('common.total') }}</p>
+                        <p class="font-black text-sm sm:text-xl text-brand-red leading-none">{{ formatter.format(orderTotal) }}</p>
                     </div>
                 </div>
             </div>
@@ -341,11 +362,11 @@ onUnmounted(() => {
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     </div>
 
-                    <h2 class="text-3xl font-black text-stone-900 mb-2">Bedankt!</h2>
-                    <p class="text-stone-600 font-bold mb-8">We hopen dat u genoten heeft van uw bezoek aan De Gouden Draak.</p>
+                    <h2 class="text-3xl font-black text-stone-900 mb-2">{{ t('tablet.checkout.thanks') }}</h2>
+                    <p class="text-stone-600 font-bold mb-8">{{ t('tablet.checkout.hope_enjoyed') }}</p>
 
                     <div class="bg-stone-50 rounded-2xl p-6 mb-8 border border-stone-100">
-                        <p class="text-[10px] uppercase font-black text-stone-500 tracking-widest mb-1">Totaalbedrag betaald</p>
+                        <p class="text-[10px] uppercase font-black text-stone-500 tracking-widest mb-1">{{ t('tablet.checkout.total_paid') }}</p>
                         <p class="text-4xl font-black text-brand-red">{{ formatter.format(checkoutData.total_amount) }}</p>
                     </div>
 
@@ -354,7 +375,7 @@ onUnmounted(() => {
                             :href="checkoutData.review_url"
                             class="block w-full h-14 bg-brand-gold text-white rounded-xl font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg hover:bg-[#854d03] transition-all"
                         >
-                            <span>Laat een review achter</span>
+                            <span>{{ t('tablet.checkout.leave_review') }}</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                         </a>
 
@@ -362,7 +383,7 @@ onUnmounted(() => {
                             @click="resetTablet"
                             class="block w-full py-4 text-stone-500 font-black uppercase tracking-widest text-[10px] hover:text-stone-900 transition-colors"
                         >
-                            Nieuwe Tafel
+                            {{ t('tablet.checkout.new_table') }}
                         </button>
                     </div>
                 </div>
@@ -381,7 +402,7 @@ onUnmounted(() => {
                         class="flex-1 py-2 px-4 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all"
                         :class="activeTabletPanel === panel ? 'bg-brand-dark text-white shadow-sm' : 'text-stone-700 hover:text-stone-900'"
                     >
-                        {{ panel === 'menu' ? 'Gerechten' : 'Cocktails' }}
+                        {{ panel === 'menu' ? t('tablet.tabs.dishes') : t('tablet.tabs.cocktails') }}
                     </button>
                 </div>
 
@@ -392,7 +413,7 @@ onUnmounted(() => {
                             <input
                                 v-model="menuSearchQuery"
                                 type="text"
-                                placeholder="Zoek nummer of naam..."
+                                :placeholder="t('tablet.search_placeholder')"
                                 class="w-full h-10 bg-stone-50 border-none rounded-xl px-4 pl-10 font-bold text-stone-800 text-sm focus:ring-1 focus:ring-brand-gold outline-none"
                             >
                             <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-600">
@@ -408,7 +429,7 @@ onUnmounted(() => {
                                 class="px-4 py-1.5 rounded-full whitespace-nowrap font-bold text-[10px] uppercase tracking-wide transition-all"
                                 :class="activeMenuCategory === cat ? 'bg-brand-gold text-white' : 'bg-stone-50 text-stone-700 hover:bg-stone-100'"
                             >
-                                {{ cat === '' ? 'Alles' : cat }}
+                                {{ cat === '' ? t('tablet.all_categories') : cat }}
                             </button>
                         </div>
                     </div>
@@ -464,9 +485,9 @@ onUnmounted(() => {
                 <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
                     <div class="flex items-start justify-between gap-3">
                         <div>
-                            <h2 class="font-black text-xs uppercase tracking-widest text-stone-700">Hulp nodig?</h2>
+                            <h2 class="font-black text-xs uppercase tracking-widest text-stone-700">{{ t('tablet.assistance.title') }}</h2>
                             <p class="text-[10px] font-bold text-stone-600 mt-1">
-                                {{ activeAssistanceRequest ? 'Een ober is gewaarschuwd.' : 'Roep een ober naar uw tafel.' }}
+                                {{ activeAssistanceRequest ? t('tablet.assistance.warned') : t('tablet.assistance.call_prompt') }}
                             </p>
                         </div>
                         <span
@@ -482,7 +503,7 @@ onUnmounted(() => {
                         class="w-full h-11 bg-brand-dark text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-md transition-all active:scale-[0.98] disabled:opacity-45 flex items-center justify-center gap-2"
                     >
                         <span v-if="isRequestingAssistance" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                        {{ activeAssistanceRequest ? 'Ober is onderweg' : 'Ober roepen' }}
+                        {{ activeAssistanceRequest ? t('tablet.assistance.button_calling') : t('tablet.assistance.button_call') }}
                     </button>
                 </div>
 
@@ -490,20 +511,20 @@ onUnmounted(() => {
                 <div class="bg-white border border-brand-border rounded-2xl shadow-lg flex flex-col h-fit">
                     <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
                         <div>
-                            <h2 class="font-black text-base">Bestelling</h2>
-                            <p class="text-[9px] uppercase font-bold text-stone-600">{{ lineCount }} items</p>
+                            <h2 class="font-black text-base">{{ t('tablet.order_button') }}</h2>
+                            <p class="text-[9px] uppercase font-bold text-stone-600">{{ lineCount }} {{ t('common.items') }}</p>
                         </div>
                         <button
                             v-if="orderLines.length > 0"
                             @click="clearOrderLines"
                             class="text-[9px] uppercase font-black text-stone-700 hover:text-red-600 transition-colors"
                         >
-                            Wissen
+                            {{ t('tablet.clear') }}
                         </button>
                     </div>
 
                     <div class="p-5 space-y-3">
-                        <p v-if="orderLines.length === 0" class="text-stone-600 font-bold text-[10px] text-center italic py-4">Kies gerechten</p>
+                        <p v-if="orderLines.length === 0" class="text-stone-600 font-bold text-[10px] text-center italic py-4">{{ t('tablet.empty_cart') }}</p>
                         <article v-for="line in orderLines" :key="line.id" class="space-y-2 border-b border-stone-100 pb-3 last:border-b-0 last:pb-0">
                             <div class="flex items-center gap-3">
                                 <div class="flex-1 min-w-0">
@@ -543,10 +564,10 @@ onUnmounted(() => {
                                         v-model="customNoteInputs[line.id]"
                                         type="text"
                                         maxlength="160"
-                                        placeholder="Opmerking..."
+                                        :placeholder="t('tablet.note_placeholder')"
                                         class="min-w-0 flex-1 h-9 bg-stone-50 border border-stone-100 rounded-lg px-3 text-[10px] font-bold outline-none focus:ring-1 focus:ring-brand-gold"
                                     >
-                                    <button type="submit" class="h-9 px-3 bg-brand-dark text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Toevoegen</button>
+                                    <button type="submit" class="h-9 px-3 bg-brand-dark text-white rounded-lg text-[9px] font-black uppercase tracking-widest">{{ t('tablet.add_note') }}</button>
                                 </form>
                             </div>
                         </article>
@@ -554,7 +575,7 @@ onUnmounted(() => {
 
                     <div class="p-5 bg-stone-50 rounded-b-2xl border-t border-stone-100 space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-stone-700 uppercase text-[9px] tracking-widest">Totaal</span>
+                            <span class="font-bold text-stone-700 uppercase text-[9px] tracking-widest">{{ t('common.total') }}</span>
                             <span class="font-black text-xl text-brand-red">{{ formatter.format(orderTotal) }}</span>
                         </div>
 
@@ -564,28 +585,28 @@ onUnmounted(() => {
                             class="w-full h-11 bg-brand-gold text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-md transition-all active:scale-[0.98] disabled:opacity-40 disabled:grayscale flex items-center justify-center gap-2"
                         >
                             <span v-if="isSubmitting" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                            {{ isSubmitting ? 'Bezig...' : 'Bestellen' }}
+                            {{ isSubmitting ? t('common.sending') : t('tablet.order_button') }}
                         </button>
                     </div>
                 </div>
 
                 <!-- Previous Rounds -->
                 <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
-                    <h2 class="font-black text-xs uppercase tracking-widest text-stone-700">Eerdere rondes</h2>
+                    <h2 class="font-black text-xs uppercase tracking-widest text-stone-700">{{ t('tablet.history.title') }}</h2>
                     <div v-if="orderHistory.length === 0" class="text-center py-4 text-stone-600 font-bold text-[10px] italic border border-dashed border-stone-100 rounded-xl">
-                        Geen geschiedenis
+                        {{ t('tablet.history.empty') }}
                     </div>
                     <div v-else class="space-y-3">
                         <div v-for="order in orderHistory" :key="order.id" class="border border-stone-100 rounded-xl overflow-hidden text-[10px]">
                             <div class="bg-stone-50 px-3 py-1.5 flex items-center justify-between border-b border-stone-100">
-                                <p class="font-black text-stone-900 uppercase">Ronde #{{ order.id }}</p>
-                                <button @click="repeatOrder(order)" class="font-black text-brand-gold uppercase">Herhaal</button>
+                                <p class="font-black text-stone-900 uppercase">{{ t('tablet.round') }} #{{ order.id }}</p>
+                                <button @click="repeatOrder(order)" class="font-black text-brand-gold uppercase">{{ t('tablet.history.repeat') }}</button>
                             </div>
                             <div class="p-2.5 space-y-0.5">
                                 <div v-for="line in order.lines" :key="`${line.menu_item_id}-${line.notes?.join('|')}`" class="text-[10px]">
                                     <div class="flex justify-between items-center">
                                         <span class="text-stone-600"><span class="font-black text-stone-900">{{ line.quantity }}x</span> {{ line.name }}</span>
-                                        <span v-if="!line.is_active" class="text-[7px] font-black text-red-500 uppercase bg-red-50 px-1 rounded">OP</span>
+                                        <span v-if="!line.is_active" class="text-[7px] font-black text-red-500 uppercase bg-red-50 px-1 rounded">{{ t('tablet.history.out_of_stock') }}</span>
                                     </div>
                                     <p v-if="line.notes?.length" class="mt-0.5 text-[9px] font-bold text-brand-gold">
                                         {{ line.notes.join(' · ') }}

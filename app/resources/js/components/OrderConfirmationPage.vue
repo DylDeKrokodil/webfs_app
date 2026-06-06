@@ -1,7 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import LegacyPageShell from './LegacyPageShell.vue';
 import { currencyFormatter as formatter } from '../services/formatters';
+
+const { t } = useI18n();
 
 const props = defineProps({
     token: {
@@ -18,7 +21,12 @@ const brandEmblem = '/images/brand/de-gouden-draak-emblem.png';
 
 const loadOrder = async () => {
     try {
-        const response = await fetch(`/api/takeaway/orders/${props.token}`);
+        const response = await fetch(`/api/takeaway/orders/${props.token}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Locale': localStorage.getItem('locale') || 'nl'
+            }
+        });
         if (!response.ok) throw new Error('Bestelling niet gevonden');
         
         const data = await response.json();
@@ -42,31 +50,31 @@ onMounted(loadOrder);
     <LegacyPageShell>
         <section class="legacy-menu-page confirmation-page">
             <div v-if="isLoading" class="legacy-menu-panel text-center py-12">
-                <p class="legacy-menu-state">Bestelling laden...</p>
+                <p class="legacy-menu-state">{{ t('confirmation.loading') }}</p>
             </div>
 
             <div v-else-if="errorMessage" class="legacy-menu-panel text-center py-12">
-                <p class="legacy-menu-state is-error">{{ errorMessage }}</p>
+                <p class="legacy-menu-state is-error">{{ t('confirmation.not_found') }}</p>
                 <div class="mt-8">
-                    <a href="/menukaart" class="legacy-menu-download">Terug naar de menukaart</a>
+                    <a href="/menukaart" class="legacy-menu-download">{{ t('confirmation.back_to_menu') }}</a>
                 </div>
             </div>
 
             <div v-else-if="order" class="legacy-menu-panel">
                 <header class="legacy-menu-header">
                     <div>
-                        <p>Bestelling geslaagd</p>
-                        <h2>Bedankt voor je bestelling!</h2>
+                        <p>{{ t('confirmation.success_title') }}</p>
+                        <h2>{{ t('confirmation.success_message') }}</h2>
                     </div>
                     <div class="text-right">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-stone-500">Bestelnummer</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-stone-500">{{ t('common.order_number') }}</p>
                         <h3 class="text-xl font-black text-brand-red">#{{ order.id }}</h3>
                     </div>
                 </header>
 
                 <div class="legacy-confirmation-content">
                     <div class="legacy-confirmation-details">
-                        <h3 class="legacy-section-title">Jouw Gerechten</h3>
+                        <h3 class="legacy-section-title">{{ t('confirmation.your_dishes') }}</h3>
                         <ul class="legacy-order-lines">
                             <li v-for="line in order.lines" :key="line.number" class="legacy-order-line">
                                 <div class="legacy-line-info">
@@ -81,36 +89,36 @@ onMounted(loadOrder);
                         </ul>
                         
                         <div class="legacy-order-total">
-                            <span class="label">Totaal betaald:</span>
+                            <span class="label">{{ t('confirmation.total_paid') }}</span>
                             <span class="value">{{ formatter.format(order.total) }}</span>
                         </div>
                     </div>
 
                     <div class="legacy-qr-section">
-                        <p class="legacy-qr-label">Scan bij afhalen</p>
+                        <p class="legacy-qr-label">{{ t('confirmation.scan_label') }}</p>
                         <div class="legacy-qr-wrapper">
-                            <img :src="qrCode" alt="Bestelling QR-Code">
+                            <img :src="qrCode" :alt="t('confirmation.qr_alt')">
                         </div>
                         <p class="legacy-qr-help">
-                            Toon deze code aan onze medewerker om je bestelling direct mee te nemen.
+                            {{ t('confirmation.qr_help') }}
                         </p>
                     </div>
                 </div>
 
                 <div class="legacy-confirmation-actions print:hidden">
                     <button @click="printPage" class="legacy-checkout-btn">
-                        Print Ophaalbewijs
+                        {{ t('confirmation.print_receipt') }}
                     </button>
                     <a href="/menukaart" class="legacy-secondary-btn">
-                        Nog iets bestellen?
+                        {{ t('confirmation.order_more') }}
                     </a>
                 </div>
 
                 <footer class="legacy-confirmation-footer">
                     <div class="legacy-footer-divider"></div>
-                    <p class="legacy-location-label">Locatie Afhalen</p>
+                    <p class="legacy-location-label">{{ t('confirmation.pickup_location') }}</p>
                     <address class="legacy-location-address">
-                        De Gouden Draak • Rijksweg 123 • Chineesstad
+                        De Gouden Draak • Onderwijsboulevard 215 • 's-Hertogenbosch
                     </address>
                 </footer>
             </div>

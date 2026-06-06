@@ -25,8 +25,9 @@ class TabletOrderController extends Controller
         ]);
     }
 
-    public function history(int $tableNumber): JsonResponse
+    public function history(Request $request, int $tableNumber, \App\Services\TranslationService $translator): JsonResponse
     {
+        $targetLang = $request->header('X-Locale', 'nl');
         $orders = $this->openTableOrders($tableNumber)
             ->with(['lines.menuItem.category', 'lines.notes'])
             ->limit(self::MAX_ROUNDS_PER_TABLE)
@@ -53,6 +54,29 @@ class TabletOrderController extends Controller
             ])
             ->filter(fn (array $order): bool => $order['lines']->isNotEmpty())
             ->values();
+
+        if (strtolower($targetLang) !== 'nl') {
+            $stringsToTranslate = [];
+            foreach ($orders as $order) {
+                foreach ($order['lines'] as $line) {
+                    $stringsToTranslate[] = $line['name'];
+                    $stringsToTranslate[] = $line['category'];
+                }
+            }
+
+            $uniqueStrings = array_values(array_unique(array_filter($stringsToTranslate)));
+            $translatedMap = $translator->translateArray($uniqueStrings, $targetLang);
+            $lookup = array_combine($uniqueStrings, $translatedMap);
+
+            $orders = $orders->map(function($order) use ($lookup) {
+                $order['lines'] = $order['lines']->map(function($line) use ($lookup) {
+                    $line['name'] = $lookup[$line['name']] ?? $line['name'];
+                    $line['category'] = $lookup[$line['category']] ?? $line['category'];
+                    return $line;
+                });
+                return $order;
+            });
+        }
 
         return response()->json([
             'data' => $orders,

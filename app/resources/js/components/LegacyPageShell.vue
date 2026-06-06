@@ -1,12 +1,17 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
+import LanguageSwitcher from './LanguageSwitcher.vue';
+
+const { t } = useI18n();
+
 const dragonSmall = '/images/dragon-small.png';
 const dragonSmallFlipped = '/images/dragon-small-flipped.png';
 const dragonLarge = '/images/dragon-large.png';
 
 const navigationItems = [
-    { label: 'Menukaart', href: '/menukaart' },
-    { label: 'Nieuws', href: '/#nieuws' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'nav.menu', href: '/menukaart' },
+    { label: 'nav.news', href: '/#nieuws' },
+    { label: 'nav.contact', href: '/contact' },
 ];
 
 const leftFrameBorders = {
@@ -58,19 +63,22 @@ const frameCells = Array.from({ length: 81 }, (_, index) => {
 <template>
     <main class="legacy-page">
         <header class="legacy-topbar">
-            <div class="legacy-brand legacy-brand-left" aria-label="De Gouden Draak">
+            <div class="legacy-brand legacy-brand-left" :aria-label="t('common.restaurant_name')">
                 <img :src="dragonSmall" alt="">
-                <span>De Gouden Draak</span>
+                <span>{{ t('common.restaurant_name') }}</span>
                 <img :src="dragonSmallFlipped" alt="">
             </div>
 
-            <a class="legacy-marquee" href="/#nieuws" aria-label="Bekijk de aanbiedingen van deze week">
-                <span>Welkom bij De Gouden Draak. Klik op deze tekst om de aanbiedingen van deze week te zien!</span>
-            </a>
+            <div class="legacy-marquee-container">
+                <a class="legacy-marquee" href="/#nieuws" :aria-label="t('shell.marquee_welcome')">
+                    <span>{{ t('shell.marquee_welcome') }}</span>
+                </a>
+                <LanguageSwitcher variant="legacy" />
+            </div>
 
-            <div class="legacy-brand" aria-label="De Gouden Draak">
+            <div class="legacy-brand" :aria-label="t('common.restaurant_name')">
                 <img :src="dragonSmall" alt="">
-                <span>De Gouden Draak</span>
+                <span>{{ t('common.restaurant_name') }}</span>
                 <img :src="dragonSmallFlipped" alt="">
             </div>
         </header>
@@ -91,12 +99,12 @@ const frameCells = Array.from({ length: 81 }, (_, index) => {
                         <img class="legacy-large-dragon legacy-large-dragon-left" :src="dragonLarge" alt="">
 
                         <div class="legacy-title-block">
-                            <p>Chinees Indische Specialiteiten</p>
-                            <h1 id="restaurant-title">De Gouden Draak</h1>
+                            <p>{{ t('common.specialties') }}</p>
+                            <h1 id="restaurant-title">{{ t('common.restaurant_name') }}</h1>
 
                             <nav class="legacy-nav" aria-label="Hoofdnavigatie">
                                 <a v-for="item in navigationItems" :key="item.label" :href="item.href">
-                                    {{ item.label }}
+                                    {{ t(item.label) }}
                                 </a>
                             </nav>
                         </div>

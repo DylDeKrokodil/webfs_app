@@ -1,11 +1,14 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const API_BASE_URL = 'https://www.thecocktaildb.com/api/json/v1/1';
-const alcoholTabs = [
-    { label: 'Alcoholisch', value: 'Alcoholic' },
-    { label: 'Non-alcoholisch', value: 'Non_Alcoholic' },
-];
+const alcoholTabs = computed(() => [
+    { label: t('cocktails.alcoholic'), value: 'Alcoholic' },
+    { label: t('cocktails.non_alcoholic'), value: 'Non_Alcoholic' },
+]);
 
 const activeAlcoholFilter = ref('Alcoholic');
 const activeCategory = ref('');
@@ -133,7 +136,7 @@ onMounted(async () => {
         <div class="bg-white border border-[#D6D3D1] rounded-2xl p-6 shadow-sm space-y-6">
             <div class="flex flex-col sm:flex-row gap-4 items-end">
                 <div class="flex-1 space-y-2 w-full">
-                    <span class="text-[10px] uppercase font-black text-stone-400 tracking-widest">Type</span>
+                    <span class="text-[10px] uppercase font-black text-stone-400 tracking-widest">{{ t('cocktails.type') }}</span>
                     <div class="flex p-1 bg-stone-100 rounded-xl">
                         <button
                             v-for="tab in alcoholTabs"
@@ -149,12 +152,12 @@ onMounted(async () => {
                 </div>
 
                 <div class="flex-1 space-y-2 w-full">
-                    <span class="text-[10px] uppercase font-black text-stone-400 tracking-widest">Zoeken</span>
+                    <span class="text-[10px] uppercase font-black text-stone-400 tracking-widest">{{ t('cocktails.search') }}</span>
                     <div class="relative">
                         <input
                             v-model="searchQuery"
                             type="text"
-                            placeholder="Bijv. Mojito..."
+                            :placeholder="t('cocktails.search_placeholder')"
                             class="w-full h-11 bg-stone-50 border border-stone-200 rounded-xl px-4 pl-10 font-bold text-stone-800 outline-none focus:ring-2 focus:ring-[#A16207] transition-all"
                         >
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
@@ -164,23 +167,26 @@ onMounted(async () => {
                 </div>
 
                 <div class="flex-1 space-y-2 w-full">
-                    <span class="text-[10px] uppercase font-black text-stone-400 tracking-widest">Categorie</span>
+                    <span class="text-[10px] uppercase font-black text-stone-400 tracking-widest">{{ t('cocktails.category') }}</span>
                     <select
                         v-model="activeCategory"
                         class="w-full h-11 bg-stone-50 border border-stone-200 rounded-xl px-3 font-bold text-stone-800 outline-none focus:ring-2 focus:ring-[#A16207] transition-all appearance-none"
                     >
-                        <option v-for="opt in categoryOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                        <option value="">{{ t('cocktails.all_categories') }}</option>
+                        <option v-for="cat in categories" :key="cat.strCategory" :value="cat.strCategory">{{ cat.strCategory }}</option>
                     </select>
                 </div>
             </div>
 
             <div class="flex items-center justify-between border-t border-stone-100 pt-4">
-                <span class="text-xs font-black text-stone-900 uppercase tracking-tight">{{ resultLabel }}</span>
+                <span class="text-xs font-black text-stone-900 uppercase tracking-tight">
+                    {{ visibleDrinks.length === 1 ? t('cocktails.found_singular') : t('cocktails.found_plural', { count: visibleDrinks.length }) }}
+                </span>
                 <button
                     @click="clearFilters"
                     class="text-[10px] font-black text-[#A16207] hover:underline uppercase"
                 >
-                    Filters wissen
+                    {{ t('cocktails.clear_filters') }}
                 </button>
             </div>
         </div>
@@ -192,7 +198,7 @@ onMounted(async () => {
             <div class="w-10 h-10 border-4 border-stone-100 border-t-[#A16207] rounded-full animate-spin mx-auto"></div>
         </div>
         <div v-else-if="visibleDrinks.length === 0" class="py-20 text-center text-stone-400">
-            <p class="font-black">Geen cocktails gevonden</p>
+            <p class="font-black">{{ t('cocktails.not_found') }}</p>
         </div>
         <div v-else class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
             <article

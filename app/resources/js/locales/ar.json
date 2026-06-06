@@ -1,0 +1,202 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "أطباق صينية وهندية",
+        "loading": "جاري التحميل...",
+        "error": "حدث خطأ",
+        "back": "العودة",
+        "next": "التالي",
+        "send": "إرسال",
+        "sending": "إرسال...",
+        "total": "المجموع",
+        "unknown": "غير معروف",
+        "price_per_piece": "{price} القطعة الواحدة",
+        "items": "العناصر",
+        "order_number": "رقم الطلب"
+    },
+    "nav": {
+        "menu": "قائمة الطعام",
+        "news": "الأخبار",
+        "contact": "الاتصال"
+    },
+    "home": {
+        "intro_p1": "منذ سنوات عديدة، أصبح مطعم «De Gouden Draak» اسمًا مألوفًا عندما يتعلق الأمر بأفضل الأطباق الجاهزة في مدينة 's-Hertogenbosch.",
+        "intro_p2": "يسعدنا أن نقدم لكم أطباقاً أصيلة من المطبخ الكانتوني.",
+        "student_offer_title": "عرض خاص للطلاب",
+        "student_offer_subtitle": "وجبة أرز صينية (لشخصين)",
+        "student_offer_instruction": "اختر 3 أطباق من الخيارات التالية:",
+        "student_offer_sides": "مع الأرز الأبيض. يمكن طلب ناسي أو بامي مقابل تكلفة إضافية.",
+        "student_offer_price": "السعر: {price}",
+        "to_contact": "إلى الاتصال",
+        "dishes": {
+            "koe_loe_yuk": "كو لو يوك",
+            "foe_yong_hai": "فو يونغ هاي",
+            "tjap_tjoy": "تشاب تشوي",
+            "prawns_garlic": "روبيان بالثوم المقلي",
+            "babi_pangang": "بابي بانغانغ",
+            "chicken_black_bean": "فيليه الدجاج بصلصة الفاصوليا السوداء"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "مرحبًا بكم في De Gouden Draak. انقر على هذا النص للاطلاع على عروض هذا الأسبوع!"
+    },
+    "menu": {
+        "current_menu": "قائمة الطعام الحالية",
+        "database_dishes": "أطباق من قاعدة البيانات",
+        "download_pdf": "تنزيل ملف PDF",
+        "tabs": {
+            "menu": "القائمة",
+            "favorites": "المفضلة",
+            "cart": "سلة التسوق"
+        },
+        "sorting": {
+            "label_menu": "قائمة الفرز",
+            "label_favorites": "فرز المفضلة",
+            "default": "الترتيب الافتراضي",
+            "favorites_first": "المفضلة في الأعلى حسب الرقم",
+            "favorites_alpha": "المفضلة مرتبة أبجديًا في الأعلى",
+            "by_number": "حسب الترتيب",
+            "alpha": "حسب الترتيب الأبجدي"
+        },
+        "states": {
+            "loading": "جاري تحميل قائمة الطعام...",
+            "empty_cart": "سلة التسوق الخاصة بك فارغة حتى الآن. أضف أطباقًا من القائمة.",
+            "empty_favorites": "لم تحدد أي أطباق مفضلة بعد."
+        },
+        "actions": {
+            "favorite": "المفضلة",
+            "add_to_cart": "+ اطلب",
+            "less": "أقل",
+            "more": "المزيد",
+            "remove": "حذف",
+            "place_order": "تقديم طلب",
+            "submitting": "قيد التشغيل..."
+        },
+        "cart": {
+            "total": "المبلغ الإجمالي:"
+        },
+        "errors": {
+            "load_failed": "تعذر تحميل قائمة الطعام.",
+            "checkout_failed": "فشل الطلب"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak يسهل العثور عليه، فهو يقع بالقرب من وسط المدينة، على بعد 5 دقائق سيراً على الأقدام خلف المحطة المركزية.",
+        "map_alt": "خريطة إلى Onderwijsboulevard 215 في س-هيرتوجينبوش"
+    },
+    "confirmation": {
+        "loading": "جاري تحميل الطلب...",
+        "not_found": "لم يتم العثور على الطلب",
+        "back_to_menu": "العودة إلى قائمة الطعام",
+        "success_title": "تمت عملية الطلب بنجاح",
+        "success_message": "شكرًا على طلبك!",
+        "your_dishes": "أطباقك",
+        "total_paid": "المبلغ الإجمالي المدفوع:",
+        "scan_label": "المسح الضوئي عند الاستلام",
+        "qr_alt": "طلب رمز الاستجابة السريعة",
+        "qr_help": "أظهر هذا الرمز لموظفنا لتتمكن من أخذ طلبك على الفور.",
+        "print_receipt": "طباعة إيصال الاستلام",
+        "order_more": "هل تريد طلب شيء آخر؟",
+        "pickup_location": "موقع الاستلام"
+    },
+    "review": {
+        "loading": "جاري تحميل نموذج التقييم...",
+        "expired_title": "الرابط منتهي الصلاحية",
+        "expired_message": "لا يمكننا فتح نموذج المراجعة هذا.",
+        "received_title": "تم استلام المراجعة",
+        "received_message": "شكرًا على ملاحظاتك.",
+        "received_copy": "تم حفظ تقييمك. يستخدم الفريق هذه الملاحظات لتحسين جودة الطعام والخدمة وسرعة الخدمة باستمرار.",
+        "steps": {
+            "step_x_of_y": "الخطوة {x} من {y}",
+            "overall_title": "كيف كانت التجربة بشكل عام؟",
+            "overall_copy": "اختر التجربة التي تناسب زيارتك.",
+            "food_title": "كيف كان مذاق الطعام؟",
+            "food_copy": "من أول قضمة إلى آخر ملعقة من الصلصة.",
+            "service_title": "كيف كانت الخدمة؟",
+            "service_copy": "فكر في اللطف والاهتمام وسرعة الإنجاز.",
+            "speed_title": "كم استغرق الأمر من الوقت؟",
+            "speed_copy": "من الطلب إلى الدفع.",
+            "details_title": "ما الذي يجب أن نتذكره؟",
+            "details_copy": "إن تقديم وصفة مفضلة أو نصيحة موجزة سيساعد الفريق بشكل مباشر."
+        },
+        "scores": {
+            "1": "من الأفضل",
+            "2": "متوسط",
+            "3": "رائع",
+            "4": "جيد",
+            "5": "الأعلى"
+        },
+        "fields": {
+            "favorite_dish": "الطبق المفضل",
+            "favorite_placeholder": "على سبيل المثال، بابي بانغانغ",
+            "comment": "ملاحظة أو نصيحة",
+            "comment_placeholder": "ما الذي سار على ما يرام، أو ما الذي يمكن تحسينه؟",
+            "permission": "De Gouden Draak يمكنكم استخدام ملاحظاتي داخليًّا لتحسين الخدمة والأطباق."
+        },
+        "actions": {
+            "submit": "إرسال تقييم"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "تم تقديم الطلب رقم{id}.",
+            "assistance_sent": "سيأتي النادل إلى طاولتكم بعد قليل.",
+            "assistance_resolved": "قام النادل بإلغاء طلب المساعدة الذي قدمته.",
+            "assistance_created": "تم طلب المساعدة بشأن هذه الطاولة."
+        },
+        "table_number": "طاولة «{number}»",
+        "no_table": "لا توجد طاولة",
+        "assistance": {
+            "title": "هل تحتاج إلى مساعدة؟",
+            "warned": "تم تحذير النادل.",
+            "call_prompt": "استدعِ النادل إلى طاولتك.",
+            "button_calling": "النادل في طريقه",
+            "button_call": "استدعاء النادل"
+        },
+        "round": "دورة",
+        "checkout": {
+            "thanks": "شكرًا!",
+            "hope_enjoyed": "نأمل أن تكونوا قد استمتعتم بزيارتكم لموقع De Gouden Draak.",
+            "total_paid": "المبلغ الإجمالي المدفوع",
+            "leave_review": "اترك تعليقًا",
+            "new_table": "طاولة جديدة"
+        },
+        "tabs": {
+            "dishes": "الأطباق",
+            "cocktails": "الكوكتيلات"
+        },
+        "search_placeholder": "ابحث عن رقم أو اسم...",
+        "all_categories": "كل شيء",
+        "clear": "مسح",
+        "empty_cart": "اختر الأطباق",
+        "note_placeholder": "ملاحظة...",
+        "add_note": "إضافة",
+        "order_button": "الطلب",
+        "history": {
+            "title": "الجولات السابقة",
+            "empty": "لا يوجد تاريخ",
+            "repeat": "كرر",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "حدث خطأ أثناء الطلب.",
+            "assistance_failed": "تعذر إرسال طلب المساعدة.",
+            "load_status": "تعذر تحميل الحالة.",
+            "load_history": "تعذر تحميل السجل.",
+            "invalid_table": "يرجى إدخال رقم طاولة صالح."
+        }
+    },
+    "cocktails": {
+        "alcoholic": "كحولي",
+        "non_alcoholic": "غير كحولي",
+        "type": "النوع",
+        "search": "بحث",
+        "search_placeholder": "مثل الموجيتو...",
+        "category": "الفئة",
+        "all_categories": "جميع الفئات",
+        "found_singular": "تم العثور على كوكتيل واحد",
+        "found_plural": "{count} تم العثور على كوكتيلات",
+        "clear_filters": "مسح المرشحات",
+        "not_found": "لم يتم العثور على أي كوكتيلات"
+    }
+}

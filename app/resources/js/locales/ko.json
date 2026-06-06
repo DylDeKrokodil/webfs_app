@@ -1,0 +1,202 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "중국 및 인도 요리",
+        "loading": "로딩 중...",
+        "error": "오류가 발생했습니다",
+        "back": "뒤로",
+        "next": "다음",
+        "send": "보내기",
+        "sending": "보내기...",
+        "total": "합계",
+        "unknown": "알 수 없음",
+        "price_per_piece": "{price} 개당",
+        "items": "항목",
+        "order_number": "주문 번호"
+    },
+    "nav": {
+        "menu": "메뉴",
+        "news": "뉴스",
+        "contact": "연락처"
+    },
+    "home": {
+        "intro_p1": "수년 동안 De Gouden Draak는 '스헤르토헨보스에서 최고의 테이크아웃 음식으로 명성이 자자합니다.",
+        "intro_p2": "저희는 정통 광동 요리를 여러분께 대접해 드리고자 합니다.",
+        "student_offer_title": "학생 전용 특별 혜택",
+        "student_offer_subtitle": "중국식 정찬 (2인분)",
+        "student_offer_instruction": "아래의 선택 메뉴 중 3가지를 골라주세요:",
+        "student_offer_sides": "흰 쌀밥과 함께 제공됩니다. 나시나 바미는 추가 요금을 내시면 주문하실 수 있습니다.",
+        "student_offer_price": "가격: {price}",
+        "to_contact": "연락처로",
+        "dishes": {
+            "koe_loe_yuk": "코우 루 유크",
+            "foe_yong_hai": "푸용하이",
+            "tjap_tjoy": "찹찹",
+            "prawns_garlic": "마늘 볶음 새우",
+            "babi_pangang": "바비 팡앙",
+            "chicken_black_bean": "검은콩 소스를 곁들인 닭가슴살"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "De Gouden Draak에 오신 것을 환영합니다. 이번 주 특가 상품을 보려면 이 문구를 클릭하세요!"
+    },
+    "menu": {
+        "current_menu": "최신 메뉴",
+        "database_dishes": "데이터베이스의 요리",
+        "download_pdf": "PDF 다운로드",
+        "tabs": {
+            "menu": "메뉴",
+            "favorites": "즐겨찾기",
+            "cart": "장바구니"
+        },
+        "sorting": {
+            "label_menu": "정렬 메뉴",
+            "label_favorites": "즐겨찾기 정렬",
+            "default": "기본 순서",
+            "favorites_first": "상단에 번호순으로 즐겨찾기",
+            "favorites_alpha": "알파벳순으로 정렬된 즐겨찾기 상단",
+            "by_number": "번호",
+            "alpha": "알파벳순"
+        },
+        "states": {
+            "loading": "메뉴 불러오는 중...",
+            "empty_cart": "장바구니가 아직 비어 있습니다. 메뉴에서 요리를 추가해 주세요.",
+            "empty_favorites": "아직 즐겨찾는 요리를 선택하지 않으셨습니다."
+        },
+        "actions": {
+            "favorite": "즐겨찾기",
+            "add_to_cart": "+ 주문하기",
+            "less": "더 적게",
+            "more": "더 보기",
+            "remove": "삭제",
+            "place_order": "주문하기",
+            "submitting": "진행 중..."
+        },
+        "cart": {
+            "total": "총액:"
+        },
+        "errors": {
+            "load_failed": "메뉴를 불러올 수 없습니다.",
+            "checkout_failed": "주문 실패"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak 찾기 쉬우며, 시내 중심가에서 가깝고, 중앙역 뒤편으로 도보 5분 거리에 있습니다.",
+        "map_alt": "'스헤르토겐보스'의 Onderwijsboulevard 215로 가는 지도"
+    },
+    "confirmation": {
+        "loading": "주문 불러오는 중...",
+        "not_found": "주문을 찾을 수 없습니다",
+        "back_to_menu": "메뉴로 돌아가기",
+        "success_title": "주문 완료",
+        "success_message": "주문해 주셔서 감사합니다!",
+        "your_dishes": "당신의 요리",
+        "total_paid": "총 결제 금액:",
+        "scan_label": "수령 시 스캔",
+        "qr_alt": "주문 QR 코드",
+        "qr_help": "이 코드를 직원에게 보여주시면 주문을 바로 가져가실 수 있습니다.",
+        "print_receipt": "수령증 인쇄",
+        "order_more": "다른 것도 주문하실 건가요?",
+        "pickup_location": "매장 수령"
+    },
+    "review": {
+        "loading": "리뷰 양식 불러오는 중...",
+        "expired_title": "링크가 만료되었습니다",
+        "expired_message": "이 리뷰 양식을 열 수 없습니다.",
+        "received_title": "리뷰 수신",
+        "received_message": "의견을 보내주셔서 감사합니다.",
+        "received_copy": "리뷰가 저장되었습니다. 저희 팀은 이 피드백을 바탕으로 음식, 서비스, 주문 처리 속도를 지속적으로 개선해 나가겠습니다.",
+        "steps": {
+            "step_x_of_y": "{y}의 {x} 단계",
+            "overall_title": "전체적인 경험은 어땠나요?",
+            "overall_copy": "이번 방문에 가장 잘 어울리는 분위기를 선택해 주세요.",
+            "food_title": "음식은 어땠나요?",
+            "food_copy": "첫 한 입부터 마지막 소스 한 숟가락까지.",
+            "service_title": "서비스는 어땠나요?",
+            "service_copy": "친절함, 세심한 배려, 그리고 신속한 처리를 염두에 두세요.",
+            "speed_title": "모든 일이 얼마나 빨리 진행되었나요?",
+            "speed_copy": "주문부터 결제까지.",
+            "details_title": "무엇을 기억해야 할까요?",
+            "details_copy": "좋아하는 요리나 간단한 팁을 알려주시면 팀에 큰 도움이 됩니다."
+        },
+        "scores": {
+            "1": "더 나을 텐데",
+            "2": "보통",
+            "3": "좋아요",
+            "4": "좋아요",
+            "5": "상단"
+        },
+        "fields": {
+            "favorite_dish": "가장 좋아하는 요리",
+            "favorite_placeholder": "예를 들어 바비 팡앙",
+            "comment": "의견이나 조언",
+            "comment_placeholder": "무엇이 잘 되었나요, 아니면 무엇이 더 나아질 수 있을까요?",
+            "permission": "De Gouden Draak 제 피드백을 내부적으로 활용하여 서비스와 요리를 개선하는 데 사용해 주십시오."
+        },
+        "actions": {
+            "submit": "리뷰 보내기"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "주문 번호{id}로 주문이 접수되었습니다.",
+            "assistance_sent": "웨이터가 곧 테이블로 오겠습니다.",
+            "assistance_resolved": "웨이터가 귀하의 도움 요청을 취소했습니다.",
+            "assistance_created": "이 테이블에 대한 도움을 요청했습니다."
+        },
+        "table_number": "테이블{number}",
+        "no_table": "테이블 없음",
+        "assistance": {
+            "title": "도움이 필요하신가요?",
+            "warned": "웨이터에게 경고가 내려졌다.",
+            "call_prompt": "웨이터를 부르세요.",
+            "button_calling": "웨이터가 오는 중",
+            "button_call": "웨이터를 부르다"
+        },
+        "round": "라운드",
+        "checkout": {
+            "thanks": "고마워요!",
+            "hope_enjoyed": "De Gouden Draak을 방문해 주셔서 감사합니다.",
+            "total_paid": "지급 총액",
+            "leave_review": "리뷰를 남겨주세요",
+            "new_table": "새로운 테이블"
+        },
+        "tabs": {
+            "dishes": "요리",
+            "cocktails": "칵테일"
+        },
+        "search_placeholder": "번호나 이름을 검색하세요...",
+        "all_categories": "모두",
+        "clear": "지우기",
+        "empty_cart": "요리 선택",
+        "note_placeholder": "참고...",
+        "add_note": "추가",
+        "order_button": "주문하기",
+        "history": {
+            "title": "이전 라운드",
+            "empty": "역사가 없음",
+            "repeat": "다시 하기",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "주문 오류.",
+            "assistance_failed": "도움 요청을 전송할 수 없습니다.",
+            "load_status": "상태를 불러올 수 없습니다.",
+            "load_history": "역사를 불러올 수 없습니다.",
+            "invalid_table": "유효한 테이블 번호를 입력해 주세요."
+        }
+    },
+    "cocktails": {
+        "alcoholic": "알코올성",
+        "non_alcoholic": "무알코올",
+        "type": "유형",
+        "search": "검색",
+        "search_placeholder": "예를 들어 모히토...",
+        "category": "카테고리",
+        "all_categories": "모든 카테고리",
+        "found_singular": "1개의 칵테일이 검색되었습니다",
+        "found_plural": "{count} 칵테일 검색 결과",
+        "clear_filters": "필터 지우기",
+        "not_found": "칵테일이 없습니다"
+    }
+}

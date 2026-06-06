@@ -3,6 +3,7 @@ export const apiRequest = async (url, { method = 'GET', body = null, csrfToken =
     const headers = {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+        'X-Locale': localStorage.getItem('locale') || 'nl',
     };
 
     if (csrfToken) {

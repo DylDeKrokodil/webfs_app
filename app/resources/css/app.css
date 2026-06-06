@@ -173,9 +173,62 @@
     object-fit: contain;
 }
 
+.legacy-marquee-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    gap: 1rem;
+}
+
+.legacy-lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+}
+
+.legacy-lang-switcher select {
+    appearance: none;
+    border: 1px solid yellow;
+    background: #1d1714;
+    color: yellow;
+    padding: 2px 24px 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='yellow' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+}
+
+.legacy-lang-loader {
+    width: 14px;
+    height: 14px;
+    border: 2px solid yellow;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: legacy-spin 0.6s linear infinite;
+}
+
+@keyframes legacy-spin {
+    to { transform: rotate(360deg); }
+}
+
+.legacy-lang-switcher select:hover {
+    background-color: #2d2420;
+}
+
+.legacy-lang-switcher select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 0, 0.3);
+}
+
 .legacy-marquee {
     display: block;
     min-width: 0;
+    flex: 1;
     overflow: hidden;
     color: yellow;
     font: bold 16px "Times New Roman", Times, serif;

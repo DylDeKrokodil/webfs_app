@@ -1,5 +1,8 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const brandLogo = '/images/brand/de-gouden-draak-emblem.png';
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
@@ -22,52 +25,52 @@ const form = reactive({
     contact_permission: false,
 });
 
-const scoreLabels = {
-    1: 'Kan beter',
-    2: 'Matig',
-    3: 'Prima',
-    4: 'Goed',
-    5: 'Top',
-};
+const scoreLabels = computed(() => ({
+    1: t('review.scores.1'),
+    2: t('review.scores.2'),
+    3: t('review.scores.3'),
+    4: t('review.scores.4'),
+    5: t('review.scores.5'),
+}));
 
-const steps = [
+const steps = computed(() => [
     {
         key: 'overall_score',
-        eyebrow: 'Stap 1 van 5',
-        title: 'Hoe was de totale ervaring?',
-        copy: 'Kies het gevoel dat het beste past bij uw bezoek.',
+        eyebrow: t('review.steps.step_x_of_y', { x: 1, y: 5 }),
+        title: t('review.steps.overall_title'),
+        copy: t('review.steps.overall_copy'),
     },
     {
         key: 'food_score',
-        eyebrow: 'Stap 2 van 5',
-        title: 'Hoe smaakte het eten?',
-        copy: 'Van de eerste hap tot de laatste sauslepel.',
+        eyebrow: t('review.steps.step_x_of_y', { x: 2, y: 5 }),
+        title: t('review.steps.food_title'),
+        copy: t('review.steps.food_copy'),
     },
     {
         key: 'service_score',
-        eyebrow: 'Stap 3 van 5',
-        title: 'Hoe was de service?',
-        copy: 'Denk aan vriendelijkheid, aandacht en afhandeling.',
+        eyebrow: t('review.steps.step_x_of_y', { x: 3, y: 5 }),
+        title: t('review.steps.service_title'),
+        copy: t('review.steps.service_copy'),
     },
     {
         key: 'speed_score',
-        eyebrow: 'Stap 4 van 5',
-        title: 'Hoe snel ging alles?',
-        copy: 'Van bestellen tot afrekenen.',
+        eyebrow: t('review.steps.step_x_of_y', { x: 4, y: 5 }),
+        title: t('review.steps.speed_title'),
+        copy: t('review.steps.speed_copy'),
     },
     {
         key: 'details',
-        eyebrow: 'Stap 5 van 5',
-        title: 'Wat mogen we onthouden?',
-        copy: 'Een favoriet gerecht of korte tip helpt het team direct.',
+        eyebrow: t('review.steps.step_x_of_y', { x: 5, y: 5 }),
+        title: t('review.steps.details_title'),
+        copy: t('review.steps.details_copy'),
     },
-];
+]);
 
-const currentStep = computed(() => steps[activeStep.value]);
+const currentStep = computed(() => steps.value[activeStep.value]);
 const isScoreStep = computed(() => currentStep.value.key !== 'details');
-const progress = computed(() => ((activeStep.value + 1) / steps.length) * 100);
+const progress = computed(() => ((activeStep.value + 1) / steps.value.length) * 100);
 const canContinue = computed(() => !isScoreStep.value || form[currentStep.value.key] > 0);
-const tableLabel = computed(() => invite.value?.table_code ? `Tafel ${invite.value.table_code}` : 'De Gouden Draak');
+const tableLabel = computed(() => invite.value?.table_code ? t('tablet.table_number', { number: invite.value.table_code }) : t('common.restaurant_name'));
 
 const selectScore = (score) => {
     form[currentStep.value.key] = score;
@@ -162,21 +165,21 @@ onMounted(loadInvite);
                     <div class="h-2 bg-stone-100 rounded-full overflow-hidden mb-6">
                         <div class="h-full w-1/2 bg-brand-red animate-pulse"></div>
                     </div>
-                    <p class="text-sm font-bold text-stone-500">Reviewformulier laden...</p>
+                    <p class="text-sm font-bold text-stone-500">{{ t('review.loading') }}</p>
                 </div>
 
-                <div v-else-if="errorMessage && !invite" class="bg-white border border-brand-red/20 rounded-lg p-8 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-[0.2em] text-brand-red mb-3">Link verlopen</p>
-                    <h1 class="text-3xl font-black text-stone-950 mb-3">We kunnen dit reviewformulier niet openen.</h1>
+                <div v-else-if="errorMessage" class="bg-white border border-brand-red/20 rounded-lg p-8 shadow-sm">
+                    <p class="text-xs font-black uppercase tracking-[0.2em] text-brand-red mb-3">{{ t('review.expired_title') }}</p>
+                    <h1 class="text-3xl font-black text-stone-950 mb-3">{{ t('review.expired_message') }}</h1>
                     <p class="text-stone-600">{{ errorMessage }}</p>
                 </div>
 
                 <div v-else-if="isSubmitted" class="bg-white border border-brand-border rounded-lg p-7 sm:p-10 shadow-sm overflow-hidden relative">
                     <div class="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-brand-red via-brand-gold to-stone-800"></div>
-                    <p class="text-xs font-black uppercase tracking-[0.2em] text-brand-gold mb-3">Review ontvangen</p>
-                    <h1 class="text-3xl sm:text-5xl font-black leading-tight text-stone-950 mb-4">Bedankt voor uw feedback.</h1>
+                    <p class="text-xs font-black uppercase tracking-[0.2em] text-brand-gold mb-3">{{ t('review.received_title') }}</p>
+                    <h1 class="text-3xl sm:text-5xl font-black leading-tight text-stone-950 mb-4">{{ t('review.received_message') }}</h1>
                     <p class="text-base text-stone-600 max-w-xl">
-                        Uw review is opgeslagen. Het team gebruikt deze signalen om het eten, de service en de snelheid steeds scherper te krijgen.
+                        {{ t('review.received_copy') }}
                     </p>
                     <div class="mt-8 grid grid-cols-3 gap-2" aria-hidden="true">
                         <div v-for="index in 9" :key="index" class="h-3 rounded-full" :class="index % 3 === 0 ? 'bg-brand-red' : index % 3 === 1 ? 'bg-brand-gold' : 'bg-brand-dark'"></div>
@@ -211,30 +214,30 @@ onMounted(loadInvite);
 
                         <div v-else class="mt-8 space-y-5">
                             <label class="block">
-                                <span class="block text-sm font-black text-stone-900 mb-2">Favoriet gerecht</span>
+                                <span class="block text-sm font-black text-stone-900 mb-2">{{ t('review.fields.favorite_dish') }}</span>
                                 <input
                                     v-model.trim="form.favorite_dish"
                                     maxlength="120"
                                     class="w-full rounded-lg border border-brand-border bg-brand-light px-4 py-3 text-base font-bold outline-none focus:ring-4 focus:ring-brand-gold/30 focus:border-brand-gold"
-                                    placeholder="Bijvoorbeeld Babi Pangang"
+                                    :placeholder="t('review.fields.favorite_placeholder')"
                                 >
                             </label>
 
                             <label class="block">
-                                <span class="block text-sm font-black text-stone-900 mb-2">Opmerking of tip</span>
+                                <span class="block text-sm font-black text-stone-900 mb-2">{{ t('review.fields.comment') }}</span>
                                 <textarea
                                     v-model.trim="form.comment"
                                     maxlength="1000"
                                     rows="5"
                                     class="w-full resize-none rounded-lg border border-brand-border bg-brand-light px-4 py-3 text-base outline-none focus:ring-4 focus:ring-brand-gold/30 focus:border-brand-gold"
-                                    placeholder="Wat ging goed, of wat kan beter?"
+                                    :placeholder="t('review.fields.comment_placeholder')"
                                 ></textarea>
                             </label>
 
                             <label class="flex items-start gap-3 rounded-lg border border-brand-border bg-brand-light p-4">
                                 <input v-model="form.contact_permission" type="checkbox" class="mt-1 w-5 h-5 accent-brand-red">
                                 <span class="text-sm text-stone-700">
-                                    De Gouden Draak mag mijn feedback intern gebruiken om service en gerechten te verbeteren.
+                                    {{ t('review.fields.permission') }}
                                 </span>
                             </label>
                         </div>
@@ -250,7 +253,7 @@ onMounted(loadInvite);
                                 :disabled="activeStep === 0 || isSubmitting"
                                 @click="previousStep"
                             >
-                                Terug
+                                {{ t('common.back') }}
                             </button>
 
                             <button
@@ -260,7 +263,7 @@ onMounted(loadInvite);
                                 :disabled="!canContinue"
                                 @click="nextStep"
                             >
-                                Volgende
+                                {{ t('common.next') }}
                             </button>
 
                             <button
@@ -269,7 +272,7 @@ onMounted(loadInvite);
                                 class="px-6 py-3 rounded-lg bg-brand-dark text-white font-black shadow-lg disabled:opacity-40"
                                 :disabled="isSubmitting"
                             >
-                                {{ isSubmitting ? 'Versturen...' : 'Review versturen' }}
+                                {{ isSubmitting ? t('common.sending') : t('review.actions.submit') }}
                             </button>
                         </div>
                     </div>

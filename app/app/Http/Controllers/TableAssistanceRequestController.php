@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Events\TableAssistanceRequestCreated;
 use App\Models\TableAssistanceRequest;
+use App\Services\TranslationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TableAssistanceRequestController extends Controller
 {
-    public function store(int $tableNumber): JsonResponse
+    public function store(Request $request, int $tableNumber, TranslationService $translator): JsonResponse
     {
+        $targetLang = $request->header('X-Locale', 'nl');
         $tableCode = (string) $tableNumber;
 
         $request = TableAssistanceRequest::query()
@@ -27,8 +30,13 @@ class TableAssistanceRequestController extends Controller
             TableAssistanceRequestCreated::dispatch($request);
         }
 
+        $message = 'Een ober komt zo naar uw tafel.';
+        if (strtolower($targetLang) !== 'nl') {
+            $message = $translator->translate($message, $targetLang);
+        }
+
         return response()->json([
-            'message' => 'Een ober komt zo naar uw tafel.',
+            'message' => $message,
             'data' => [
                 'id' => $request->id,
                 'table_code' => $request->table_code,
