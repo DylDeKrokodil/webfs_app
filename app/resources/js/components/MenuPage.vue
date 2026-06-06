@@ -193,7 +193,7 @@ onMounted(() => {
                         <h2>{{ t('menu.database_dishes') }}</h2>
                     </div>
 
-                    <a class="legacy-menu-download" href="/menukaart.pdf">
+                    <a class="legacy-menu-download" :href="`/menukaart.pdf?lang=${locale}`">
                         {{ t('menu.download_pdf') }}
                     </a>
                 </header>

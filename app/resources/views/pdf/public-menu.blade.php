@@ -151,8 +151,8 @@
 <body>
     <header class="header">
         <img class="logo" src="{{ public_path('images/brand/de-gouden-draak-emblem.png') }}" alt="De Gouden Draak logo">
-        <h1>Menukaart De Gouden Draak</h1>
-        <p class="meta">Gegenereerd op {{ $generatedAt->format('d-m-Y H:i') }}</p>
+        <h1>{{ __('Menukaart De Gouden Draak') }}</h1>
+        <p class="meta">{{ __('Gegenereerd op') }} {{ $generatedAt->format('d-m-Y H:i') }}</p>
     </header>
 
     <main>
@@ -181,16 +181,16 @@
         <section class="offers-page">
             <header class="header">
                 <img class="logo" src="{{ public_path('images/brand/de-gouden-draak-emblem.png') }}" alt="De Gouden Draak logo">
-                <h1>Aanbiedingen</h1>
-                <p class="meta">Actuele aanbiedingen bij De Gouden Draak</p>
+                <h1>{{ __('Aanbiedingen') }}</h1>
+                <p class="meta">{{ __('Actuele aanbiedingen bij De Gouden Draak') }}</p>
             </header>
 
             @forelse ($promotions as $promotion)
                 <article class="offer">
                     <h3>{{ $promotion->title }}</h3>
                     <p class="offer-period">
-                        Geldig van {{ $promotion->starts_at->format('d-m-Y') }}
-                        t/m {{ $promotion->ends_at->format('d-m-Y') }}
+                        {{ __('Geldig van') }} {{ $promotion->starts_at->format('d-m-Y') }}
+                        {{ __('t/m') }} {{ $promotion->ends_at->format('d-m-Y') }}
                     </p>
                     @if ($promotion->description)
                         <p class="offer-description">{{ $promotion->description }}</p>
@@ -204,13 +204,13 @@
                                         <td class="code">{{ trim(($item->number ?? '').($item->suffix ?? '')) ?: '-' }}</td>
                                         <td>
                                             <div class="name">{{ $item->name }}</div>
-                                            <div class="description">{{ $item->category?->name ?? 'Overig' }}</div>
+                                            <div class="description">{{ __($item->category?->name ?? 'Overig') }}</div>
                                         </td>
                                         <td class="price">
                                             @if ((float) $item->pivot->discount_amount > 0)
-                                                € {{ number_format((float) $item->pivot->discount_amount, 2, ',', '.') }} korting
+                                                € {{ number_format((float) $item->pivot->discount_amount, 2, ',', '.') }} {{ __('korting') }}
                                             @else
-                                                Aanbieding
+                                                {{ __('Aanbieding') }}
                                             @endif
                                         </td>
                                     </tr>
@@ -220,7 +220,7 @@
                     @endif
                 </article>
             @empty
-                <p class="empty-offers">Er zijn momenteel geen actieve aanbiedingen.</p>
+                <p class="empty-offers">{{ __('Er zijn momenteel geen actieve aanbiedingen.') }}</p>
             @endforelse
         </section>
     </main>

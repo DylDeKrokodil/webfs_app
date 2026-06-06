@@ -78,7 +78,7 @@ const selectScore = (score) => {
 
 const nextStep = () => {
     if (!canContinue.value) return;
-    activeStep.value = Math.min(activeStep.value + 1, steps.length - 1);
+    activeStep.value = Math.min(activeStep.value + 1, steps.value.length - 1);
 };
 
 const previousStep = () => {

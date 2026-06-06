@@ -46,7 +46,20 @@ class MenuItemController extends Controller
 
     public function update(Request $request, MenuItem $menuItem): JsonResponse
     {
-        $menuItem->update($this->validatedAttributes($request));
+        $attributes = $this->validatedAttributes($request, $menuItem);
+
+        // De nummering moet gelijk blijven voor bestaande gerechten.
+        // We toestaan alleen wijzigingen aan de suffix (bijv. 10 -> 10a).
+        if ($menuItem->number !== null && isset($attributes['number']) && (int) $attributes['number'] !== (int) $menuItem->number) {
+            return response()->json([
+                'message' => 'Het menu-nummer mag niet aangepast worden voor bestaande gerechten.',
+                'errors' => [
+                    'number' => ['Het menu-nummer mag niet aangepast worden voor bestaande gerechten.'],
+                ],
+            ], 422);
+        }
+
+        $menuItem->update($attributes);
 
         MenuItemUpdated::dispatch($menuItem->load('category'));
 
@@ -57,21 +70,46 @@ class MenuItemController extends Controller
 
     public function destroy(MenuItem $menuItem): JsonResponse
     {
-        $menuItem->delete();
+        try {
+            $menuItem->delete();
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'Dit gerecht kan niet verwijderd worden omdat het al in bestellingen is gebruikt. Zet het gerecht in plaats daarvan op "Inactief" om het van de kaart te halen.',
+                ], 422);
+            }
+            throw $e;
+        }
 
         return response()->json(status: 204);
     }
 
-    private function validatedAttributes(Request $request): array
+    private function validatedAttributes(Request $request, ?MenuItem $item = null): array
     {
         return $request->validate([
             'menu_category_id' => ['required', Rule::exists('menu_categories', 'id')],
-            'number' => ['nullable', 'integer', 'min:1', 'max:9999'],
-            'suffix' => ['nullable', 'string', 'max:10'],
+            'number' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:9999',
+                Rule::unique('menu_items')->where(fn ($query) => $query->where('suffix', $request->suffix))
+                    ->ignore($item?->id),
+            ],
+            'suffix' => [
+                'nullable',
+                'string',
+                'max:10',
+                Rule::unique('menu_items')->where(fn ($query) => $query->where('number', $request->number))
+                    ->ignore($item?->id),
+            ],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'is_active' => ['required', 'boolean'],
+        ], [
+            'number.unique' => 'Deze combinatie van nummer en suffix bestaat al.',
+            'suffix.unique' => 'Deze combinatie van nummer en suffix bestaat al.',
         ]);
     }
 

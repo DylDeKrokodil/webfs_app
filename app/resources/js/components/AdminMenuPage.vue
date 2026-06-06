@@ -44,12 +44,6 @@ const {
     searchableFields: ['display_number', 'name', 'description', 'category'],
 });
 
-const averagePrice = computed(() => {
-    if (items.value.length === 0) return formatter.format(0);
-    const total = items.value.reduce((sum, item) => sum + Number(item.price), 0);
-    return formatter.format(total / items.value.length);
-});
-
 const emptyState = computed(() => {
     if (statusFilter.value === 'inactive' && inactiveItems.value.length === 0) {
         return {
@@ -96,7 +90,12 @@ const selectItem = (item) => {
 
 const startNewItem = () => {
     selectedId.value = null;
-    form.value = { ...emptyForm(), menu_category_id: categories.value[0]?.id ?? '' };
+    const maxNumber = items.value.reduce((max, item) => Math.max(max, item.number ?? 0), 0);
+    form.value = {
+        ...emptyForm(),
+        menu_category_id: categories.value[0]?.id ?? '',
+        number: maxNumber + 1,
+    };
 };
 
 const apiRequest = async (url, options = {}) => {
@@ -210,8 +209,8 @@ onMounted(loadMenu);
                 <!-- Metrics and List Area -->
                 <div class="flex-shrink-0 lg:flex-1 lg:min-h-0 flex flex-col border-r border-brand-border bg-white">
                     <!-- Metrics -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 border-b border-brand-border bg-stone-50/50 flex-shrink-0">
-                        <div v-for="(val, label) in { 'Totaal Gerechten': items.length, 'Actieve Items': activeItems.length, 'Verborgen': inactiveItems.length, 'Gem. Prijs': averagePrice }" :key="label" class="p-6 border-r border-brand-border last:border-r-0">
+                    <div class="grid grid-cols-2 lg:grid-cols-3 border-b border-brand-border bg-stone-50/50 flex-shrink-0">
+                        <div v-for="(val, label) in { 'Totaal Gerechten': items.length, 'Actieve Items': activeItems.length, 'Verborgen': inactiveItems.length }" :key="label" class="p-6 border-r border-brand-border last:border-r-0">
                             <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">{{ label }}</span>
                             <p class="text-2xl font-black text-stone-900 leading-none">{{ val }}</p>
                         </div>
@@ -298,8 +297,16 @@ onMounted(loadMenu);
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
-                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Nummer</label>
-                                    <input v-model="form.number" type="number" class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
+                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">
+                                        Nummer
+                                        <span v-if="form.id" class="ml-1 text-[8px] font-bold text-stone-400 normal-case tracking-normal">(Niet aanpasbaar)</span>
+                                    </label>
+                                    <input
+                                        v-model="form.number"
+                                        type="number"
+                                        :disabled="!!form.id"
+                                        class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm disabled:bg-stone-100 disabled:text-stone-400 disabled:cursor-not-allowed"
+                                    >
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Suffix</label>
