@@ -55,13 +55,13 @@ services:
     depends_on:
       - mysql
 
-  worker:
+  scheduler:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: gouden_draak_worker
+    container_name: gouden_draak_scheduler
     working_dir: /var/www/html/app
-    command: php artisan queue:work --tries=3 --timeout=90
+    command: php artisan schedule:work
     environment:
       - TZ=Europe/Amsterdam
     volumes:

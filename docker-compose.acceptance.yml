@@ -11,6 +11,11 @@ services:
     depends_on:
       - mysql
 
+  scheduler:
+    container_name: gouden_draak_acc_scheduler
+    env_file:
+      - app/.env.acceptance
+
   vite:
     container_name: gouden_draak_acc_vite
     command: npm run dev -- --host 0.0.0.0 --port 5175

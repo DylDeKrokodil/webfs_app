@@ -40,7 +40,12 @@ const dateFormatter = new Intl.DateTimeFormat('nl-NL', {
     minute: '2-digit',
 });
 
-const handleApplyPreset = (preset) => applyPreset(preset, loadOverview);
+const loadAllData = () => {
+    loadOverview();
+    loadSalesSummaries();
+};
+
+const handleApplyPreset = (preset) => applyPreset(preset, loadAllData);
 
 const loadOverview = async () => {
     if (!startDate.value || !endDate.value) {
@@ -79,10 +84,17 @@ const loadOverview = async () => {
 };
 
 const loadSalesSummaries = async () => {
+    if (!startDate.value || !endDate.value) return;
+
     isLoadingSummaries.value = true;
 
     try {
-        const response = await fetch('/api/admin/sales-summaries', {
+        const params = new URLSearchParams({
+            start_date: startDate.value,
+            end_date: endDate.value,
+        });
+
+        const response = await fetch(`/api/admin/sales-summaries?${params}`, {
             headers: {
                 Accept: 'application/json',
                 'X-CSRF-TOKEN': csrfToken,
@@ -194,7 +206,7 @@ onMounted(() => {
                             </label>
                             <button
                                 type="button"
-                                @click="loadOverview"
+                                @click="loadAllData"
                                 :disabled="isLoading"
                                 class="h-10 px-6 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-md shadow-brand-gold/10 hover:bg-stone-800 transition-colors disabled:opacity-50"
                             >
@@ -300,7 +312,7 @@ onMounted(() => {
                                     </div>
                                     <div class="flex flex-col">
                                         <span class="text-xs font-black text-stone-900">{{ formatReportDate(summary.date) }}</span>
-                                        <span class="text-[9px] font-bold text-stone-600 uppercase tracking-widest">{{ summary.orders_count }} bestellingen</span>
+                                        <span class="text-[9px] font-bold text-stone-600 uppercase tracking-widest">{{ summary.orders_count }} {{ summary.orders_count === 1 ? 'bestelling' : 'bestellingen' }}</span>
                                     </div>
                                 </div>
                                 <div class="text-right">

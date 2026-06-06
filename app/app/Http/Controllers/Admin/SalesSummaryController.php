@@ -6,16 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\GeneratedFile;
 use App\Services\Reports\DailySalesSummaryService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SalesSummaryController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $summaries = GeneratedFile::query()
-            ->where('type', DailySalesSummaryService::FILE_TYPE)
-            ->latest('generated_at')
+        $validated = $request->validate([
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+        ]);
+
+        $query = GeneratedFile::query()
+            ->where('type', DailySalesSummaryService::FILE_TYPE);
+
+        if (!empty($validated['start_date']) && !empty($validated['end_date'])) {
+            $query->whereBetween('metadata->date', [$validated['start_date'], $validated['end_date']]);
+        }
+
+        $summaries = $query
+            ->orderByDesc('metadata->date')
             ->limit(100)
             ->get()
             ->map(fn (GeneratedFile $file): array => [
