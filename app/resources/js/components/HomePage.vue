@@ -25,8 +25,8 @@ const offerChoices = [
 
             <dl>
                 <template v-for="row in offerChoices" :key="row.join('-')">
-                    <div>{{ t(row[0]) }}</div>
-                    <div>{{ t(row[1]) }}</div>
+                    <dt>{{ t(row[0]) }}</dt>
+                    <dd>{{ t(row[1]) }}</dd>
                 </template>
             </dl>
 

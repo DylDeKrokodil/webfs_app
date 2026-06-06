@@ -273,6 +273,15 @@ onMounted(loadOrder);
     margin-top: 32px;
 }
 
+.legacy-checkout-btn:hover {
+    background: #5f1515;
+}
+
+.legacy-checkout-btn:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: 4px;
+}
+
 .legacy-secondary-btn {
     display: flex;
     align-items: center;
@@ -291,6 +300,11 @@ onMounted(loadOrder);
 
 .legacy-secondary-btn:hover {
     background: #e5d7ba;
+}
+
+.legacy-secondary-btn:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: 4px;
 }
 
 .legacy-confirmation-footer {

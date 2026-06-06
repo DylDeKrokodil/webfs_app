@@ -38,6 +38,7 @@ const switchLanguage = async (event) => {
         await loadLocaleMessages(lang);
         locale.value = lang;
         localStorage.setItem('locale', lang);
+        document.documentElement.lang = lang;
     } finally {
         isSwitchingLocale.value = false;
     }

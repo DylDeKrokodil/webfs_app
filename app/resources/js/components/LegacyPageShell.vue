@@ -63,10 +63,10 @@ const frameCells = Array.from({ length: 81 }, (_, index) => {
 <template>
     <main class="legacy-page">
         <header class="legacy-topbar">
-            <div class="legacy-brand legacy-brand-left" :aria-label="t('common.restaurant_name')">
-                <img :src="dragonSmall" alt="">
+            <div class="legacy-brand legacy-brand-left">
+                <img :src="dragonSmall" alt="" aria-hidden="true">
                 <span>{{ t('common.restaurant_name') }}</span>
-                <img :src="dragonSmallFlipped" alt="">
+                <img :src="dragonSmallFlipped" alt="" aria-hidden="true">
             </div>
 
             <div class="legacy-marquee-container">
@@ -76,10 +76,10 @@ const frameCells = Array.from({ length: 81 }, (_, index) => {
                 <LanguageSwitcher variant="legacy" />
             </div>
 
-            <div class="legacy-brand" :aria-label="t('common.restaurant_name')">
-                <img :src="dragonSmall" alt="">
+            <div class="legacy-brand">
+                <img :src="dragonSmall" alt="" aria-hidden="true">
                 <span>{{ t('common.restaurant_name') }}</span>
-                <img :src="dragonSmallFlipped" alt="">
+                <img :src="dragonSmallFlipped" alt="" aria-hidden="true">
             </div>
         </header>
 
@@ -95,21 +95,25 @@ const frameCells = Array.from({ length: 81 }, (_, index) => {
                 ></span>
 
                 <div class="legacy-frame-content">
-                    <div class="legacy-hero" aria-labelledby="restaurant-title">
-                        <img class="legacy-large-dragon legacy-large-dragon-left" :src="dragonLarge" alt="">
+                    <div class="legacy-hero">
+                        <img class="legacy-large-dragon legacy-large-dragon-left" :src="dragonLarge" alt="" aria-hidden="true">
 
                         <div class="legacy-title-block">
-                            <p>{{ t('common.specialties') }}</p>
+                            <p aria-hidden="true">{{ t('common.specialties') }}</p>
                             <h1 id="restaurant-title">{{ t('common.restaurant_name') }}</h1>
 
-                            <nav class="legacy-nav" aria-label="Hoofdnavigatie">
-                                <a v-for="item in navigationItems" :key="item.label" :href="item.href">
-                                    {{ t(item.label) }}
-                                </a>
+                            <nav class="legacy-nav" :aria-label="t('nav.main_navigation') || 'Hoofdnavigatie'">
+                                <ul>
+                                    <li v-for="item in navigationItems" :key="item.label">
+                                        <a :href="item.href">
+                                            {{ t(item.label) }}
+                                        </a>
+                                    </li>
+                                </ul>
                             </nav>
                         </div>
 
-                        <img class="legacy-large-dragon legacy-large-dragon-right" :src="dragonLarge" alt="">
+                        <img class="legacy-large-dragon legacy-large-dragon-right" :src="dragonLarge" alt="" aria-hidden="true">
                     </div>
 
                     <slot></slot>

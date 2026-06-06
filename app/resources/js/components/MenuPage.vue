@@ -203,6 +203,8 @@ onMounted(() => {
                         type="button"
                         role="tab"
                         :aria-selected="activeTab === 'menu'"
+                        :aria-controls="'tabpanel-menu'"
+                        :id="'tab-menu'"
                         :class="{ 'is-active': activeTab === 'menu' }"
                         @click="activeTab = 'menu'"
                     >
@@ -212,6 +214,8 @@ onMounted(() => {
                         type="button"
                         role="tab"
                         :aria-selected="activeTab === 'favorites'"
+                        :aria-controls="'tabpanel-favorites'"
+                        :id="'tab-favorites'"
                         :class="{ 'is-active': activeTab === 'favorites' }"
                         @click="activeTab = 'favorites'"
                     >
@@ -222,6 +226,8 @@ onMounted(() => {
                         type="button"
                         role="tab"
                         :aria-selected="activeTab === 'cart'"
+                        :aria-controls="'tabpanel-cart'"
+                        :id="'tab-cart'"
                         :class="{ 'is-active': activeTab === 'cart' }"
                         @click="activeTab = 'cart'"
                     >
@@ -230,102 +236,112 @@ onMounted(() => {
                     </button>
                 </div>
 
-                <div v-if="activeTab === 'menu'" class="legacy-menu-toolbar">
-                    <label>
-                        {{ t('menu.sorting.label_menu') }}
-                        <select v-model="menuSortMode">
-                            <option value="default">{{ t('menu.sorting.default') }}</option>
-                            <option value="favorites-first">{{ t('menu.sorting.favorites_first') }}</option>
-                            <option value="favorites-alpha">{{ t('menu.sorting.favorites_alpha') }}</option>
-                        </select>
-                    </label>
-                </div>
-
-                <div v-else class="legacy-menu-toolbar">
-                    <label>
-                        {{ t('menu.sorting.label_favorites') }}
-                        <select v-model="favoritesSortMode">
-                            <option value="number">{{ t('menu.sorting.by_number') }}</option>
-                            <option value="alpha">{{ t('menu.sorting.alpha') }}</option>
-                        </select>
-                    </label>
-                </div>
-
-                <p v-if="isLoading" class="legacy-menu-state">{{ t('menu.states.loading') }}</p>
-                <p v-else-if="errorMessage" class="legacy-menu-state is-error">{{ errorMessage }}</p>
-
-                <div v-else-if="activeTab === 'menu'" class="legacy-menu-list">
-                    <article
-                        v-for="item in sortedMenuItems"
-                        :key="item.id"
-                        class="legacy-menu-row"
-                        :class="{ 'is-favorite': isFavorite(item) }"
-                    >
-                        <label class="legacy-favorite-toggle">
-                            <input
-                                type="checkbox"
-                                :checked="isFavorite(item)"
-                                @change="toggleFavorite(item)"
-                            >
-                            <span>{{ t('menu.actions.favorite') }}</span>
+                <div v-if="activeTab === 'menu'" id="tabpanel-menu" role="tabpanel" aria-labelledby="tab-menu">
+                    <div class="legacy-menu-toolbar">
+                        <label>
+                            {{ t('menu.sorting.label_menu') }}
+                            <select v-model="menuSortMode">
+                                <option value="default">{{ t('menu.sorting.default') }}</option>
+                                <option value="favorites-first">{{ t('menu.sorting.favorites_first') }}</option>
+                                <option value="favorites-alpha">{{ t('menu.sorting.favorites_alpha') }}</option>
+                            </select>
                         </label>
+                    </div>
 
-                        <div class="legacy-menu-code">{{ item.display_number || '-' }}</div>
+                    <p v-if="isLoading" class="legacy-menu-state">{{ t('menu.states.loading') }}</p>
+                    <p v-else-if="errorMessage" class="legacy-menu-state is-error">{{ errorMessage }}</p>
 
-                        <div class="legacy-menu-copy">
-                            <h3>{{ item.name }}</h3>
-                            <p v-if="item.description">{{ item.description }}</p>
-                            <small>{{ item.category }}</small>
-                        </div>
+                    <div v-else class="legacy-menu-list">
+                        <article
+                            v-for="item in sortedMenuItems"
+                            :key="item.id"
+                            class="legacy-menu-row"
+                            :class="{ 'is-favorite': isFavorite(item) }"
+                        >
+                            <label class="legacy-favorite-toggle">
+                                <input
+                                    type="checkbox"
+                                    :checked="isFavorite(item)"
+                                    @change="toggleFavorite(item)"
+                                >
+                                <span>{{ t('menu.actions.favorite') }}</span>
+                            </label>
 
-                        <div class="legacy-menu-actions">
-                            <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
-                            <button
-                                @click="addToCart(item)"
-                                class="legacy-menu-add-btn"
-                            >
-                                {{ t('menu.actions.add_to_cart') }}
-                            </button>
-                        </div>
-                    </article>
+                            <div class="legacy-menu-code">{{ item.display_number || '-' }}</div>
+
+                            <div class="legacy-menu-copy">
+                                <h3>{{ item.name }}</h3>
+                                <p v-if="item.description">{{ item.description }}</p>
+                                <small>{{ item.category }}</small>
+                            </div>
+
+                            <div class="legacy-menu-actions">
+                                <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
+                                <button
+                                    @click="addToCart(item)"
+                                    class="legacy-menu-add-btn"
+                                >
+                                    {{ t('menu.actions.add_to_cart') }}
+                                </button>
+                            </div>
+                        </article>
+                    </div>
                 </div>
 
-                <div v-else-if="activeTab === 'favorites' && favoriteItems.length > 0" class="legacy-menu-list">
-                    <article
-                        v-for="item in favoriteItems"
-                        :key="item.id"
-                        class="legacy-menu-row is-favorite"
-                    >
-                        <label class="legacy-favorite-toggle">
-                            <input
-                                type="checkbox"
-                                checked
-                                @change="toggleFavorite(item)"
-                            >
-                            <span>{{ t('menu.actions.favorite') }}</span>
+                <div v-else-if="activeTab === 'favorites'" id="tabpanel-favorites" role="tabpanel" aria-labelledby="tab-favorites">
+                    <div class="legacy-menu-toolbar">
+                        <label>
+                            {{ t('menu.sorting.label_favorites') }}
+                            <select v-model="favoritesSortMode">
+                                <option value="number">{{ t('menu.sorting.by_number') }}</option>
+                                <option value="alpha">{{ t('menu.sorting.alpha') }}</option>
+                            </select>
                         </label>
+                    </div>
 
-                        <div class="legacy-menu-code">{{ item.display_number || '-' }}</div>
+                    <p v-if="isLoading" class="legacy-menu-state">{{ t('menu.states.loading') }}</p>
+                    <p v-else-if="errorMessage" class="legacy-menu-state is-error">{{ errorMessage }}</p>
 
-                        <div class="legacy-menu-copy">
-                            <h3>{{ item.name }}</h3>
-                            <p v-if="item.description">{{ item.description }}</p>
-                            <small>{{ item.category }}</small>
-                        </div>
+                    <div v-else-if="favoriteItems.length > 0" class="legacy-menu-list">
+                        <article
+                            v-for="item in favoriteItems"
+                            :key="item.id"
+                            class="legacy-menu-row is-favorite"
+                        >
+                            <label class="legacy-favorite-toggle">
+                                <input
+                                    type="checkbox"
+                                    checked
+                                    @change="toggleFavorite(item)"
+                                >
+                                <span>{{ t('menu.actions.favorite') }}</span>
+                            </label>
 
-                        <div class="legacy-menu-actions">
-                            <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
-                            <button
-                                @click="addToCart(item)"
-                                class="legacy-menu-add-btn"
-                            >
-                                {{ t('menu.actions.add_to_cart') }}
-                            </button>
-                        </div>
-                    </article>
+                            <div class="legacy-menu-code">{{ item.display_number || '-' }}</div>
+
+                            <div class="legacy-menu-copy">
+                                <h3>{{ item.name }}</h3>
+                                <p v-if="item.description">{{ item.description }}</p>
+                                <small>{{ item.category }}</small>
+                            </div>
+
+                            <div class="legacy-menu-actions">
+                                <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
+                                <button
+                                    @click="addToCart(item)"
+                                    class="legacy-menu-add-btn"
+                                >
+                                    {{ t('menu.actions.add_to_cart') }}
+                                </button>
+                            </div>
+                        </article>
+                    </div>
+                    <p v-else class="legacy-menu-state">
+                        {{ t('menu.states.empty_favorites') }}
+                    </p>
                 </div>
 
-                <div v-else-if="activeTab === 'cart'" class="legacy-menu-list">
+                <div v-else-if="activeTab === 'cart'" id="tabpanel-cart" role="tabpanel" aria-labelledby="tab-cart" class="legacy-menu-list">
                     <div v-if="cartItems.length > 0" class="legacy-cart-container">
                         <article
                             v-for="item in cartItems"
@@ -345,8 +361,13 @@ onMounted(() => {
                                     <button @click="updateQuantity(item.id, 1)" :aria-label="t('menu.actions.more')">+</button>
                                 </div>
                                 <div class="legacy-menu-price">{{ formatter.format(item.price * item.quantity) }}</div>
-                                <button @click="removeFromCart(item.id)" class="legacy-cart-remove" :title="t('menu.actions.remove')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                <button 
+                                    @click="removeFromCart(item.id)" 
+                                    class="legacy-cart-remove" 
+                                    :title="t('menu.actions.remove')"
+                                    :aria-label="t('menu.actions.remove')"
+                                >
+                                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                 </button>
                             </div>
                         </article>
@@ -369,10 +390,6 @@ onMounted(() => {
                         {{ t('menu.states.empty_cart') }}
                     </p>
                 </div>
-
-                <p v-else-if="activeTab === 'favorites' && favoriteItems.length === 0" class="legacy-menu-state">
-                    {{ t('menu.states.empty_favorites') }}
-                </p>
             </div>
         </section>
     </LegacyPageShell>
@@ -398,6 +415,11 @@ onMounted(() => {
     font-weight: 800;
     padding: 10px 16px;
     transition: background 0.2s;
+}
+
+.legacy-menu-tabs button:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: -2px;
 }
 
 .legacy-menu-tabs button.is-active {
@@ -467,6 +489,11 @@ onMounted(() => {
     background: #5f1515;
 }
 
+.legacy-menu-add-btn:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: 2px;
+}
+
 .legacy-checkout-btn {
     appearance: none;
     border: 2px solid #d7b56d;
@@ -483,6 +510,11 @@ onMounted(() => {
 
 .legacy-checkout-btn:hover:not(:disabled) {
     background: #5f1515;
+}
+
+.legacy-checkout-btn:focus:not(:disabled) {
+    outline: 2px solid #7f1d1d;
+    outline-offset: 4px;
 }
 
 .legacy-checkout-btn:disabled {
@@ -528,6 +560,12 @@ onMounted(() => {
     background: #e5d7ba;
 }
 
+.legacy-quantity-selector button:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: -2px;
+    z-index: 1;
+}
+
 .legacy-quantity-selector span {
     width: 36px;
     text-align: center;
@@ -551,6 +589,11 @@ onMounted(() => {
 .legacy-cart-remove:hover {
     background: #fff1f1;
     color: #991b1b;
+}
+
+.legacy-cart-remove:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: 2px;
 }
 
 .legacy-cart-summary {

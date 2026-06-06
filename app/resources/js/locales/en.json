@@ -107,7 +107,7 @@
         "received_message": "Thank you for your feedback.",
         "received_copy": "Your review has been saved. The team uses this feedback to continuously improve the food, service and speed.",
         "steps": {
-            "step_x_of_y": "Step {x} from {y}",
+            "step_x_of_y": "Step {x} of {y}",
             "overall_title": "How was the overall experience?",
             "overall_copy": "Choose the option that best suits your visit.",
             "food_title": "How was the food?",
@@ -139,12 +139,12 @@
     },
     "tablet": {
         "notifications": {
-            "order_placed": "Order #{id}has been placed.",
+            "order_placed": "Order #{id} has been placed.",
             "assistance_sent": "A waiter will be with you shortly.",
             "assistance_resolved": "The waiter has marked your request as resolved.",
             "assistance_created": "Help has been requested for this table."
         },
-        "table_number": "{number} Table",
+        "table_number": "Table {number}",
         "no_table": "No table",
         "assistance": {
             "title": "Need help?",
@@ -176,7 +176,7 @@
             "title": "Previous rounds",
             "empty": "No history",
             "repeat": "Repeat",
-            "out_of_stock": "ON"
+            "out_of_stock": "OUT"
         },
         "errors": {
             "order_failed": "Error during ordering.",

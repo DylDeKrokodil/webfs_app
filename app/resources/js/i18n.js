@@ -10,6 +10,8 @@ const i18n = createI18n({
     }
 });
 
+document.documentElement.lang = i18n.global.locale.value;
+
 /**
  * Dynamically load a locale and add it to the i18n instance.
  * If the locale is already loaded, it does nothing.

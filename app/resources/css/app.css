@@ -221,8 +221,9 @@
 }
 
 .legacy-lang-switcher select:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 255, 0, 0.3);
+    outline: 2px solid yellow;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.3);
 }
 
 .legacy-marquee {
@@ -237,9 +238,21 @@
     white-space: nowrap;
 }
 
+.legacy-marquee:focus {
+    outline: 2px solid yellow;
+    outline-offset: 2px;
+}
+
 .legacy-marquee span {
     display: inline-block;
     animation: legacy-marquee 16s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .legacy-marquee span {
+        animation: none;
+        white-space: normal;
+    }
 }
 
 .legacy-frame {
@@ -371,11 +384,16 @@
 }
 
 .legacy-nav {
+    margin-top: 36px;
+}
+
+.legacy-nav ul {
     display: inline-table;
     border-spacing: 2px;
     border-collapse: separate;
-    margin-top: 36px;
-    border: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
     background: var(--legacy-menu-bg) center / 100% 100% no-repeat;
     color: white;
     font-family: "Times New Roman", Times, serif;
@@ -384,37 +402,41 @@
     line-height: normal;
 }
 
-.legacy-nav a {
+.legacy-nav li {
     display: table-cell;
+    vertical-align: middle;
+}
+
+.legacy-nav a {
+    display: block;
     height: 25px;
     padding: 0;
     border: 1px inset white;
     color: white;
     text-align: center;
     text-decoration: none;
-    vertical-align: middle;
 }
 
-.legacy-nav a:nth-child(1) {
+.legacy-nav li:nth-child(1) {
     width: 149px;
 }
 
-.legacy-nav a:nth-child(2) {
+.legacy-nav li:nth-child(2) {
     width: 138px;
 }
 
-.legacy-nav a:nth-child(3) {
+.legacy-nav li:nth-child(3) {
     width: 134px;
-}
-
-.legacy-nav a:last-child {
-    border-right: 1px inset white;
 }
 
 .legacy-nav a:hover,
 .legacy-nav a:focus {
     background: rgb(0 0 0 / 18%);
-    outline: none;
+}
+
+.legacy-nav a:focus {
+    outline: 2px solid yellow;
+    outline-offset: -2px;
 }
 
 .legacy-offer {
@@ -459,11 +481,13 @@
     font-weight: 700;
 }
 
-.legacy-offer dl div:nth-child(odd) {
+.legacy-offer dl dt {
+    margin: 0;
     text-align: right;
 }
 
-.legacy-offer dl div:nth-child(even) {
+.legacy-offer dl dd {
+    margin: 0;
     text-align: left;
 }
 
@@ -490,6 +514,11 @@
 .legacy-contact-link a:hover,
 .legacy-contact-link a:focus {
     text-decoration: underline;
+}
+
+.legacy-contact-link a:focus {
+    outline: 2px solid yellow;
+    outline-offset: 4px;
 }
 
 .legacy-contact-page {
@@ -591,6 +620,11 @@
     color: #fff7d6;
 }
 
+.legacy-menu-download:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: 2px;
+}
+
 .legacy-menu-tabs {
     display: flex;
     gap: 8px;
@@ -609,6 +643,12 @@
     font-size: 15px;
     font-weight: 800;
     padding: 10px 16px;
+}
+
+.legacy-menu-tabs button:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: -2px;
+    z-index: 1;
 }
 
 .legacy-menu-tabs button.is-active {
@@ -654,6 +694,12 @@
     padding: 6px 10px;
 }
 
+.legacy-menu-toolbar select:focus {
+    border-color: #7f1d1d;
+    outline: 2px solid #7f1d1d;
+    outline-offset: -1px;
+}
+
 .legacy-menu-list {
     display: grid;
     gap: 8px;
@@ -691,6 +737,11 @@
     width: 18px;
     height: 18px;
     accent-color: #7f1d1d;
+}
+
+.legacy-favorite-toggle input:focus {
+    outline: 2px solid #7f1d1d;
+    outline-offset: 4px;
 }
 
 .legacy-menu-code {
