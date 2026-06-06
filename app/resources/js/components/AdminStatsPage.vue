@@ -80,7 +80,7 @@ onMounted(() => {
 });
 
 const trendChartData = computed(() => ({
-    labels: stats.value.trends.map(t => t.date),
+    labels: stats.value.trends.map(t => t.label),
     datasets: [{
         label: 'Omzet (€)',
         data: stats.value.trends.map(t => t.total_revenue),
@@ -92,7 +92,7 @@ const trendChartData = computed(() => ({
 }));
 
 const reviewChartData = computed(() => ({
-    labels: stats.value.review_trends.map(t => t.date),
+    labels: stats.value.review_trends.map(t => t.label),
     datasets: [{
         label: 'Gem. Score',
         data: stats.value.review_trends.map(t => t.avg_score),

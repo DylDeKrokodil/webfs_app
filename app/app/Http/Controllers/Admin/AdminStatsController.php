@@ -64,51 +64,78 @@ class AdminStatsController extends Controller
                 'order_count' => (int) $item->order_count,
             ]);
 
-        // 4. Sales Trends (Daily)
-        $trendsData = (clone $baseQuery)
-            ->select(
-                DB::raw('DATE(orders.paid_at) as date'),
-                DB::raw('SUM(order_lines.line_total) as total_revenue')
-            )
-            ->groupBy('date')
-            ->get()
-            ->pluck('total_revenue', 'date');
+        // Determine grouping based on total days
+        $daysDiff = $start->diffInDays($end);
+        $grouping = match (true) {
+            $daysDiff <= 31 => 'day',
+            $daysDiff <= 182 => 'week',
+            default => 'month',
+        };
 
-        // 5. Review Trends (Daily Average)
-        $reviewsData = Review::query()
-            ->whereBetween('created_at', [$start, $end])
-            ->select(
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('AVG(overall_score) as avg_score')
-            )
-            ->groupBy('date')
-            ->get()
-            ->pluck('avg_score', 'date');
+        // 4. Sales Trends
+        $trendQuery = (clone $baseQuery);
+        if ($grouping === 'week') {
+            $trendQuery->select(DB::raw('YEARWEEK(orders.paid_at, 1) as period'), DB::raw('SUM(order_lines.line_total) as total_revenue'));
+        } elseif ($grouping === 'month') {
+            $trendQuery->select(DB::raw('DATE_FORMAT(orders.paid_at, "%Y-%m") as period'), DB::raw('SUM(order_lines.line_total) as total_revenue'));
+        } else {
+            $trendQuery->select(DB::raw('DATE(orders.paid_at) as period'), DB::raw('SUM(order_lines.line_total) as total_revenue'));
+        }
+        $trendsData = $trendQuery->groupBy('period')->get()->pluck('total_revenue', 'period');
+
+        // 5. Review Trends
+        $reviewQuery = Review::query()->whereBetween('created_at', [$start, $end]);
+        if ($grouping === 'week') {
+            $reviewQuery->select(DB::raw('YEARWEEK(created_at, 1) as period'), DB::raw('AVG(overall_score) as avg_score'));
+        } elseif ($grouping === 'month') {
+            $reviewQuery->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as period'), DB::raw('AVG(overall_score) as avg_score'));
+        } else {
+            $reviewQuery->select(DB::raw('DATE(created_at) as period'), DB::raw('AVG(overall_score) as avg_score'));
+        }
+        $reviewsData = $reviewQuery->groupBy('period')->get()->pluck('avg_score', 'period');
 
         $trends = [];
         $reviewTrends = [];
         $current = $start;
+
         while ($current->lte($end)) {
-            $date = $current->format('Y-m-d');
-            
-            $trends[] = [
-                'date' => $date,
-                'total_revenue' => (float) ($trendsData[$date] ?? 0),
-            ];
+            $key = match ($grouping) {
+                'week' => $current->format('oW'), // YEARWEEK format
+                'month' => $current->format('Y-m'),
+                default => $current->format('Y-m-d'),
+            };
 
-            $reviewTrends[] = [
-                'date' => $date,
-                'avg_score' => isset($reviewsData[$date]) ? (float) $reviewsData[$date] : null,
-            ];
+            $label = match ($grouping) {
+                'week' => 'Week ' . $current->weekOfYear . ', ' . $current->year,
+                'month' => $current->translatedFormat('F Y'),
+                default => $current->translatedFormat('j M'),
+            };
 
-            $current = $current->addDay();
+            // Only add unique keys for weeks/months
+            if (!isset($trends[$key])) {
+                $trends[$key] = [
+                    'label' => $label,
+                    'total_revenue' => (float) ($trendsData[$key] ?? 0),
+                ];
+                $reviewTrends[$key] = [
+                    'label' => $label,
+                    'avg_score' => isset($reviewsData[$key]) ? (float) $reviewsData[$key] : null,
+                ];
+            }
+
+            $current = match ($grouping) {
+                'week' => $current->addWeek(),
+                'month' => $current->addMonth(),
+                default => $current->addDay(),
+            };
         }
 
         return response()->json([
             'top_items' => $topItems,
             'channels' => $channels,
-            'trends' => $trends,
-            'review_trends' => $reviewTrends,
+            'trends' => array_values($trends),
+            'review_trends' => array_values($reviewTrends),
+            'grouping' => $grouping,
         ]);
     }
 }
