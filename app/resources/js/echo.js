@@ -22,6 +22,10 @@ window.Echo = new Echo({
     enabledTransports: ['ws', 'wss'],
 });
 
+window.Echo.connector.pusher.connection.bind('message', (payload) => {
+    console.log('Real-time Message:', payload);
+});
+
 window.Echo.connector.pusher.connection.bind('connected', () => {
     console.log('Echo connected to Reverb!');
 });

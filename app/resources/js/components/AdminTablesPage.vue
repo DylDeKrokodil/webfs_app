@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import AdminSidebar from './AdminSidebar.vue';
+import { postRequest } from '../services/apiService';
 import { useAdminShell } from '../composables/useAdminShell';
 import { adminDateTimeFormatter as dateFormatter, currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
@@ -13,6 +14,7 @@ const selectedTableCode = ref('');
 const isLoading = ref(true);
 const isCheckingOut = ref(false);
 const resolvingAssistanceRequestId = ref(null);
+const isRefreshing = ref(false);
 const errorMessage = ref('');
 
 const selectedTable = computed(() =>
@@ -34,8 +36,10 @@ const formatDate = (value) => {
     return dateFormatter.format(new Date(value));
 };
 
-const loadTables = async () => {
-    isLoading.value = true;
+const loadTables = async (silent = false) => {
+    console.log(`Loading tables (silent: ${silent})...`);
+    if (!silent) isLoading.value = true;
+    isRefreshing.value = true;
     errorMessage.value = '';
 
     try {
@@ -50,6 +54,8 @@ const loadTables = async () => {
 
         const tablePayload = await tableResponse.json().catch(() => ({}));
         if (!tableResponse.ok) throw new Error(tablePayload.message || 'Tafels laden mislukt.');
+        
+        console.log('Tables fetched:', tablePayload.tables?.length ?? 0);
         tables.value = tablePayload.tables ?? [];
 
         const assistancePayload = await assistanceResponse.json().catch(() => ({}));
@@ -60,30 +66,25 @@ const loadTables = async () => {
             selectedTableCode.value = tables.value[0].table_code;
         }
     } catch (error) {
+        console.error('Load tables error:', error);
         errorMessage.value = error.message;
         toastService.error(errorMessage.value);
     } finally {
         isLoading.value = false;
+        isRefreshing.value = false;
     }
 };
 
 const resolveAssistanceRequest = async (request) => {
     resolvingAssistanceRequestId.value = request.id;
     try {
-        const response = await fetch(`/api/admin/table-assistance-requests/${request.id}/resolve`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
+        const payload = await postRequest(`/api/admin/table-assistance-requests/${request.id}/resolve`, {
+            csrfToken,
+            errorMessage: 'Afmelden mislukt.',
         });
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(payload.message || 'Afmelden mislukt.');
-
         toastService.success(payload.message || `Hulpvraag tafel ${request.table_code} afgemeld.`);
-        assistanceRequests.value = assistanceRequests.value.filter((item) => item.id !== request.id);
+        await loadTables(true); // Explicit silent refresh
     } catch (error) {
         toastService.error(error.message);
     } finally {
@@ -95,24 +96,14 @@ const checkoutSelectedTable = async () => {
     if (!selectedTable.value) return;
     isCheckingOut.value = true;
     try {
-        const response = await fetch(
-            `/api/admin/table-receipts/${encodeURIComponent(selectedTable.value.table_code)}/checkout`,
-            {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-            },
-        );
-
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(payload.message || 'PDF maken mislukt.');
+        const payload = await postRequest(`/api/admin/table-receipts/${encodeURIComponent(selectedTable.value.table_code)}/checkout`, {
+            csrfToken,
+            errorMessage: 'PDF maken mislukt.',
+        });
 
         if (payload.receipt_url) window.open(payload.receipt_url, '_blank', 'noopener');
         toastService.success(`Tafel ${selectedTable.value.table_code} afgerekend.`);
-        await loadTables();
+        await loadTables(true); // Explicit silent refresh
     } catch (error) {
         toastService.error(error.message);
     } finally {
@@ -135,7 +126,10 @@ const setupRealtime = () => {
         })
         .listen('.OrderPlaced', (data) => {
             toastService.info(`Nieuwe bestelling voor Tafel ${data.table_code}!`);
-            loadTables(); // Refresh the list and totals
+            loadTables(true); // Silent refresh
+        })
+        .listen('.TableCheckoutInitiated', (data) => {
+            loadTables(true); // Silent refresh
         });
 };
 

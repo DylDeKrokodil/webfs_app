@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useMenuSync } from '../composables/useMenuSync';
 import LegacyPageShell from './LegacyPageShell.vue';
 import { currencyFormatter as formatter } from '../services/formatters';
 import { fetchPublicMenuItems } from '../services/menuApi';
@@ -14,6 +15,8 @@ const menuSortMode = ref('default');
 const favoritesSortMode = ref('number');
 const isLoading = ref(true);
 const errorMessage = ref('');
+
+const { handleMenuItemUpdated } = useMenuSync(items);
 
 const parseNumber = (item) => {
     const parsed = Number(item.number);
@@ -118,9 +121,17 @@ const loadMenu = async () => {
     }
 };
 
+const setupRealtime = () => {
+    if (!window.Echo) return;
+
+    window.Echo.channel('menu-updates')
+        .listen('.MenuItemUpdated', handleMenuItemUpdated);
+};
+
 onMounted(() => {
     favoriteIds.value = readFavoriteCookie();
     loadMenu();
+    setupRealtime();
 });
 </script>
 

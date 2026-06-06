@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\MenuItemUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\MenuCategory;
 use App\Models\MenuItem;
@@ -36,8 +37,10 @@ class MenuItemController extends Controller
     {
         $item = MenuItem::create($this->validatedAttributes($request));
 
+        MenuItemUpdated::dispatch($item->load('category'));
+
         return response()->json([
-            'item' => $this->serializeItem($item->load('category')),
+            'item' => $this->serializeItem($item),
         ], 201);
     }
 
@@ -45,8 +48,10 @@ class MenuItemController extends Controller
     {
         $menuItem->update($this->validatedAttributes($request));
 
+        MenuItemUpdated::dispatch($menuItem->load('category'));
+
         return response()->json([
-            'item' => $this->serializeItem($menuItem->load('category')),
+            'item' => $this->serializeItem($menuItem),
         ]);
     }
 
@@ -83,6 +88,7 @@ class MenuItemController extends Controller
             'price' => (float) $item->price,
             'is_active' => (bool) $item->is_active,
             'category' => $item->category?->name ?? 'Overig',
+            'category_sort_order' => (int) ($item->category?->sort_order ?? 999),
         ];
     }
 }

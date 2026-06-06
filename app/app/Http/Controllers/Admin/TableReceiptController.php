@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\CheckoutCompleted;
 use App\Events\TableCheckoutInitiated;
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteMenuItem;
@@ -101,6 +102,8 @@ class TableReceiptController extends Controller
             (float) $totalAmount
         );
 
+        $orders->each(fn ($order) => CheckoutCompleted::dispatch($order));
+
         return response()->json([
             'message' => "Tafel {$tableCode} is afgerekend.",
             'receipt_url' => $receiptUrl,
@@ -161,82 +164,50 @@ class TableReceiptController extends Controller
 
         return response($dompdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
         ]);
     }
 
     private function activeTableOrders()
     {
         return Order::query()
-            ->with(['lines.menuItem', 'lines.notes'])
             ->where('channel', 'tablet')
-            ->where('status', 'submitted')
-            ->whereNull('paid_at')
-            ->whereNotNull('table_code')
-            ->orderBy('table_code')
-            ->orderBy('created_at');
+            ->where('status', 'submitted');
     }
 
     private function serializeTable(string $tableCode, Collection $orders): array
     {
-        $orderedByDate = $orders->sortBy('created_at');
-        $lines = $orders
-            ->flatMap->lines
-            ->groupBy(function ($line): string {
-                $notes = app(OrderLineNoteService::class)->serializeNotes($line);
-
-                return implode(':', [
-                    $line->menu_item_id,
-                    number_format((float) $line->unit_price, 2, '.', ''),
-                    implode("\n", $notes),
-                ]);
-            })
-            ->map(function (Collection $lines): array {
-                $firstLine = $lines->first();
-                $menuItem = $firstLine->menuItem;
-                $quantity = (int) $lines->sum('quantity');
-                $unitPrice = (float) $firstLine->unit_price;
-
-                return [
-                    'menu_item_id' => $firstLine->menu_item_id,
-                    'display_number' => trim(($menuItem?->number ?? '').($menuItem?->suffix ?? '')),
-                    'name' => $menuItem?->name ?? 'Onbekend gerecht',
-                    'quantity' => $quantity,
-                    'unit_price' => $unitPrice,
-                    'line_total' => $quantity * $unitPrice,
-                    'notes' => app(OrderLineNoteService::class)->serializeNotes($firstLine),
-                ];
-            })
-            ->sortBy('display_number', SORT_NATURAL)
-            ->values();
+        $lines = $orders->flatMap->lines;
+        $total = $orders->sum('total');
 
         return [
             'table_code' => $tableCode,
             'orders_count' => $orders->count(),
             'items_count' => (int) $lines->sum('quantity'),
-            'subtotal' => (float) $lines->sum('line_total'),
-            'total' => (float) $lines->sum('line_total'),
-            'first_order_at' => $orderedByDate->first()?->created_at?->toIso8601String(),
-            'last_order_at' => $orderedByDate->last()?->created_at?->toIso8601String(),
-            'lines' => $lines->all(),
+            'subtotal' => (float) $total,
+            'total' => (float) $total,
+            'first_order_at' => $orders->min('created_at')?->toIso8601String(),
+            'last_order_at' => $orders->max('created_at')?->toIso8601String(),
+            'lines' => $lines->map(fn ($line) => [
+                'id' => $line->id,
+                'menu_item_id' => $line->menu_item_id,
+                'display_number' => trim(($line->menuItem?->number ?? '').($line->menuItem?->suffix ?? '')),
+                'name' => $line->menuItem?->name ?? 'Onbekend',
+                'quantity' => $line->quantity,
+                'unit_price' => (float) $line->unit_price,
+                'line_total' => (float) $line->line_total,
+                'notes' => $line->notes->pluck('note')->all(),
+            ])->values()->all(),
         ];
     }
 
-    /**
-     * @return list<int>
-     */
-    private function parseOrderIds(string $value): array
+    private function parseOrderIds(string $orders): array
     {
-        return collect(explode(',', $value))
-            ->map(fn (string $id): int => (int) trim($id))
-            ->filter(fn (int $id): bool => $id > 0)
-            ->unique()
-            ->values()
-            ->all();
+        return array_filter(array_map('intval', explode(',', $orders)));
     }
 
-    private function millimetersToPoints(int $millimeters): float
+    private function millimetersToPoints(float $mm): float
     {
-        return $millimeters * 72 / 25.4;
+        return $mm * 2.83465;
     }
 }

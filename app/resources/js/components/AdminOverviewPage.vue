@@ -231,9 +231,23 @@ const sourceLabel = (line) => {
     return line.channel || '-';
 };
 
+const setupRealtime = () => {
+    if (!window.Echo) return;
+
+    window.Echo.channel('admin-notifications')
+        .listen('.CheckoutCompleted', (data) => {
+            console.log('Real-time: Checkout Completed', data);
+            const source = data.channel === 'takeaway' ? 'Kassa' : `Tafel ${data.table_code}`;
+            toastService.info(`Nieuwe betaling ontvangen: ${formatter.format(data.total)} (${source})`);
+            loadOverview();
+            loadSalesSummaries();
+        });
+};
+
 onMounted(() => {
     loadOverview();
     loadSalesSummaries();
+    setupRealtime();
 });
 </script>
 

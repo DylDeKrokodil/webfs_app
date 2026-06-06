@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import AdminSidebar from './AdminSidebar.vue';
 import { useAdminShell } from '../composables/useAdminShell';
 import { useMenuItems } from '../composables/useMenuItems';
+import { useMenuSync } from '../composables/useMenuSync';
 import { useOrderLines } from '../composables/useOrderLines';
 import { currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
@@ -30,6 +31,8 @@ const {
     addNoteToLine,
     removeNoteFromLine,
 } = useOrderLines();
+
+const { handleMenuItemUpdated } = useMenuSync(items);
 
 const { visibleItems, groupedItems } = useMenuItems({
     items,
@@ -94,9 +97,23 @@ const checkoutOrder = async () => {
     }
 };
 
+const setupRealtime = () => {
+    if (!window.Echo) return;
+
+    window.Echo.channel('menu-updates')
+        .listen('.MenuItemUpdated', handleMenuItemUpdated);
+
+    window.Echo.channel('admin-notifications')
+        .listen('.CheckoutCompleted', (data) => {
+            console.log('Real-time: Checkout Completed', data);
+            // Kassa usually doesn't show history, but we could add a toast or similar
+        });
+};
+
 onMounted(() => {
     loadMenu();
     loadNoteSuggestions();
+    setupRealtime();
 });
 </script>
 

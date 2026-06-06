@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\CheckoutCompleted;
 use App\Http\Controllers\Controller;
 use App\Models\FavoriteMenuItem;
 use App\Models\MenuItem;
@@ -77,6 +78,8 @@ class OrderController extends Controller
 
             return $order;
         });
+
+        CheckoutCompleted::dispatch($order);
 
         return response()->json([
             'message' => 'Verkoop succesvol',

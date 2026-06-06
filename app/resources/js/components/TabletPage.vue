@@ -1,7 +1,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import CocktailPage from './CocktailPage.vue';
+import { useMenuSync } from '../composables/useMenuSync';
 import { useOrderLines } from '../composables/useOrderLines';
+import { postRequest } from '../services/apiService';
 import { currencyFormatter as formatter } from '../services/formatters';
 import { fetchPublicMenuItems } from '../services/menuApi';
 import { toastService } from '../services/toastService';
@@ -52,6 +54,8 @@ const {
     addNoteToLine,
     removeNoteFromLine,
 } = useOrderLines();
+
+const { handleMenuItemUpdated } = useMenuSync(items, orderLines);
 
 const groupedItems = computed(() => {
     const groups = new Map();
@@ -190,14 +194,9 @@ const submitOrder = async () => {
     if (!canOrder.value) return;
     isSubmitting.value = true;
     try {
-        const response = await fetch('/api/tablet/orders', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
-            body: JSON.stringify({
+        const payload = await postRequest('/api/tablet/orders', {
+            csrfToken,
+            body: {
                 table_number: tableNumber.value,
                 source_order_id: repeatedSourceOrderId.value,
                 lines: orderLines.value.map((line) => ({
@@ -205,18 +204,16 @@ const submitOrder = async () => {
                     quantity: line.quantity,
                     notes: line.notes,
                 })),
-            }),
+            },
+            errorMessage: 'Fout bij bestellen.',
         });
-        const payload = await response.json();
-        if (!response.ok) {
-            if (payload.status) setTableStatus(payload.status);
-            throw new Error(payload.message || 'Fout bij bestellen.');
-        }
+
         toastService.success(`Bestelling #${payload.order.id} geplaatst.`);
         clearOrderLines();
         repeatedSourceOrderId.value = null;
         await Promise.all([loadTableStatus(), loadOrderHistory()]);
     } catch (error) {
+        if (error.payload?.status) setTableStatus(error.payload.status);
         toastService.error(error.message);
     } finally { isSubmitting.value = false; }
 };
@@ -225,16 +222,10 @@ const requestAssistance = async () => {
     if (!tableNumber.value || activeAssistanceRequest.value || isRequestingAssistance.value) return;
     isRequestingAssistance.value = true;
     try {
-        const response = await fetch(`/api/tablet/tables/${tableNumber.value}/assistance-requests`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
+        const payload = await postRequest(`/api/tablet/tables/${tableNumber.value}/assistance-requests`, {
+            csrfToken,
+            errorMessage: 'Hulpvraag kon niet worden verstuurd.',
         });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(payload.message || 'Hulpvraag kon niet worden verstuurd.');
 
         toastService.success(payload.message || 'Een ober komt zo naar uw tafel.');
         await loadTableStatus();
@@ -271,6 +262,9 @@ const setupRealtime = () => {
             checkoutData.value = data;
             clearOrderLines();
         });
+
+    window.Echo.channel('menu-updates')
+        .listen('.MenuItemUpdated', handleMenuItemUpdated);
 };
 
 onMounted(() => {
@@ -625,6 +619,7 @@ onUnmounted(() => {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--color-brand-gold);
+    border-radius: 10px;
 }
 
 .scrollbar-hide::-webkit-scrollbar {

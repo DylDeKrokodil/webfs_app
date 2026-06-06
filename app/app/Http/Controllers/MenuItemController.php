@@ -29,6 +29,7 @@ class MenuItemController extends Controller
                 'description' => $item->description,
                 'price' => (float) $item->price,
                 'category' => $item->category?->name ?? 'Overig',
+                'category_sort_order' => (int) ($item->category?->sort_order ?? 999),
             ]);
 
         return response()->json([
