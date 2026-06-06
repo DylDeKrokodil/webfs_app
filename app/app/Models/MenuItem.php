@@ -37,13 +37,5 @@ class MenuItem extends Model
     {
         return $this->hasMany(OrderLine::class);
     }
-
-    /**
-     * @return HasOne<FavoriteMenuItem, $this>
-     */
-    public function favoriteStats(): HasOne
-    {
-        return $this->hasOne(FavoriteMenuItem::class);
-    }
 }
 

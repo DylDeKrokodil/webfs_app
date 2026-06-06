@@ -106,24 +106,7 @@ Artisan::command('legacy:import-menu {--fresh : Clear imported menu categories a
         $ordersImported++;
     }
 
-    // Still update favorite stats for easy lookup
-    $favoriteStats = 0;
-    foreach (MenuItem::all() as $menuItem) {
-        $totalSold = DB::table('order_lines')
-            ->where('menu_item_id', $menuItem->id)
-            ->sum('quantity');
-
-        if ($totalSold > 0) {
-            DB::table('favorite_menu_items')->updateOrInsert(
-                ['menu_item_id' => $menuItem->id],
-                ['count' => $totalSold, 'created_at' => now(), 'updated_at' => now()]
-            );
-            $favoriteStats++;
-        }
-    }
-
     $this->info("Imported {$ordersImported} historical orders with {$orderLinesImported} lines.");
-    $this->info("Updated {$favoriteStats} favorite menu item stats.");
     })->purpose('Import legacy menu data and sales history into the modern schema');
 
 
