@@ -12,7 +12,6 @@ import {
     LinearScale,
     ArcElement,
 } from 'chart.js';
-import AdminSidebar from './AdminSidebar.vue';
 import { useAdminShell } from '../composables/useAdminShell';
 import { usePeriodSelection } from '../composables/usePeriodSelection';
 import { currencyFormatter as formatter } from '../services/formatters';
@@ -43,8 +42,8 @@ const isLoading = ref(false);
 const stats = ref({
     top_items: [],
     channels: [],
-    categories: [],
     trends: [],
+    review_trends: [],
 });
 
 const handleApplyPreset = (preset) => applyPreset(preset, loadStats);
@@ -92,6 +91,19 @@ const trendChartData = computed(() => ({
     }]
 }));
 
+const reviewChartData = computed(() => ({
+    labels: stats.value.review_trends.map(t => t.date),
+    datasets: [{
+        label: 'Gem. Score',
+        data: stats.value.review_trends.map(t => t.avg_score),
+        borderColor: '#D4AF37',
+        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+        tension: 0.4,
+        fill: true,
+        spanGaps: true,
+    }]
+}));
+
 const channelChartData = computed(() => ({
     labels: stats.value.channels.map(c => {
         if (c.channel === 'kassa') return 'Kassa';
@@ -105,161 +117,150 @@ const channelChartData = computed(() => ({
     }]
 }));
 
-const categoryChartData = computed(() => ({
-    labels: stats.value.categories.map(c => c.name),
-    datasets: [{
-        data: stats.value.categories.map(c => c.total_revenue),
-        backgroundColor: ['#B91C1C', '#D97706', '#1C1917', '#78716C', '#D6D3D1'],
-    }]
-}));
-
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 } } } }
 };
+
+const reviewChartOptions = {
+    ...chartOptions,
+    scales: {
+        y: {
+            min: 1,
+            max: 5,
+            ticks: {
+                stepSize: 1
+            }
+        }
+    }
+};
 </script>
 
 <template>
-    <main class="h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
-        <AdminSidebar
-            :is-open="isSidebarOpen"
-            :is-collapsed="isCollapsed"
-            active-page="statistieken"
-            :csrf-token="csrfToken"
-            @close="isSidebarOpen = false"
-            @toggle-collapse="isCollapsed = !isCollapsed"
-        />
+    <section class="flex-1 min-w-0 min-h-0 flex flex-col">
+        <header class="bg-white border-b border-brand-border px-6 py-4 z-40 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <button @click="isSidebarOpen = true" class="lg:hidden p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                </button>
+                <div>
+                    <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Inzicht</p>
+                    <h1 class="text-xl font-black leading-tight">Statistieken</h1>
+                </div>
+            </div>
+        </header>
 
-        <section class="flex-1 min-w-0 min-h-0 flex flex-col">
-            <header class="bg-white border-b border-brand-border px-6 py-4 z-40 flex items-center justify-between flex-shrink-0">
-                <div class="flex items-center gap-4">
-                    <button @click="isSidebarOpen = true" class="lg:hidden p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-                    </button>
-                    <div>
-                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Inzicht</p>
-                        <h1 class="text-xl font-black leading-tight">Statistieken</h1>
+        <div class="flex-1 min-h-0 flex flex-col">
+            <!-- Filters -->
+            <div class="p-6 border-b border-brand-border flex-shrink-0 bg-white">
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            v-for="preset in periodPresets"
+                            :key="preset.key"
+                            type="button"
+                            @click="handleApplyPreset(preset)"
+                            class="h-8 px-3 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all"
+                            :class="activePreset === preset.key ? 'bg-brand-gold border-brand-gold text-white shadow-sm' : 'bg-white border-stone-200 text-stone-700 hover:border-brand-gold hover:text-stone-900'"
+                        >
+                            {{ preset.label }}
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap items-end gap-3">
+                        <label class="flex-1 min-w-[140px] space-y-1">
+                            <span class="block text-[9px] uppercase font-black text-stone-700">Van</span>
+                            <input v-model="startDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
+                        </label>
+                        <label class="flex-1 min-w-[140px] space-y-1">
+                            <span class="block text-[9px] uppercase font-black text-stone-700">Tot</span>
+                            <input v-model="endDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
+                        </label>
+                        <button
+                            type="button"
+                            @click="loadStats"
+                            :disabled="isLoading"
+                            class="h-10 px-6 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-md shadow-brand-gold/10 hover:bg-stone-800 transition-colors disabled:opacity-50"
+                        >
+                            Vernieuwen
+                        </button>
                     </div>
                 </div>
-            </header>
+            </div>
 
-            <div class="flex-1 min-h-0 flex flex-col">
-                <!-- Filters -->
-                <div class="p-6 border-b border-brand-border flex-shrink-0 bg-white">
-                    <div class="flex flex-col gap-4">
-                        <div class="flex flex-wrap gap-2">
-                            <button
-                                v-for="preset in periodPresets"
-                                :key="preset.key"
-                                type="button"
-                                @click="handleApplyPreset(preset)"
-                                class="h-8 px-3 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all"
-                                :class="activePreset === preset.key ? 'bg-brand-gold border-brand-gold text-white shadow-sm' : 'bg-white border-stone-200 text-stone-700 hover:border-brand-gold hover:text-stone-900'"
-                            >
-                                {{ preset.label }}
-                            </button>
-                        </div>
-
-                        <div class="flex flex-wrap items-end gap-3">
-                            <label class="flex-1 min-w-[140px] space-y-1">
-                                <span class="block text-[9px] uppercase font-black text-stone-700">Van</span>
-                                <input v-model="startDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
-                            </label>
-                            <label class="flex-1 min-w-[140px] space-y-1">
-                                <span class="block text-[9px] uppercase font-black text-stone-700">Tot</span>
-                                <input v-model="endDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
-                            </label>
-                            <button
-                                type="button"
-                                @click="loadStats"
-                                :disabled="isLoading"
-                                class="h-10 px-6 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-md shadow-brand-gold/10 hover:bg-stone-800 transition-colors disabled:opacity-50"
-                            >
-                                Vernieuwen
-                            </button>
-                        </div>
-                    </div>
+            <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div v-if="isLoading" class="h-full flex items-center justify-center">
+                    <div class="w-10 h-10 border-4 border-stone-100 border-t-brand-gold rounded-full animate-spin"></div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                    <div v-if="isLoading" class="h-full flex items-center justify-center">
-                        <div class="w-10 h-10 border-4 border-stone-100 border-t-brand-gold rounded-full animate-spin"></div>
+                <div v-else class="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-6">
+                    <!-- Omzet Trend -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[400px]">
+                        <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
+                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Omzet Trend</h3>
+                        </div>
+                        <div class="flex-1 min-h-0 p-6">
+                            <Line :data="trendChartData" :options="chartOptions" />
+                        </div>
                     </div>
 
-                    <div v-else class="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-6">
-                        <!-- Omzet Trend -->
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[400px]">
-                            <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
-                                <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Omzet Trend</h3>
-                            </div>
-                            <div class="flex-1 min-h-0 p-6">
-                                <Line :data="trendChartData" :options="chartOptions" />
+                    <!-- Top Items -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                        <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
+                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Populaire Gerechten</h3>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar">
+                            <table class="w-full text-left">
+                                <thead class="bg-stone-50 text-[9px] uppercase font-black text-stone-700 sticky top-0 shadow-sm">
+                                    <tr>
+                                        <th class="px-6 py-3">Gerecht</th>
+                                        <th class="px-6 py-3 text-right">Aantal</th>
+                                        <th class="px-6 py-3 text-right">Omzet</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-100">
+                                    <tr v-for="item in stats.top_items" :key="item.name" class="hover:bg-brand-light/30 transition-colors">
+                                        <td class="px-6 py-3">
+                                            <div class="flex flex-col">
+                                                <span class="text-xs font-black text-stone-900 leading-tight">{{ item.name }}</span>
+                                                <span class="text-[9px] font-bold text-stone-600 uppercase tracking-tighter">{{ item.display_number }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-3 text-right text-xs font-black text-stone-700">{{ item.total_quantity }}</td>
+                                        <td class="px-6 py-3 text-right text-xs font-black text-brand-red">{{ formatter.format(item.total_revenue) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Channel Distribution -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[350px]">
+                        <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
+                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Omzet per Kanaal</h3>
+                        </div>
+                        <div class="flex-1 min-h-0 p-6 flex items-center justify-center">
+                            <div class="w-full h-full max-h-[250px]">
+                                <Doughnut :data="channelChartData" :options="chartOptions" />
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Top Items -->
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-                            <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
-                                <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Populaire Gerechten</h3>
-                            </div>
-                            <div class="flex-1 overflow-auto custom-scrollbar">
-                                <table class="w-full text-left">
-                                    <thead class="bg-stone-50 text-[9px] uppercase font-black text-stone-700 sticky top-0 shadow-sm">
-                                        <tr>
-                                            <th class="px-6 py-3">Gerecht</th>
-                                            <th class="px-6 py-3 text-right">Aantal</th>
-                                            <th class="px-6 py-3 text-right">Omzet</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-stone-100">
-                                        <tr v-for="item in stats.top_items" :key="item.name" class="hover:bg-brand-light/30 transition-colors">
-                                            <td class="px-6 py-3">
-                                                <div class="flex flex-col">
-                                                    <span class="text-xs font-black text-stone-900 leading-tight">{{ item.name }}</span>
-                                                    <span class="text-[9px] font-bold text-stone-600 uppercase tracking-tighter">{{ item.display_number }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-3 text-right text-xs font-black text-stone-700">{{ item.total_quantity }}</td>
-                                            <td class="px-6 py-3 text-right text-xs font-black text-brand-red">{{ formatter.format(item.total_revenue) }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                    <!-- Review Trend -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[350px]">
+                        <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
+                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Klantwaardering Trend</h3>
                         </div>
-
-                        <!-- Channel Distribution -->
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[350px]">
-                            <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
-                                <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Omzet per Kanaal</h3>
-                            </div>
-                            <div class="flex-1 min-h-0 p-6 flex items-center justify-center">
-                                <div class="w-full h-full max-h-[250px]">
-                                    <Doughnut :data="channelChartData" :options="chartOptions" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Category Breakdown -->
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[350px]">
-                            <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
-                                <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Omzet per Categorie</h3>
-                            </div>
-                            <div class="flex-1 min-h-0 p-6 flex items-center justify-center">
-                                <div class="w-full h-full max-h-[250px]">
-                                    <Doughnut :data="categoryChartData" :options="chartOptions" />
-                                </div>
-                            </div>
+                        <div class="flex-1 min-h-0 p-6">
+                            <Line :data="reviewChartData" :options="reviewChartOptions" />
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
 </template>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-brand-border); border-radius: 10px; }
 </style>

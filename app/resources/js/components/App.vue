@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import AdminLayout from './AdminLayout.vue';
 import AdminKassaPage from './AdminKassaPage.vue';
 import AdminMenuPage from './AdminMenuPage.vue';
 import AdminOverviewPage from './AdminOverviewPage.vue';
@@ -14,6 +15,8 @@ import ReviewPage from './ReviewPage.vue';
 import TabletPage from './TabletPage.vue';
 import ToastHost from './ToastHost.vue';
 
+const currentPath = ref(window.location.pathname);
+
 const pageComponents = {
     '/': HomePage,
     '/menukaart': MenuPage,
@@ -27,29 +30,65 @@ const pageComponents = {
 };
 
 const currentPage = computed(() => {
-    if (/^\/bestelling\/WEB-[A-Z0-9]+$/.test(window.location.pathname)) {
+    if (/^\/bestelling\/WEB-[A-Z0-9]+$/.test(currentPath.value)) {
         return OrderConfirmationPage;
     }
 
-    if (/^\/tablet\/\d+$/.test(window.location.pathname)) {
+    if (/^\/tablet\/\d+$/.test(currentPath.value)) {
         return TabletPage;
     }
 
-    if (/^\/review\/[A-Za-z0-9]+$/.test(window.location.pathname)) {
+    if (/^\/review\/[A-Za-z0-9]+$/.test(currentPath.value)) {
         return ReviewPage;
     }
 
-    return pageComponents[window.location.pathname] ?? NotFoundPage;
+    return pageComponents[currentPath.value] ?? NotFoundPage;
 });
+
+const isAdminPage = computed(() => currentPath.value.startsWith('/admin/'));
+const activeAdminPage = computed(() => {
+    const parts = currentPath.value.split('/');
+    return parts[parts.length - 1] || 'menu';
+});
+
 const currentToken = computed(() => {
-    return window.location.pathname.split('/').pop();
+    return currentPath.value.split('/').pop();
+});
+
+onMounted(() => {
+    window.addEventListener('popstate', () => {
+        currentPath.value = window.location.pathname;
+    });
+
+    // Simple SPA navigation for <a> tags
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link && link.href && link.href.startsWith(window.location.origin)) {
+            const href = link.getAttribute('href');
+            
+            // Skip non-internal or special links (like PDFs, files, or logout)
+            if (!href || href.startsWith('http') || href.includes('.') || href === '/logout' || href.startsWith('/api')) return;
+
+            e.preventDefault();
+            window.history.pushState(null, '', href);
+            currentPath.value = window.location.pathname;
+        }
+    });
 });
 </script>
 
 <template>
-    <component 
-        :is="currentPage" 
-        :token="currentToken" 
-    />
+    <AdminLayout v-if="isAdminPage" :active-page="activeAdminPage">
+        <component 
+            :is="currentPage" 
+            :token="currentToken" 
+        />
+    </AdminLayout>
+    <template v-else>
+        <component 
+            :is="currentPage" 
+            :token="currentToken" 
+        />
+    </template>
     <ToastHost />
 </template>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Review;
 use App\Models\OrderLine;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -63,41 +64,51 @@ class AdminStatsController extends Controller
                 'order_count' => (int) $item->order_count,
             ]);
 
-        // 3. Sales by Category
-        $categories = (clone $baseQuery)
-            ->join('menu_items', 'order_lines.menu_item_id', '=', 'menu_items.id')
-            ->join('menu_categories', 'menu_items.menu_category_id', '=', 'menu_categories.id')
-            ->select(
-                'menu_categories.name',
-                DB::raw('SUM(order_lines.line_total) as total_revenue')
-            )
-            ->groupBy('menu_categories.id', 'menu_categories.name')
-            ->orderByDesc('total_revenue')
-            ->get()
-            ->map(fn($item) => [
-                'name' => $item->name,
-                'total_revenue' => (float) $item->total_revenue,
-            ]);
-
         // 4. Sales Trends (Daily)
-        $trends = (clone $baseQuery)
+        $trendsData = (clone $baseQuery)
             ->select(
                 DB::raw('DATE(orders.paid_at) as date'),
                 DB::raw('SUM(order_lines.line_total) as total_revenue')
             )
             ->groupBy('date')
-            ->orderBy('date')
             ->get()
-            ->map(fn($item) => [
-                'date' => $item->date,
-                'total_revenue' => (float) $item->total_revenue,
-            ]);
+            ->pluck('total_revenue', 'date');
+
+        // 5. Review Trends (Daily Average)
+        $reviewsData = Review::query()
+            ->whereBetween('created_at', [$start, $end])
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('AVG(overall_score) as avg_score')
+            )
+            ->groupBy('date')
+            ->get()
+            ->pluck('avg_score', 'date');
+
+        $trends = [];
+        $reviewTrends = [];
+        $current = $start;
+        while ($current->lte($end)) {
+            $date = $current->format('Y-m-d');
+            
+            $trends[] = [
+                'date' => $date,
+                'total_revenue' => (float) ($trendsData[$date] ?? 0),
+            ];
+
+            $reviewTrends[] = [
+                'date' => $date,
+                'avg_score' => isset($reviewsData[$date]) ? (float) $reviewsData[$date] : null,
+            ];
+
+            $current = $current->addDay();
+        }
 
         return response()->json([
             'top_items' => $topItems,
             'channels' => $channels,
-            'categories' => $categories,
             'trends' => $trends,
+            'review_trends' => $reviewTrends,
         ]);
     }
 }
