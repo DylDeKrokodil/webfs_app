@@ -1,6 +1,7 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import AdminLayout from './AdminLayout.vue';
+import { useAdminShell } from '../composables/useAdminShell';
 import AdminKassaPage from './AdminKassaPage.vue';
 import AdminMenuPage from './AdminMenuPage.vue';
 import AdminOverviewPage from './AdminOverviewPage.vue';
@@ -53,6 +54,12 @@ const activeAdminPage = computed(() => {
 
 const currentToken = computed(() => {
     return currentPath.value.split('/').pop();
+});
+
+const { isSidebarOpen } = useAdminShell();
+
+watch(currentPath, () => {
+    isSidebarOpen.value = false;
 });
 
 onMounted(() => {
