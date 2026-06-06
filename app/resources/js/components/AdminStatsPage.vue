@@ -200,8 +200,15 @@ const reviewChartOptions = {
                         <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
                             <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Omzet Trend</h3>
                         </div>
-                        <div class="flex-1 min-h-0 p-6">
-                            <Line :data="trendChartData" :options="chartOptions" />
+                        <div class="flex-1 min-h-0 p-6 flex items-center justify-center">
+                            <Line v-if="stats.trends.some(t => t.total_revenue > 0)" :data="trendChartData" :options="chartOptions" />
+                            <div v-else class="flex flex-col items-center justify-center text-center">
+                                <div class="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-stone-400 mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                                </div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-stone-600">Geen omzet trend</p>
+                                <p class="text-[11px] font-medium text-stone-500 mt-1">Er is geen omzet geregistreerd in deze periode.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -211,7 +218,7 @@ const reviewChartOptions = {
                             <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Populaire Gerechten</h3>
                         </div>
                         <div class="flex-1 overflow-auto custom-scrollbar">
-                            <table class="w-full text-left">
+                            <table v-if="stats.top_items.length > 0" class="w-full text-left">
                                 <thead class="bg-stone-50 text-[9px] uppercase font-black text-stone-700 sticky top-0 shadow-sm">
                                     <tr>
                                         <th class="px-6 py-3">Gerecht</th>
@@ -232,6 +239,13 @@ const reviewChartOptions = {
                                     </tr>
                                 </tbody>
                             </table>
+                            <div v-else class="h-full min-h-[200px] flex flex-col items-center justify-center p-8 text-center">
+                                <div class="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-stone-400 mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                                </div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-stone-600">Geen verkoopgegevens</p>
+                                <p class="text-[11px] font-medium text-stone-500 mt-1">Er zijn nog geen gerechten verkocht in deze periode.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -241,8 +255,15 @@ const reviewChartOptions = {
                             <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Omzet per Kanaal</h3>
                         </div>
                         <div class="flex-1 min-h-0 p-6 flex items-center justify-center">
-                            <div class="w-full h-full max-h-[250px]">
+                            <div v-if="stats.channels.length > 0" class="w-full h-full max-h-[250px]">
                                 <Doughnut :data="channelChartData" :options="chartOptions" />
+                            </div>
+                            <div v-else class="flex flex-col items-center justify-center text-center">
+                                <div class="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-stone-400 mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                                </div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-stone-600">Geen kanaal data</p>
+                                <p class="text-[11px] font-medium text-stone-500 mt-1">Kies een andere periode om data te zien.</p>
                             </div>
                         </div>
                     </div>
@@ -252,8 +273,15 @@ const reviewChartOptions = {
                         <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
                             <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Klantwaardering Trend</h3>
                         </div>
-                        <div class="flex-1 min-h-0 p-6">
-                            <Line :data="reviewChartData" :options="reviewChartOptions" />
+                        <div class="flex-1 min-h-0 p-6 flex items-center justify-center">
+                            <Line v-if="stats.review_trends.some(t => t.avg_score !== null)" :data="reviewChartData" :options="reviewChartOptions" />
+                            <div v-else class="flex flex-col items-center justify-center text-center">
+                                <div class="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center text-stone-400 mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17.75l-6.172 3.245 1.179-6.873-4.993-4.867 6.9-1.002L12 2l3.086 6.253 6.9 1.002-4.993 4.867 1.179 6.873z"/></svg>
+                                </div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-stone-600">Geen recensies</p>
+                                <p class="text-[11px] font-medium text-stone-500 mt-1">Er zijn nog geen recensies geplaatst in deze periode.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
