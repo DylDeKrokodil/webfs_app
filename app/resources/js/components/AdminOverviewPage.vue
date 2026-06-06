@@ -2,25 +2,22 @@
 import { computed, onMounted, ref } from 'vue';
 import AdminSidebar from './AdminSidebar.vue';
 import { useAdminShell } from '../composables/useAdminShell';
+import { usePeriodSelection } from '../composables/usePeriodSelection';
 import { currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
 
 const { csrfToken, isSidebarOpen, isCollapsed } = useAdminShell();
+const {
+    startDate,
+    endDate,
+    activePreset,
+    periodLabel,
+    periodPresets,
+    applyPreset,
+    markCustomPeriod,
+} = usePeriodSelection();
 
 const overview = ref(null);
-
-const formatInputDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-};
-
-const today = formatInputDate(new Date());
-
-const startDate = ref(today);
-const endDate = ref(today);
 const lines = ref([]);
 const salesSummaries = ref([]);
 const summary = ref({
@@ -34,7 +31,6 @@ const summary = ref({
 const isLoading = ref(false);
 const isLoadingSummaries = ref(false);
 const hasLoaded = ref(false);
-const activePreset = ref('today');
 
 const dateFormatter = new Intl.DateTimeFormat('nl-NL', {
     day: '2-digit',
@@ -44,112 +40,7 @@ const dateFormatter = new Intl.DateTimeFormat('nl-NL', {
     minute: '2-digit',
 });
 
-const periodLabel = computed(() => {
-    if (startDate.value === endDate.value) return startDate.value;
-
-    return `${startDate.value} t/m ${endDate.value}`;
-});
-
-const getWeekRange = (date) => {
-    const start = new Date(date);
-    const day = start.getDay() || 7;
-    start.setDate(start.getDate() - day + 1);
-
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-
-    return { start, end };
-};
-
-const periodPresets = [
-    {
-        key: 'today',
-        label: 'Vandaag',
-        range: () => {
-            const todayDate = new Date();
-
-            return {
-                start: todayDate,
-                end: todayDate,
-            };
-        },
-    },
-    {
-        key: 'this_week',
-        label: 'Deze week',
-        range: () => getWeekRange(new Date()),
-    },
-    {
-        key: 'last_week',
-        label: 'Vorige week',
-        range: () => {
-            const date = new Date();
-            date.setDate(date.getDate() - 7);
-
-            return getWeekRange(date);
-        },
-    },
-    {
-        key: 'this_month',
-        label: 'Deze maand',
-        range: () => {
-            const now = new Date();
-
-            return {
-                start: new Date(now.getFullYear(), now.getMonth(), 1),
-                end: new Date(now.getFullYear(), now.getMonth() + 1, 0),
-            };
-        },
-    },
-    {
-        key: 'last_month',
-        label: 'Vorige maand',
-        range: () => {
-            const now = new Date();
-
-            return {
-                start: new Date(now.getFullYear(), now.getMonth() - 1, 1),
-                end: new Date(now.getFullYear(), now.getMonth(), 0),
-            };
-        },
-    },
-    {
-        key: 'this_year',
-        label: 'Dit jaar',
-        range: () => {
-            const now = new Date();
-
-            return {
-                start: new Date(now.getFullYear(), 0, 1),
-                end: new Date(now.getFullYear(), 11, 31),
-            };
-        },
-    },
-    {
-        key: 'last_year',
-        label: 'Vorig jaar',
-        range: () => {
-            const year = new Date().getFullYear() - 1;
-
-            return {
-                start: new Date(year, 0, 1),
-                end: new Date(year, 11, 31),
-            };
-        },
-    },
-];
-
-const applyPreset = async (preset) => {
-    const range = preset.range();
-    startDate.value = formatInputDate(range.start);
-    endDate.value = formatInputDate(range.end);
-    activePreset.value = preset.key;
-    await loadOverview();
-};
-
-const markCustomPeriod = () => {
-    activePreset.value = 'custom';
-};
+const handleApplyPreset = (preset) => applyPreset(preset, loadOverview);
 
 const loadOverview = async () => {
     if (!startDate.value || !endDate.value) {
@@ -293,7 +184,7 @@ onMounted(() => {
                                     v-for="preset in periodPresets"
                                     :key="preset.key"
                                     type="button"
-                                    @click="applyPreset(preset)"
+                                    @click="handleApplyPreset(preset)"
                                     class="h-8 px-3 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all"
                                     :class="activePreset === preset.key ? 'bg-brand-gold border-brand-gold text-white shadow-sm' : 'bg-white border-stone-200 text-stone-700 hover:border-brand-gold hover:text-stone-900'"
                                 >

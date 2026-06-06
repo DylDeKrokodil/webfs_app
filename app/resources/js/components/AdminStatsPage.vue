@@ -1,0 +1,230 @@
+<script setup>
+import { computed, onMounted, ref } from 'vue';
+import { Line, Doughnut } from 'vue-chartjs';
+import {
+    Chart as ChartJS,
+    Title,
+    Tooltip,
+    Legend,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    ArcElement,
+} from 'chart.js';
+import AdminSidebar from './AdminSidebar.vue';
+import { useAdminShell } from '../composables/useAdminShell';
+import { usePeriodSelection } from '../composables/usePeriodSelection';
+import { currencyFormatter as formatter } from '../services/formatters';
+import { toastService } from '../services/toastService';
+
+ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    ArcElement
+);
+
+const { csrfToken, isSidebarOpen, isCollapsed } = useAdminShell();
+const {
+    startDate,
+    endDate,
+    activePreset,
+    periodPresets,
+    applyPreset,
+    markCustomPeriod,
+} = usePeriodSelection();
+
+const isLoading = ref(false);
+const stats = ref({
+    top_items: [],
+    channels: [],
+    categories: [],
+    trends: [],
+});
+
+const handleApplyPreset = (preset) => applyPreset(preset, loadStats);
+
+const loadStats = async () => {
+    isLoading.value = true;
+    try {
+        const params = new URLSearchParams({ start_date: startDate.value, end_date: endDate.value });
+        const response = await fetch(`/api/admin/stats?${params}`, {
+            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        });
+        if (!response.ok) throw new Error('Statistieken laden mislukt.');
+        stats.value = await response.json();
+    } catch (error) {
+        toastService.error(error.message);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+onMounted(loadStats);
+
+const trendChartData = computed(() => ({
+    labels: stats.value.trends.map(t => t.date),
+    datasets: [{
+        label: 'Omzet (€)',
+        data: stats.value.trends.map(t => t.total_revenue),
+        borderColor: '#B91C1C',
+        backgroundColor: 'rgba(185, 28, 28, 0.1)',
+        tension: 0.3,
+        fill: true,
+    }]
+}));
+
+const channelChartData = computed(() => ({
+    labels: stats.value.channels.map(c => {
+        if (c.channel === 'takeaway') return 'Kassa';
+        if (c.channel === 'tablet') return 'Dine-in';
+        return c.channel.charAt(0).toUpperCase() + c.channel.slice(1);
+    }),
+    datasets: [{
+        data: stats.value.channels.map(c => c.total_revenue),
+        backgroundColor: ['#B91C1C', '#D97706', '#1C1917', '#78716C'],
+    }]
+}));
+
+const categoryChartData = computed(() => ({
+    labels: stats.value.categories.map(c => c.name),
+    datasets: [{
+        data: stats.value.categories.map(c => c.total_revenue),
+        backgroundColor: ['#B91C1C', '#D97706', '#1C1917', '#78716C', '#D6D3D1'],
+    }]
+}));
+
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 } } } }
+};
+</script>
+
+<template>
+    <main class="h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
+        <AdminSidebar
+            :is-open="isSidebarOpen"
+            :is-collapsed="isCollapsed"
+            active-page="statistieken"
+            :csrf-token="csrfToken"
+            @close="isSidebarOpen = false"
+            @toggle-collapse="isCollapsed = !isCollapsed"
+        />
+
+        <section class="flex-1 min-w-0 min-h-0 flex flex-col">
+            <header class="bg-white border-b border-brand-border px-6 py-4 z-40 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-4">
+                    <button @click="isSidebarOpen = true" class="lg:hidden p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                    <div>
+                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Inzicht</p>
+                        <h1 class="text-xl font-black leading-tight">Statistieken</h1>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 min-h-0 p-4 lg:p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6">
+                <!-- Filters -->
+                <section class="bg-white border border-brand-border rounded-2xl shadow-sm p-4">
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button
+                            v-for="preset in periodPresets"
+                            :key="preset.key"
+                            @click="handleApplyPreset(preset)"
+                            class="h-8 px-3 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all"
+                            :class="activePreset === preset.key ? 'bg-brand-gold border-brand-gold text-white shadow-sm' : 'bg-white border-stone-200 text-stone-700 hover:border-brand-gold'"
+                        >
+                            {{ preset.label }}
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                        <label class="space-y-1">
+                            <span class="block text-[9px] uppercase font-black text-stone-700">Van</span>
+                            <input v-model="startDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold">
+                        </label>
+                        <label class="space-y-1">
+                            <span class="block text-[9px] uppercase font-black text-stone-700">Tot</span>
+                            <input v-model="endDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold">
+                        </label>
+                        <button @click="loadStats" :disabled="isLoading" class="h-10 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-md">
+                            Vernieuwen
+                        </button>
+                    </div>
+                </section>
+
+                <div v-if="isLoading" class="flex-1 flex items-center justify-center">
+                    <div class="w-10 h-10 border-4 border-stone-100 border-t-brand-gold rounded-full animate-spin"></div>
+                </div>
+
+                <div v-else class="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-6">
+                    <!-- Trend Chart -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm p-6 flex flex-col min-h-[400px]">
+                        <h3 class="font-black text-sm uppercase tracking-tight mb-6">Omzet Trend</h3>
+                        <div class="flex-1 min-h-0">
+                            <Line :data="trendChartData" :options="chartOptions" />
+                        </div>
+                    </div>
+
+                    <!-- Top Items -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                        <div class="p-4 border-b border-stone-100 bg-brand-light/50">
+                            <h3 class="font-black text-sm uppercase tracking-tight">Populaire Gerechten</h3>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar">
+                            <table class="w-full text-left">
+                                <thead class="bg-stone-50 text-[9px] uppercase font-black text-stone-600">
+                                    <tr>
+                                        <th class="px-4 py-3">Gerecht</th>
+                                        <th class="px-4 py-3 text-right">Aantal</th>
+                                        <th class="px-4 py-3 text-right">Omzet</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-stone-100">
+                                    <tr v-for="item in stats.top_items" :key="item.name" class="hover:bg-brand-light/30 transition-colors">
+                                        <td class="px-4 py-3">
+                                            <div class="flex flex-col">
+                                                <span class="text-xs font-black text-stone-900">{{ item.name }}</span>
+                                                <span class="text-[9px] font-bold text-stone-500">{{ item.display_number }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-right text-xs font-black text-stone-600">{{ item.total_quantity }}</td>
+                                        <td class="px-4 py-3 text-right text-xs font-black text-brand-red">{{ formatter.format(item.total_revenue) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Channel Distribution -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm p-6 flex flex-col min-h-[350px]">
+                        <h3 class="font-black text-sm uppercase tracking-tight mb-6">Omzet per Kanaal</h3>
+                        <div class="flex-1 min-h-0 flex items-center justify-center">
+                            <Doughnut :data="channelChartData" :options="chartOptions" />
+                        </div>
+                    </div>
+
+                    <!-- Category Breakdown -->
+                    <div class="bg-white border border-brand-border rounded-2xl shadow-sm p-6 flex flex-col min-h-[350px]">
+                        <h3 class="font-black text-sm uppercase tracking-tight mb-6">Omzet per Categorie</h3>
+                        <div class="flex-1 min-h-0 flex items-center justify-center">
+                            <Doughnut :data="categoryChartData" :options="chartOptions" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
+</style>

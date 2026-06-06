@@ -107,6 +107,18 @@ defineEmits(['close', 'toggle-collapse']);
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
                 <span v-if="!isCollapsed" class="truncate transition-opacity duration-300">Overzicht</span>
             </a>
+            <a
+                href="/admin/statistieken"
+                title="Statistieken"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs transition-all group"
+                :class="[
+                    activePage === 'statistieken' ? 'bg-white/10 text-white shadow-inner' : 'text-stone-400 hover:bg-white/5 hover:text-white',
+                    isCollapsed ? 'justify-center px-0' : ''
+                ]"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                <span v-if="!isCollapsed" class="truncate transition-opacity duration-300">Statistieken</span>
+            </a>
         </nav>
 
         <div class="p-3 border-t border-white/5 space-y-1">

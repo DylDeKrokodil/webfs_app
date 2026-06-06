@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import AdminKassaPage from './AdminKassaPage.vue';
 import AdminMenuPage from './AdminMenuPage.vue';
 import AdminOverviewPage from './AdminOverviewPage.vue';
+import AdminStatsPage from './AdminStatsPage.vue';
 import AdminTablesPage from './AdminTablesPage.vue';
 import ContactPage from './ContactPage.vue';
 import HomePage from './HomePage.vue';
@@ -20,6 +21,7 @@ const pageComponents = {
     '/admin/kassa': AdminKassaPage,
     '/admin/menu': AdminMenuPage,
     '/admin/overzicht': AdminOverviewPage,
+    '/admin/statistieken': AdminStatsPage,
     '/admin/tafels': AdminTablesPage,
 };
 
