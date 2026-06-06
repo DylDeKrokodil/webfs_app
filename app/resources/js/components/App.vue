@@ -9,6 +9,7 @@ import ContactPage from './ContactPage.vue';
 import HomePage from './HomePage.vue';
 import MenuPage from './MenuPage.vue';
 import NotFoundPage from './NotFoundPage.vue';
+import OrderConfirmationPage from './OrderConfirmationPage.vue';
 import ReviewPage from './ReviewPage.vue';
 import TabletPage from './TabletPage.vue';
 import ToastHost from './ToastHost.vue';
@@ -26,6 +27,10 @@ const pageComponents = {
 };
 
 const currentPage = computed(() => {
+    if (/^\/bestelling\/WEB-[A-Z0-9]+$/.test(window.location.pathname)) {
+        return OrderConfirmationPage;
+    }
+
     if (/^\/tablet\/\d+$/.test(window.location.pathname)) {
         return TabletPage;
     }
@@ -36,9 +41,15 @@ const currentPage = computed(() => {
 
     return pageComponents[window.location.pathname] ?? NotFoundPage;
 });
+const currentToken = computed(() => {
+    return window.location.pathname.split('/').pop();
+});
 </script>
 
 <template>
-    <component :is="currentPage" />
+    <component 
+        :is="currentPage" 
+        :token="currentToken" 
+    />
     <ToastHost />
 </template>

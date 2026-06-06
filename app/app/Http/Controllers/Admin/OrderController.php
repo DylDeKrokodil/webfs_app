@@ -48,7 +48,7 @@ class OrderController extends Controller
             );
 
             $order = Order::create([
-                'channel' => 'takeaway',
+                'channel' => 'kassa',
                 'status' => 'paid',
                 'subtotal' => $total,
                 'total' => $total,

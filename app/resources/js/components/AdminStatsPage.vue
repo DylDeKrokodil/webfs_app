@@ -65,7 +65,20 @@ const loadStats = async () => {
     }
 };
 
-onMounted(loadStats);
+const setupRealtime = () => {
+    if (!window.Echo) return;
+
+    window.Echo.channel('admin-notifications')
+        .listen('.CheckoutCompleted', (data) => {
+            console.log('Real-time: Stats Refresh', data);
+            loadStats();
+        });
+};
+
+onMounted(() => {
+    loadStats();
+    setupRealtime();
+});
 
 const trendChartData = computed(() => ({
     labels: stats.value.trends.map(t => t.date),
@@ -81,7 +94,8 @@ const trendChartData = computed(() => ({
 
 const channelChartData = computed(() => ({
     labels: stats.value.channels.map(c => {
-        if (c.channel === 'takeaway') return 'Kassa';
+        if (c.channel === 'kassa') return 'Kassa';
+        if (c.channel === 'web') return 'Website';
         if (c.channel === 'tablet') return 'Dine-in';
         return c.channel.charAt(0).toUpperCase() + c.channel.slice(1);
     }),

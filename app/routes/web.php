@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminStatsController;
+use App\Http\Controllers\PublicOrderController;
 use App\Http\Controllers\Admin\MenuItemController as AdminMenuItemController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\OrderLineOverviewController;
@@ -27,6 +28,8 @@ Route::get('/menukaart.pdf', MenuPdfController::class)->name('public.menu.pdf');
 Route::view('/tablet', 'app');
 Route::view('/tablet/{tableNumber}', 'app')
     ->whereNumber('tableNumber');
+Route::view('/bestelling/{token}', 'app')
+    ->where('token', 'WEB-[A-Z0-9]+');
 Route::view('/review/{token}', 'app')
     ->where('token', '[A-Za-z0-9]+')
     ->name('reviews.show');
@@ -73,6 +76,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::get('/api/menu-items', [MenuItemController::class, 'index']);
+Route::post('/api/takeaway/orders', [PublicOrderController::class, 'store']);
+Route::get('/api/takeaway/orders/{token}', [PublicOrderController::class, 'show'])
+    ->where('token', 'WEB-[A-Z0-9]+');
 Route::get('/api/order-line-note-suggestions', [OrderLineNoteSuggestionController::class, 'index']);
 Route::get('/api/reviews/{token}', [ReviewController::class, 'show'])
     ->where('token', '[A-Za-z0-9]+');

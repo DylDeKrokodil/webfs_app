@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useMenuSync } from '../composables/useMenuSync';
+import { useCart } from '../composables/useCart';
 import LegacyPageShell from './LegacyPageShell.vue';
 import { currencyFormatter as formatter } from '../services/formatters';
 import { fetchPublicMenuItems } from '../services/menuApi';
@@ -15,8 +16,18 @@ const menuSortMode = ref('default');
 const favoritesSortMode = ref('number');
 const isLoading = ref(true);
 const errorMessage = ref('');
+const isSubmitting = ref(false);
 
 const { handleMenuItemUpdated } = useMenuSync(items);
+const {
+    items: cartItems,
+    count: cartCount,
+    total: cartTotal,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart
+} = useCart();
 
 const parseNumber = (item) => {
     const parsed = Number(item.number);
@@ -121,6 +132,35 @@ const loadMenu = async () => {
     }
 };
 
+const checkout = async () => {
+    if (cartItems.value.length === 0) return;
+
+    isSubmitting.value = true;
+    try {
+        const response = await fetch('/api/takeaway/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+            },
+            body: JSON.stringify({
+                items: cartItems.value.map((i) => ({ id: i.id, quantity: i.quantity })),
+            }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Bestellen mislukt');
+
+        clearCart();
+        window.location.href = `/bestelling/${data.token}`;
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        isSubmitting.value = false;
+    }
+};
+
 const setupRealtime = () => {
     if (!window.Echo) return;
 
@@ -169,6 +209,16 @@ onMounted(() => {
                     >
                         Favorieten
                         <span>{{ favoriteItems.length }}</span>
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        :aria-selected="activeTab === 'cart'"
+                        :class="{ 'is-active': activeTab === 'cart' }"
+                        @click="activeTab = 'cart'"
+                    >
+                        Winkelmandje
+                        <span v-if="cartCount > 0">{{ cartCount }}</span>
                     </button>
                 </div>
 
@@ -220,11 +270,19 @@ onMounted(() => {
                             <small>{{ item.category }}</small>
                         </div>
 
-                        <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
+                        <div class="legacy-menu-actions">
+                            <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
+                            <button
+                                @click="addToCart(item)"
+                                class="legacy-menu-add-btn"
+                            >
+                                + Bestel
+                            </button>
+                        </div>
                     </article>
                 </div>
 
-                <div v-else-if="favoriteItems.length > 0" class="legacy-menu-list">
+                <div v-else-if="activeTab === 'favorites' && favoriteItems.length > 0" class="legacy-menu-list">
                     <article
                         v-for="item in favoriteItems"
                         :key="item.id"
@@ -247,14 +305,313 @@ onMounted(() => {
                             <small>{{ item.category }}</small>
                         </div>
 
-                        <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
+                        <div class="legacy-menu-actions">
+                            <div class="legacy-menu-price">{{ formatter.format(item.price) }}</div>
+                            <button
+                                @click="addToCart(item)"
+                                class="legacy-menu-add-btn"
+                            >
+                                + Bestel
+                            </button>
+                        </div>
                     </article>
                 </div>
 
-                <p v-else class="legacy-menu-state">
+                <div v-else-if="activeTab === 'cart'" class="legacy-menu-list">
+                    <div v-if="cartItems.length > 0" class="legacy-cart-container">
+                        <article
+                            v-for="item in cartItems"
+                            :key="item.id"
+                            class="legacy-menu-row"
+                        >
+                            <div class="legacy-menu-code">{{ item.number || '-' }}</div>
+                            <div class="legacy-menu-copy">
+                                <h3>{{ item.name }}</h3>
+                                <p>{{ formatter.format(item.price) }} per stuk</p>
+                            </div>
+                            
+                            <div class="legacy-cart-actions">
+                                <div class="legacy-quantity-selector">
+                                    <button @click="updateQuantity(item.id, -1)" aria-label="Minder">-</button>
+                                    <span>{{ item.quantity }}</span>
+                                    <button @click="updateQuantity(item.id, 1)" aria-label="Meer">+</button>
+                                </div>
+                                <div class="legacy-menu-price">{{ formatter.format(item.price * item.quantity) }}</div>
+                                <button @click="removeFromCart(item.id)" class="legacy-cart-remove" title="Verwijderen">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                </button>
+                            </div>
+                        </article>
+
+                        <div class="legacy-cart-summary">
+                            <div class="legacy-total-row">
+                                <span class="label">Totaalbedrag:</span>
+                                <span class="value">{{ formatter.format(cartTotal) }}</span>
+                            </div>
+                            <button
+                                @click="checkout"
+                                :disabled="isSubmitting"
+                                class="legacy-checkout-btn"
+                            >
+                                {{ isSubmitting ? 'Bezig...' : 'Bestelling Plaatsen' }}
+                            </button>
+                        </div>
+                    </div>
+                    <p v-else class="legacy-menu-state">
+                        Je winkelmandje is nog leeg. Voeg gerechten toe vanuit het menu.
+                    </p>
+                </div>
+
+                <p v-else-if="activeTab === 'favorites' && favoriteItems.length === 0" class="legacy-menu-state">
                     Je hebt nog geen favoriete gerechten aangevinkt.
                 </p>
             </div>
         </section>
     </LegacyPageShell>
 </template>
+
+<style scoped>
+.legacy-menu-tabs {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+    border-bottom: 1px solid #e5d7ba;
+}
+
+.legacy-menu-tabs button {
+    appearance: none;
+    border: 1px solid #d7c39c;
+    border-bottom: 0;
+    background: #f5ead2;
+    color: #4b3327;
+    cursor: pointer;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 10px 16px;
+    transition: background 0.2s;
+}
+
+.legacy-menu-tabs button.is-active {
+    background: #7f1d1d;
+    color: #fff7d6;
+}
+
+.legacy-menu-tabs span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    margin-left: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.28);
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 1px 6px;
+}
+
+.is-active span {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.legacy-menu-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.legacy-menu-row {
+    display: grid;
+    grid-template-columns: minmax(86px, auto) 58px minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    border: 1px solid #eadbbd;
+    background: #fffdf6;
+    padding: 12px;
+}
+
+.legacy-menu-row.is-favorite {
+    border-color: #d7b56d;
+    background: #fff7df;
+}
+
+.legacy-menu-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.legacy-menu-add-btn {
+    appearance: none;
+    border: 2px solid #d7b56d;
+    background: #7f1d1d;
+    color: #fff7d6;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.legacy-menu-add-btn:hover {
+    background: #5f1515;
+}
+
+.legacy-checkout-btn {
+    appearance: none;
+    border: 2px solid #d7b56d;
+    background: #7f1d1d;
+    color: #fff7d6;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.legacy-checkout-btn:hover:not(:disabled) {
+    background: #5f1515;
+}
+
+.legacy-checkout-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.legacy-cart-footer {
+    border-top: 1px solid #e5d7ba;
+}
+
+.legacy-cart-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    justify-content: flex-end;
+}
+
+.legacy-quantity-selector {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #d7c39c;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.legacy-quantity-selector button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f5ead2;
+    color: #4b3327;
+    font-weight: 900;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.legacy-quantity-selector button:hover {
+    background: #e5d7ba;
+}
+
+.legacy-quantity-selector span {
+    width: 36px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 14px;
+    color: #1d1714;
+}
+
+.legacy-cart-remove {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: #7f1d1d;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    display: flex;
+}
+
+.legacy-cart-remove:hover {
+    background: #fff1f1;
+    color: #991b1b;
+}
+
+.legacy-cart-summary {
+    margin-top: 32px;
+    padding: 24px;
+    background: #fff7df;
+    border: 1px solid #d7b56d;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.legacy-total-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+}
+
+.legacy-total-row .label {
+    font-weight: 900;
+    color: #594337;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+}
+
+.legacy-total-row .value {
+    font-size: 32px;
+    font-weight: 900;
+    color: #7f1d1d;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (max-width: 768px) {
+    .legacy-menu-row {
+        grid-template-columns: 58px 1fr;
+        gap: 12px;
+    }
+    
+    .legacy-menu-code {
+        grid-row: 1;
+        grid-column: 1;
+    }
+    
+    .legacy-favorite-toggle {
+        grid-row: 1;
+        grid-column: 2;
+        justify-self: end;
+    }
+    
+    .legacy-menu-copy {
+        grid-row: 2;
+        grid-column: 1 / span 2;
+    }
+    
+    .legacy-menu-actions, .legacy-cart-actions {
+        grid-row: 3;
+        grid-column: 1 / span 2;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #eadbbd;
+        padding-top: 12px;
+        margin-top: 4px;
+    }
+    
+    .legacy-cart-actions {
+        gap: 10px;
+    }
+}
+</style>

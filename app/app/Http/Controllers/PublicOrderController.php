@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Events\CheckoutCompleted;
+use App\Models\MenuItem;
+use App\Models\Order;
+use App\Models\OrderLine;
+use App\Services\Orders\OrderQrCodeService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class PublicOrderController extends Controller
+{
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.id' => ['required', 'exists:menu_items,id'],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
+        ]);
+
+        return DB::transaction(function () use ($validated) {
+            $order = Order::create([
+                'channel' => 'web',
+                'status' => 'paid', // For this simulation, we'll mark it as paid immediately
+                'paid_at' => now(),
+                'subtotal' => 0,
+                'total' => 0,
+                // We'll use a token for secure access to the confirmation page
+                'source_order_id' => null, 
+                'table_code' => 'WEB-' . Str::upper(Str::random(4)),
+            ]);
+
+            $total = 0;
+            foreach ($validated['items'] as $itemData) {
+                $menuItem = MenuItem::findOrFail($itemData['id']);
+                $lineTotal = $menuItem->price * $itemData['quantity'];
+                
+                OrderLine::create([
+                    'order_id' => $order->id,
+                    'menu_item_id' => $menuItem->id,
+                    'quantity' => $itemData['quantity'],
+                    'unit_price' => $menuItem->price,
+                    'line_total' => $lineTotal,
+                ]);
+
+                $total += $lineTotal;
+            }
+
+            $order->update([
+                'subtotal' => $total,
+                'total' => $total,
+            ]);
+
+            CheckoutCompleted::dispatch($order);
+
+            return response()->json([
+                'order_id' => $order->id,
+                'token' => $order->table_code, // Using table_code as a simple token for now
+            ], 201);
+        });
+    }
+
+    public function show(string $token, OrderQrCodeService $qrCodeService): JsonResponse
+    {
+        $order = Order::where('table_code', $token)
+            ->where('channel', 'web')
+            ->with('lines.menuItem')
+            ->firstOrFail();
+
+        return response()->json([
+            'order' => [
+                'id' => $order->id,
+                'total' => (float) $order->total,
+                'paid_at' => $order->paid_at?->toIso8601String(),
+                'lines' => $order->lines->map(fn($line) => [
+                    'name' => $line->menuItem?->name,
+                    'number' => trim(($line->menuItem?->number ?? '').($line->menuItem?->suffix ?? '')),
+                    'quantity' => $line->quantity,
+                    'price' => (float) $line->unit_price,
+                ]),
+            ],
+            'qr_code' => $qrCodeService->generateForOrder($order),
+        ]);
+    }
+}

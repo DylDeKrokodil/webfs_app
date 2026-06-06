@@ -57,21 +57,19 @@ const loadOverview = async () => {
         });
 
         const response = await fetch(`/api/admin/order-line-overview?${params}`, {
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            headers: {
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
         });
-        const payload = await response.json();
 
-        if (!response.ok) throw new Error(payload.message || 'Overzicht laden mislukt.');
+        if (!response.ok) {
+            throw new Error('Laden mislukt.');
+        }
 
-        lines.value = payload.data ?? [];
-        summary.value = payload.summary ?? {
-            lines_count: 0,
-            items_count: 0,
-            total: 0,
-            gross_total: 0,
-            vat_amount: 0,
-            vat_percentage: 9,
-        };
+        const data = await response.json();
+        lines.value = data.data || [];
+        summary.value = data.summary;
         hasLoaded.value = true;
     } catch (error) {
         toastService.error(error.message);
@@ -85,13 +83,18 @@ const loadSalesSummaries = async () => {
 
     try {
         const response = await fetch('/api/admin/sales-summaries', {
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            headers: {
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
         });
-        const payload = await response.json();
 
-        if (!response.ok) throw new Error(payload.message || 'Samenvattingen laden mislukt.');
+        if (!response.ok) {
+            throw new Error('Laden mislukt.');
+        }
 
-        salesSummaries.value = payload.data ?? [];
+        const data = await response.json();
+        salesSummaries.value = data.data || [];
     } catch (error) {
         toastService.error(error.message);
     } finally {
@@ -116,8 +119,9 @@ const formatReportDate = (value) => {
 };
 
 const sourceLabel = (line) => {
+    if (line.channel === 'kassa') return 'Kassa';
+    if (line.channel === 'web') return 'Website';
     if (line.channel === 'tablet' && line.table_code) return `Tafel ${line.table_code}`;
-    if (line.channel === 'takeaway') return 'Kassa';
 
     return line.channel || '-';
 };
@@ -128,7 +132,11 @@ const setupRealtime = () => {
     window.Echo.channel('admin-notifications')
         .listen('.CheckoutCompleted', (data) => {
             console.log('Real-time: Checkout Completed', data);
-            const source = data.channel === 'takeaway' ? 'Kassa' : `Tafel ${data.table_code}`;
+            let source = data.channel;
+            if (data.channel === 'kassa') source = 'Kassa';
+            else if (data.channel === 'web') source = 'Website';
+            else if (data.channel === 'tablet') source = `Tafel ${data.table_code}`;
+
             toastService.info(`Nieuwe betaling ontvangen: ${formatter.format(data.total)} (${source})`);
             loadOverview();
             loadSalesSummaries();
@@ -153,7 +161,6 @@ onMounted(() => {
             @toggle-collapse="isCollapsed = !isCollapsed"
         />
 
-        <!-- Workspace -->
         <section class="flex-1 min-w-0 min-h-0 flex flex-col">
             <header class="bg-white border-b border-brand-border px-6 py-4 z-40 flex items-center justify-between flex-shrink-0">
                 <div class="flex items-center gap-4">
@@ -161,24 +168,18 @@ onMounted(() => {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                     </button>
                     <div>
-                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Rapportage</p>
+                        <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Beheer</p>
                         <h1 class="text-xl font-black leading-tight">Overzicht</h1>
                     </div>
                 </div>
-                <div class="text-right hidden sm:block">
-                    <p class="text-[9px] uppercase font-bold text-stone-600 tracking-widest">Periode</p>
-                    <p class="text-xs font-black text-stone-900">{{ periodLabel }}</p>
-                </div>
             </header>
 
-            <div class="flex-1 min-h-0 p-4 lg:p-6 overflow-y-auto lg:overflow-hidden flex flex-col gap-4">
-                <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 flex-shrink-0">
-                    <section class="xl:col-span-8 bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden">
-                        <div class="px-4 py-3 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3">
-                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Periode kiezen</h3>
-                            <span class="text-[10px] font-bold text-stone-600 hidden sm:inline">{{ periodLabel }}</span>
-                        </div>
-                        <div class="p-4 grid gap-3">
+            <div class="flex-1 min-h-0 flex flex-col xl:flex-row">
+                <!-- Sales List -->
+                <div class="flex-1 min-h-0 flex flex-col border-r border-brand-border">
+                    <!-- Filters -->
+                    <div class="p-6 border-b border-brand-border flex-shrink-0">
+                        <div class="flex flex-col gap-4">
                             <div class="flex flex-wrap gap-2">
                                 <button
                                     v-for="preset in periodPresets"
@@ -192,145 +193,143 @@ onMounted(() => {
                                 </button>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 items-end">
-                                <label class="space-y-1.5">
-                                    <span class="block text-[9px] uppercase font-black tracking-widest text-stone-700">Begindatum</span>
-                                    <input v-model="startDate" @change="markCustomPeriod" type="date" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
+                            <div class="flex flex-wrap items-end gap-3">
+                                <label class="flex-1 min-w-[140px] space-y-1">
+                                    <span class="block text-[9px] uppercase font-black text-stone-700">Van</span>
+                                    <input v-model="startDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
                                 </label>
-                                <label class="space-y-1.5">
-                                    <span class="block text-[9px] uppercase font-black tracking-widest text-stone-700">Einddatum</span>
-                                    <input v-model="endDate" @change="markCustomPeriod" type="date" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
+                                <label class="flex-1 min-w-[140px] space-y-1">
+                                    <span class="block text-[9px] uppercase font-black text-stone-700">Tot</span>
+                                    <input v-model="endDate" type="date" @change="markCustomPeriod" class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
                                 </label>
                                 <button
+                                    type="button"
                                     @click="loadOverview"
                                     :disabled="isLoading"
-                                    class="h-10 px-5 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-[#854d03] active:scale-[0.98] transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                                    class="h-10 px-6 bg-brand-gold text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-md shadow-brand-gold/10 hover:bg-stone-800 transition-colors disabled:opacity-50"
                                 >
-                                    <span v-if="isLoading" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                                    <span>Maak overzicht</span>
+                                    Filteren
                                 </button>
                             </div>
                         </div>
-                    </section>
-
-                    <section class="xl:col-span-4 bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0">
-                        <div class="px-4 py-3 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3 flex-shrink-0">
-                            <div class="min-w-0">
-                                <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight truncate">Excel-samenvattingen</h3>
-                                <p class="text-[10px] font-bold text-stone-600 truncate">Dagrapporten na middernacht</p>
-                            </div>
-                            <button
-                                type="button"
-                                @click="loadSalesSummaries"
-                                :disabled="isLoadingSummaries"
-                                class="h-8 px-3 rounded-lg border border-stone-200 bg-white text-[9px] font-black uppercase tracking-widest text-stone-700 hover:border-brand-gold hover:text-stone-900 disabled:opacity-50 flex-shrink-0"
-                            >
-                                Vernieuw
-                            </button>
-                        </div>
-
-                        <div v-if="isLoadingSummaries" class="p-6 text-center">
-                            <div class="w-7 h-7 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
-                        </div>
-                        <div v-else-if="salesSummaries.length === 0" class="p-6 text-center">
-                            <p class="font-black text-stone-600 italic text-sm">Nog geen Excel-samenvattingen</p>
-                        </div>
-                        <div v-else class="max-h-40 overflow-auto custom-scrollbar">
-                            <table class="w-full min-w-[420px] text-left">
-                                <thead class="bg-stone-50 border-b border-stone-100 sticky top-0 z-10">
-                                    <tr>
-                                        <th class="px-4 py-2.5 text-[9px] uppercase tracking-widest font-black text-stone-600">Datum</th>
-                                        <th class="px-4 py-2.5 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Omzet</th>
-                                        <th class="px-4 py-2.5 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Download</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-stone-100">
-                                    <tr v-for="report in salesSummaries" :key="report.id" class="hover:bg-[#FFF7ED] transition-colors">
-                                        <td class="px-4 py-2.5 whitespace-nowrap text-xs font-black text-stone-900">{{ formatReportDate(report.date) }}</td>
-                                        <td class="px-4 py-2.5 text-right whitespace-nowrap text-xs font-black text-brand-red">{{ formatter.format(report.gross_total) }}</td>
-                                        <td class="px-4 py-2.5 text-right whitespace-nowrap">
-                                            <a
-                                                :href="report.download_url"
-                                                class="inline-flex h-7 items-center justify-center rounded-lg bg-brand-gold px-3 text-[9px] font-black uppercase tracking-widest text-white hover:bg-[#854d03] active:scale-[0.98] transition-all shadow-sm"
-                                            >
-                                                Excel
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                </div>
-
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 flex-shrink-0">
-                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">Regels</span>
-                        <strong class="block text-lg font-black text-stone-900 leading-none">{{ summary.lines_count }}</strong>
-                    </div>
-                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">Aantal</span>
-                        <strong class="block text-lg font-black text-stone-900 leading-none">{{ summary.items_count }}</strong>
-                    </div>
-                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">Omzet excl. btw</span>
-                        <strong class="block text-lg font-black text-brand-red leading-none">{{ formatter.format(summary.total) }}</strong>
-                    </div>
-                    <div class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">BTW {{ summary.vat_percentage }}%</span>
-                        <strong class="block text-lg font-black text-stone-900 leading-none">{{ formatter.format(summary.vat_amount) }}</strong>
-                    </div>
-                </div>
-
-                <section class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex-1 min-h-[360px] lg:min-h-0 flex flex-col">
-                    <div class="px-5 py-4 border-b border-stone-100 bg-brand-light/50 flex items-center justify-between gap-3 flex-shrink-0">
-                        <div>
-                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Orderregels</h3>
-                            <p class="text-[10px] font-bold text-stone-600">Regels tonen kassabedragen; omzet hierboven is exclusief {{ summary.vat_percentage }}% btw</p>
-                        </div>
-                        <span class="text-[10px] font-bold text-stone-600">{{ lines.length }} resultaten</span>
                     </div>
 
-                    <div v-if="isLoading" class="p-12 text-center flex-1">
-                        <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
+                    <!-- Metrics -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 border-b border-brand-border bg-stone-50/50">
+                        <div class="p-6 border-r border-brand-border">
+                            <span class="block text-[9px] uppercase font-black text-stone-500 mb-1">Aantal regels</span>
+                            <p class="text-2xl font-black">{{ summary.lines_count }}</p>
+                        </div>
+                        <div class="p-6 border-r border-brand-border">
+                            <span class="block text-[9px] uppercase font-black text-stone-500 mb-1">Items verkocht</span>
+                            <p class="text-2xl font-black">{{ summary.items_count }}</p>
+                        </div>
+                        <div class="p-6 border-r border-brand-border">
+                            <span class="block text-[9px] uppercase font-black text-stone-500 mb-1">Totaal (incl. BTW)</span>
+                            <p class="text-2xl font-black text-brand-red">{{ formatter.format(summary.gross_total) }}</p>
+                        </div>
+                        <div class="p-6">
+                            <span class="block text-[9px] uppercase font-black text-stone-500 mb-1">Totaal (excl. BTW)</span>
+                            <p class="text-2xl font-black">{{ formatter.format(summary.total) }}</p>
+                        </div>
                     </div>
-                    <div v-else-if="hasLoaded && lines.length === 0" class="p-12 text-center flex-1">
-                        <p class="font-black text-stone-600 italic text-sm">Geen afgerekende orderregels in deze periode</p>
-                    </div>
-                    <div v-else class="flex-1 min-h-0 overflow-auto custom-scrollbar">
-                        <table class="w-full min-w-[760px] text-left">
-                            <thead class="bg-stone-50 border-b border-stone-100 sticky top-0 z-10">
+
+                    <!-- Table -->
+                    <div class="flex-1 overflow-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-white shadow-sm z-10">
                                 <tr>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600">Datum</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600">Gerecht</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600">Bron</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Prijs</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Aantal</th>
-                                    <th class="px-5 py-3 text-[9px] uppercase tracking-widest font-black text-stone-600 text-right">Subtotaal</th>
+                                    <th class="px-6 py-4 text-[9px] uppercase font-black text-stone-600 border-b border-brand-border">Datum & Tijd</th>
+                                    <th class="px-6 py-4 text-[9px] uppercase font-black text-stone-600 border-b border-brand-border">Gerecht</th>
+                                    <th class="px-6 py-4 text-[9px] uppercase font-black text-stone-600 border-b border-brand-border text-center">Aantal</th>
+                                    <th class="px-6 py-4 text-[9px] uppercase font-black text-stone-600 border-b border-brand-border">Bron</th>
+                                    <th class="px-6 py-4 text-[9px] uppercase font-black text-stone-600 border-b border-brand-border text-right">Totaal</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-stone-100">
-                                <tr v-for="line in lines" :key="line.id" class="hover:bg-[#FFF7ED] transition-colors">
-                                    <td class="px-5 py-3 whitespace-nowrap text-xs font-bold text-stone-600">{{ formatDate(line.date) }}</td>
-                                    <td class="px-5 py-3">
-                                        <div class="flex items-center gap-3">
-                                            <span class="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center font-black text-[9px] text-stone-600 border border-stone-200 flex-shrink-0">
-                                                {{ line.display_number || 'GD' }}
-                                            </span>
-                                            <span class="font-black text-xs text-stone-900 leading-tight">{{ line.name }}</span>
+                            <tbody class="divide-y divide-brand-border">
+                                <tr v-for="line in lines" :key="line.id" class="group hover:bg-stone-50 transition-colors">
+                                    <td class="px-6 py-4 text-xs font-bold text-stone-500">{{ formatDate(line.date) }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-black text-stone-900 leading-tight">{{ line.name }}</span>
+                                            <span class="text-[9px] font-bold text-stone-400 uppercase tracking-tighter">{{ line.display_number }} • {{ formatter.format(line.unit_price) }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-5 py-3 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-stone-100 text-stone-600 rounded text-[9px] font-black uppercase tracking-tight">{{ sourceLabel(line) }}</span>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-stone-100 text-[10px] font-black">{{ line.quantity }}</span>
                                     </td>
-                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-bold text-stone-600">{{ formatter.format(line.unit_price) }}</td>
-                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-black text-stone-900">{{ line.quantity }}</td>
-                                    <td class="px-5 py-3 text-right whitespace-nowrap text-xs font-black text-brand-red">{{ formatter.format(line.line_total) }}</td>
+                                    <td class="px-6 py-4">
+                                        <span
+                                            class="inline-flex px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest"
+                                            :class="{
+                                                'bg-brand-red/10 text-brand-red': line.channel === 'kassa',
+                                                'bg-brand-gold/10 text-brand-gold': line.channel === 'tablet',
+                                                'bg-blue-500/10 text-blue-600': line.channel === 'web'
+                                            }"
+                                        >
+                                            {{ sourceLabel(line) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-xs font-black text-stone-900">{{ formatter.format(line.line_total) }}</td>
+                                </tr>
+                                <tr v-if="lines.length === 0 && hasLoaded">
+                                    <td colspan="5" class="px-6 py-20 text-center">
+                                        <div class="flex flex-col items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-stone-300 mb-4"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><path d="M9 15h6"/></svg>
+                                            <p class="text-xs font-bold text-stone-400 uppercase tracking-widest">Geen verkoopregels gevonden</p>
+                                        </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </section>
+                </div>
+
+                <!-- Daily Summaries -->
+                <aside class="w-full xl:w-96 min-h-0 flex flex-col bg-stone-50/30">
+                    <header class="p-6 border-b border-brand-border flex items-center justify-between">
+                        <div>
+                            <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Rapportages</p>
+                            <h2 class="text-lg font-black leading-tight">Dagrapporten</h2>
+                        </div>
+                        <div v-if="isLoadingSummaries" class="w-4 h-4 border-2 border-stone-200 border-t-brand-gold rounded-full animate-spin"></div>
+                    </header>
+                    <div class="flex-1 overflow-auto p-6 custom-scrollbar">
+                        <div class="space-y-4 pb-6">
+                            <a
+                                v-for="summary in salesSummaries"
+                                :key="summary.id"
+                                :href="summary.download_url"
+                                target="_blank"
+                                class="flex flex-col gap-4 p-5 bg-white border border-brand-border rounded-2xl shadow-sm hover:shadow-md hover:border-brand-gold transition-all group"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-stone-50 flex items-center justify-center text-stone-400 group-hover:text-brand-gold transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-black text-stone-900">{{ formatReportDate(summary.date) }}</span>
+                                            <span class="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{{ summary.orders_count }} bestellingen</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-black text-brand-red">{{ formatter.format(summary.gross_total) }}</p>
+                                        <p class="text-[9px] font-bold text-stone-400 uppercase tracking-tighter">Totaal (incl. BTW)</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-4 border-t border-stone-50">
+                                    <span class="text-[8px] font-black uppercase tracking-widest text-stone-400 group-hover:text-brand-gold transition-colors">Download PDF Rapport</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-stone-300 group-hover:text-brand-gold transition-all group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </div>
+                            </a>
+
+                            <div v-if="salesSummaries.length === 0 && !isLoadingSummaries" class="py-12 text-center">
+                                <p class="text-[9px] font-black text-stone-400 uppercase tracking-widest">Nog geen rapporten beschikbaar</p>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </section>
     </main>
