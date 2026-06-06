@@ -42,7 +42,7 @@
     },
     "menu": {
         "current_menu": "Current menu",
-        "database_dishes": "Dishes from the database",
+        "database_dishes": "Dishes",
         "download_pdf": "Download PDF",
         "tabs": {
             "menu": "Menu",

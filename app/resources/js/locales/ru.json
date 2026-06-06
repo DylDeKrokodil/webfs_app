@@ -42,7 +42,7 @@
     },
     "menu": {
         "current_menu": "Актуальное меню",
-        "database_dishes": "Блюда из базы данных",
+        "database_dishes": "Блюда",
         "download_pdf": "Скачать PDF",
         "tabs": {
             "menu": "Меню",

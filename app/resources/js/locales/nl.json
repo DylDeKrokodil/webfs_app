@@ -42,7 +42,7 @@
     },
     "menu": {
         "current_menu": "Actuele menukaart",
-        "database_dishes": "Gerechten uit de database",
+        "database_dishes": "Gerechten",
         "download_pdf": "Download PDF",
         "tabs": {
             "menu": "Menu",

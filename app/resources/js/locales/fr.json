@@ -42,7 +42,7 @@
     },
     "menu": {
         "current_menu": "Menu du jour",
-        "database_dishes": "Plats issus de la base de données",
+        "database_dishes": "Plats",
         "download_pdf": "Télécharger le PDF",
         "tabs": {
             "menu": "Menu",

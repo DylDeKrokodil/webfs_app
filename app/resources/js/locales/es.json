@@ -42,7 +42,7 @@
     },
     "menu": {
         "current_menu": "Carta actual",
-        "database_dishes": "Platos de la base de datos",
+        "database_dishes": "Platos",
         "download_pdf": "Descargar PDF",
         "tabs": {
             "menu": "Menú",

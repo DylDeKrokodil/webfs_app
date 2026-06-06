@@ -42,7 +42,7 @@
     },
     "menu": {
         "current_menu": "最新菜单",
-        "database_dishes": "数据库中的菜品",
+        "database_dishes": "菜品",
         "download_pdf": "下载PDF",
         "tabs": {
             "menu": "菜单",

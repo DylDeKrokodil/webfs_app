@@ -42,7 +42,7 @@
     },
     "menu": {
         "current_menu": "Güncel menü",
-        "database_dishes": "Veritabanındaki yemekler",
+        "database_dishes": "Yemekler",
         "download_pdf": "PDF'yi indir",
         "tabs": {
             "menu": "Menü",
