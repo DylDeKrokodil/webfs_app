@@ -9,11 +9,22 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
 
+    /* Core Brand Colors */
     --color-brand-red: #7f1d1d;
+    --color-brand-red-light: #fef2f2;
     --color-brand-gold: #a16207;
+    --color-brand-gold-light: #fff7ed;
     --color-brand-dark: #1c1917;
     --color-brand-light: #fafaf9;
     --color-brand-border: #d6d3d1;
+
+    /* Semantic / Utility aliases for easier reuse */
+    --color-ui-primary: var(--color-brand-gold);
+    --color-ui-secondary: var(--color-brand-red);
+    --color-ui-bg: var(--color-brand-light);
+    --color-ui-text-main: var(--color-brand-dark);
+    --color-ui-text-muted: #57534e; /* stone-600 */
+    --color-ui-text-subtle: #78716c; /* stone-500 */
 }
 
 .brand-lockup {

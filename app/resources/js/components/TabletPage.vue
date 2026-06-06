@@ -313,7 +313,7 @@ onUnmounted(() => {
                                 {{ tableStatus.rounds_used }} <span class="text-stone-600">/</span> {{ tableStatus.max_rounds }}
                             </p>
                         </div>
-                        <div v-if="!canOrder" class="px-2 py-0.5 bg-[#FFF7ED] border border-[#FED7AA] rounded-md flex items-center gap-1.5">
+                        <div v-if="!canOrder" class="px-2 py-0.5 bg-brand-gold-light border border-brand-gold/30 rounded-md flex items-center gap-1.5">
                             <div class="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse"></div>
                             <span class="text-[10px] font-black text-brand-gold uppercase">{{ cooldownDisplay }}</span>
                         </div>
@@ -471,7 +471,7 @@ onUnmounted(() => {
                         </div>
                         <span
                             class="w-9 h-9 rounded-xl flex items-center justify-center border"
-                            :class="activeAssistanceRequest ? 'bg-[#FFF7ED] border-[#FED7AA] text-brand-gold' : 'bg-stone-50 border-stone-100 text-stone-700'"
+                            :class="activeAssistanceRequest ? 'bg-brand-gold-light border-brand-gold/30 text-brand-gold' : 'bg-stone-50 border-stone-100 text-stone-700'"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                         </span>
@@ -523,7 +523,7 @@ onUnmounted(() => {
                                         v-for="note in line.notes"
                                         :key="note"
                                         @click="removeNoteFromLine(line, note)"
-                                        class="px-2 py-1 bg-[#FFF7ED] border border-[#FED7AA] rounded-md text-[9px] font-black text-brand-gold"
+                                        class="px-2 py-1 bg-brand-gold-light border border-brand-gold/30 rounded-md text-[9px] font-black text-brand-gold"
                                     >
                                         {{ note }} ×
                                     </button>

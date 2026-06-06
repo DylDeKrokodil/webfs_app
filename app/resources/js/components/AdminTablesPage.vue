@@ -164,161 +164,156 @@ onMounted(() => {
                 </div>
             </header>
 
-            <div class="flex-1 min-h-0 p-4 lg:p-6 overflow-y-auto lg:overflow-hidden flex flex-col gap-4">
-                <!-- Metrics - More Compact -->
-                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 flex-shrink-0">
-                    <div v-for="(val, label) in { 'Actieve Tafels': tables.length, 'Open Items': totalOpenItems, 'Hulpvragen': openAssistanceCount, 'Open Bedrag': formatter.format(totalOpenAmount), 'Geselecteerd': selectedTable ? `Tafel ${selectedTable.table_code}` : '-' }" :key="label" class="bg-white border border-brand-border px-4 py-3 rounded-2xl shadow-sm">
-                        <span class="block text-[9px] uppercase font-bold text-stone-600 tracking-wider mb-1">{{ label }}</span>
-                        <strong class="block text-lg font-black text-stone-900 leading-none">{{ val }}</strong>
+            <div class="flex-1 min-h-0 flex flex-col lg:overflow-hidden">
+                <!-- Metrics -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 border-b border-brand-border bg-stone-50/50 flex-shrink-0">
+                    <div class="p-6 border-r border-brand-border">
+                        <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">Actieve Tafels</span>
+                        <p class="text-2xl font-black text-stone-900 leading-none">{{ tables.length }}</p>
+                    </div>
+                    <div class="p-6 border-r border-brand-border">
+                        <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">Open Items</span>
+                        <p class="text-2xl font-black text-stone-900 leading-none">{{ totalOpenItems }}</p>
+                    </div>
+                    <div class="p-6 border-r border-brand-border">
+                        <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">Hulpvragen</span>
+                        <p class="text-2xl font-black" :class="openAssistanceCount > 0 ? 'text-brand-red' : 'text-stone-900'">{{ openAssistanceCount }}</p>
+                    </div>
+                    <div class="p-6">
+                        <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">Open Bedrag</span>
+                        <p class="text-2xl font-black text-brand-red leading-none">{{ formatter.format(totalOpenAmount) }}</p>
                     </div>
                 </div>
 
-                <section
-                    v-if="assistanceRequests.length > 0"
-                    class="bg-white border border-brand-gold/40 rounded-2xl shadow-sm overflow-hidden flex-shrink-0"
-                >
-                    <div class="px-5 py-3 bg-[#FFF7ED] border-b border-[#FED7AA] flex items-center justify-between gap-3">
-                        <div>
-                            <h2 class="font-black text-sm text-stone-900">Hulpvragen</h2>
-                            <p class="text-[10px] font-bold text-stone-600">{{ assistanceRequests.length }} tafel(s) wachten op een ober</p>
-                        </div>
-                        <span class="w-9 h-9 rounded-xl bg-brand-gold text-white flex items-center justify-center font-black text-sm">
-                            {{ assistanceRequests.length }}
-                        </span>
-                    </div>
-                    <div class="p-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                        <article
-                            v-for="request in assistanceRequests"
-                            :key="request.id"
-                            class="border border-stone-100 rounded-xl p-3 flex items-center gap-3"
-                        >
-                            <div class="w-11 h-11 bg-brand-dark rounded-xl flex flex-col items-center justify-center text-white shadow-sm flex-shrink-0">
-                                <span class="text-[7px] uppercase font-bold text-stone-300 mb-px">Tafel</span>
-                                <span class="text-sm font-black leading-none">{{ request.table_code }}</span>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="font-black text-stone-900 text-xs">Ober gevraagd</p>
-                                <p class="text-[9px] font-bold text-stone-600">{{ formatDate(request.created_at) }}</p>
-                            </div>
-                            <button
-                                @click="resolveAssistanceRequest(request)"
-                                :disabled="resolvingAssistanceRequestId === request.id"
-                                class="h-9 px-3 bg-brand-gold text-white rounded-lg font-black uppercase tracking-widest text-[8px] disabled:opacity-50"
-                            >
-                                {{ resolvingAssistanceRequestId === request.id ? '...' : 'Afmelden' }}
-                            </button>
-                        </article>
-                    </div>
-                </section>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch flex-1 min-h-0">
+                <div class="flex-1 min-h-0 flex flex-col lg:flex-row">
                     <!-- Tables List -->
-                    <section class="lg:col-span-7 min-h-[320px] lg:min-h-0">
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
-                            <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
-                                <h3 class="font-black text-base text-stone-900">Wachtende Tafels</h3>
-                                <p class="text-[10px] font-bold text-stone-600">Beheer openstaande rekeningen</p>
+                    <section class="flex-1 min-h-0 flex flex-col border-r border-brand-border bg-white">
+                        <div v-if="assistanceRequests.length > 0" class="flex-shrink-0 border-b border-brand-gold/20 bg-brand-gold-light">
+                            <div class="px-6 py-3 flex items-center justify-between gap-3">
+                                <div>
+                                    <h2 class="font-black text-[10px] uppercase tracking-widest text-brand-gold">Hulpvragen</h2>
+                                    <p class="text-[9px] font-bold text-stone-600">Ober gevraagd aan {{ assistanceRequests.length }} tafel(s)</p>
+                                </div>
                             </div>
-
-                            <div v-if="isLoading" class="p-12 text-center flex-1">
-                                <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
-                            </div>
-                            <div v-else-if="tables.length === 0" class="p-12 text-center space-y-2 flex-1">
-                                <p class="font-black text-stone-600 italic text-sm">Geen openstaande bestellingen</p>
-                            </div>
-                            <div v-else class="divide-y divide-stone-100 flex-1 overflow-y-auto custom-scrollbar">
-                                <button
-                                    v-for="table in tables"
-                                    :key="table.table_code"
-                                    @click="selectedTableCode = table.table_code"
-                                    class="w-full flex items-center gap-4 p-4 text-left transition-all hover:bg-brand-light"
-                                    :class="selectedTable?.table_code === table.table_code ? 'bg-[#FFF7ED] ring-1 ring-inset ring-brand-gold/30' : ''"
+                            <div class="px-6 pb-4 flex flex-wrap gap-3">
+                                <article
+                                    v-for="request in assistanceRequests"
+                                    :key="request.id"
+                                    class="bg-white border border-brand-gold/30 rounded-xl p-2.5 flex items-center gap-3 shadow-sm"
                                 >
-                                    <div class="w-12 h-12 bg-brand-dark rounded-xl flex flex-col items-center justify-center text-white shadow-md">
-                                        <span class="text-[8px] uppercase font-bold text-stone-300 mb-px">Tafel</span>
-                                        <span class="text-base font-black leading-none">{{ table.table_code }}</span>
+                                    <div class="w-8 h-8 bg-brand-dark rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                                        <span class="text-[11px] font-black">{{ request.table_code }}</span>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-1.5 mb-1">
-                                            <span class="px-1.5 py-0.5 bg-stone-100 text-stone-600 rounded text-[8px] font-black uppercase tracking-tighter">{{ table.orders_count }} RONDEN</span>
-                                            <span class="px-1.5 py-0.5 bg-stone-100 text-stone-600 rounded text-[8px] font-black uppercase tracking-tighter">{{ table.items_count }} ITEMS</span>
-                                        </div>
-                                        <p class="text-[10px] font-bold text-stone-600">Eerste ronde: {{ formatDate(table.first_order_at) }}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-black text-lg text-brand-red leading-none mb-1">{{ formatter.format(table.total) }}</p>
-                                        <p class="text-[8px] font-bold text-stone-600 uppercase tracking-widest">Openstaand</p>
-                                    </div>
-                                </button>
+                                    <button
+                                        @click="resolveAssistanceRequest(request)"
+                                        :disabled="resolvingAssistanceRequestId === request.id"
+                                        class="h-8 px-3 bg-brand-gold text-white rounded-lg font-black uppercase tracking-widest text-[8px] disabled:opacity-50"
+                                    >
+                                        {{ resolvingAssistanceRequestId === request.id ? '...' : 'OK' }}
+                                    </button>
+                                </article>
                             </div>
+                        </div>
+
+                        <div class="px-6 py-4 border-b border-stone-100 bg-brand-light/50 flex-shrink-0">
+                            <h3 class="font-black text-sm text-stone-900 uppercase tracking-tight">Openstaande Rekeningen</h3>
+                        </div>
+
+                        <div v-if="isLoading" class="p-12 text-center flex-1 flex items-center justify-center">
+                            <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin"></div>
+                        </div>
+                        <div v-else-if="tables.length === 0" class="p-12 text-center flex-1 flex flex-col items-center justify-center">
+                            <p class="font-black text-stone-400 uppercase text-[10px] tracking-widest">Geen openstaande bestellingen</p>
+                        </div>
+                        <div v-else class="divide-y divide-brand-border flex-1 overflow-y-auto custom-scrollbar">
+                            <button
+                                v-for="table in tables"
+                                :key="table.table_code"
+                                @click="selectedTableCode = table.table_code"
+                                class="w-full flex items-center gap-4 p-4 text-left transition-all hover:bg-stone-50"
+                                :class="selectedTable?.table_code === table.table_code ? 'bg-brand-gold-light ring-1 ring-inset ring-brand-gold/30' : ''"
+                            >
+                                <div class="w-11 h-11 bg-brand-dark rounded-xl flex flex-col items-center justify-center text-white shadow-md">
+                                    <span class="text-[7px] uppercase font-bold text-stone-300 mb-px">Tafel</span>
+                                    <span class="text-sm font-black leading-none">{{ table.table_code }}</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1.5 mb-1">
+                                        <span class="px-1.5 py-0.5 bg-stone-100 text-stone-700 rounded text-[8px] font-black uppercase tracking-tighter">{{ table.orders_count }} RONDEN</span>
+                                        <span class="px-1.5 py-0.5 bg-stone-100 text-stone-700 rounded text-[8px] font-black uppercase tracking-tighter">{{ table.items_count }} ITEMS</span>
+                                    </div>
+                                    <p class="text-[9px] font-bold text-stone-600 uppercase tracking-widest">Eerste ronde: {{ formatDate(table.first_order_at).split(' ')[1] }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-black text-lg text-brand-red leading-none mb-1">{{ formatter.format(table.total) }}</p>
+                                    <p class="text-[8px] font-bold text-stone-600 uppercase tracking-widest">Openstaand</p>
+                                </div>
+                            </button>
                         </div>
                     </section>
 
                     <!-- Receipt Preview -->
-                    <aside class="lg:col-span-5 min-h-[420px] lg:min-h-0">
-                        <div class="bg-white border border-brand-border rounded-2xl shadow-lg overflow-hidden flex flex-col h-full">
-                            <div class="p-6 border-b border-stone-100 bg-brand-dark text-white flex-shrink-0">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h3 class="font-black text-lg leading-none">Rekening</h3>
-                                        <p class="text-[9px] uppercase font-bold text-stone-300 mt-1 tracking-widest">Detailoverzicht</p>
-                                    </div>
-                                    <div v-if="selectedTable" class="px-3 py-1.5 bg-white/10 rounded-lg border border-white/10 text-center">
-                                        <p class="text-[7px] uppercase font-bold text-stone-300">Tafel</p>
-                                        <p class="text-base font-black leading-none">{{ selectedTable.table_code }}</p>
-                                    </div>
-                                </div>
-                                <div v-if="selectedTable" class="flex gap-3">
-                                    <div class="flex-1 p-2.5 bg-white/5 rounded-lg border border-white/5">
-                                        <p class="text-[7px] uppercase font-bold text-stone-300">Inhoud</p>
-                                        <p class="text-xs font-black">{{ selectedTable.items_count }} items</p>
-                                    </div>
-                                    <div class="flex-1 p-2.5 bg-white/5 rounded-lg border border-white/5 text-right">
-                                        <p class="text-[7px] uppercase font-bold text-stone-300">Tijdstip</p>
-                                        <p class="text-xs font-black">{{ formatDate(selectedTable.last_order_at).split(' ')[1] }}</p>
-                                    </div>
-                                </div>
+                    <aside class="w-full lg:w-96 min-h-0 flex flex-col bg-stone-50/30">
+                        <header class="p-6 border-b border-brand-border flex items-center justify-between bg-white flex-shrink-0">
+                            <div>
+                                <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Afrekenen</p>
+                                <h2 class="text-lg font-black leading-tight">Rekening</h2>
                             </div>
-
-                            <div v-if="!selectedTable" class="flex-1 p-12 text-center space-y-3">
-                                <p class="text-stone-600 font-bold text-xs italic">Selecteer een tafel</p>
+                            <div v-if="selectedTable" class="px-3 py-1.5 bg-stone-50 rounded-lg border border-stone-200 text-center">
+                                <p class="text-[7px] uppercase font-bold text-stone-600">Tafel</p>
+                                <p class="text-base font-black leading-none text-stone-900">{{ selectedTable.table_code }}</p>
                             </div>
-                            <template v-else>
-                                <div class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
-                                    <div v-for="line in selectedTable.lines" :key="`${line.menu_item_id}-${line.unit_price}-${line.notes?.join('|')}`" class="flex items-start gap-3">
-                                        <div class="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center font-black text-[9px] text-stone-600 border border-stone-200 flex-shrink-0">
-                                            {{ line.display_number || 'GD' }}
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex justify-between items-start gap-2">
-                                                <h4 class="font-black text-stone-900 text-xs leading-tight truncate">{{ line.name }}</h4>
-                                                <span class="font-black text-stone-900 text-xs">{{ formatter.format(line.line_total) }}</span>
-                                            </div>
-                                            <p class="text-[9px] font-bold text-stone-600 mt-0.5">{{ line.quantity }}x {{ formatter.format(line.unit_price) }}</p>
-                                            <p v-if="line.notes?.length" class="text-[9px] font-black text-brand-gold mt-1 leading-snug">
-                                                {{ line.notes.join(' · ') }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                        </header>
 
-                                <div class="p-6 bg-brand-light border-t border-stone-100 space-y-5 flex-shrink-0">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-black text-stone-700 uppercase text-[9px] tracking-widest">Eindbedrag</span>
-                                        <span class="font-black text-2xl text-brand-red">{{ formatter.format(selectedTable.total) }}</span>
-                                    </div>
-
-                                    <button
-                                        @click="checkoutSelectedTable"
-                                        :disabled="isCheckingOut"
-                                        class="w-full h-12 bg-brand-gold text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-lg hover:bg-[#854d03] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                                    >
-                                        <span v-if="isCheckingOut" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                                        {{ isCheckingOut ? 'Bezig...' : 'Afrekenen (PDF)' }}
-                                    </button>
-                                </div>
-                            </template>
+                        <div v-if="selectedTable" class="p-6 border-b border-brand-border bg-stone-50/50 flex gap-3 flex-shrink-0">
+                            <div class="flex-1 p-2.5 bg-white rounded-lg border border-brand-border shadow-sm">
+                                <p class="text-[7px] uppercase font-bold text-stone-600">Inhoud</p>
+                                <p class="text-xs font-black text-stone-900">{{ selectedTable.items_count }} items</p>
+                            </div>
+                            <div class="flex-1 p-2.5 bg-white rounded-lg border border-brand-border shadow-sm text-right">
+                                <p class="text-[7px] uppercase font-bold text-stone-600">Tijdstip</p>
+                                <p class="text-xs font-black text-stone-900">{{ formatDate(selectedTable.last_order_at).split(' ')[1] }}</p>
+                            </div>
                         </div>
+
+                        <div v-if="!selectedTable" class="flex-1 p-12 text-center space-y-3">
+                            <p class="text-stone-400 font-bold text-xs uppercase tracking-widest italic">Selecteer een tafel</p>
+                        </div>
+                        <template v-else>
+                            <div class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
+                                <div v-for="line in selectedTable.lines" :key="`${line.menu_item_id}-${line.unit_price}-${line.notes?.join('|')}`" class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-stone-100 rounded-lg flex items-center justify-center font-black text-[9px] text-stone-600 border border-stone-200 flex-shrink-0">
+                                        {{ line.display_number || 'GD' }}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <h4 class="font-black text-stone-900 text-xs leading-tight truncate">{{ line.name }}</h4>
+                                            <span class="font-black text-stone-900 text-xs">{{ formatter.format(line.line_total) }}</span>
+                                        </div>
+                                        <p class="text-[9px] font-bold text-stone-600 mt-0.5">{{ line.quantity }}x {{ formatter.format(line.unit_price) }}</p>
+                                        <p v-if="line.notes?.length" class="text-[9px] font-black text-brand-gold mt-1 leading-snug">
+                                            {{ line.notes.join(' · ') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6 bg-brand-light border-t border-brand-border space-y-5 flex-shrink-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-black text-stone-700 uppercase text-[9px] tracking-widest">Eindbedrag</span>
+                                    <span class="font-black text-2xl text-brand-red">{{ formatter.format(selectedTable.total) }}</span>
+                                </div>
+
+                                <button
+                                    @click="checkoutSelectedTable"
+                                    :disabled="isCheckingOut"
+                                    class="w-full h-12 bg-brand-gold text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-lg hover:bg-[#854d03] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <span v-if="isCheckingOut" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                                    {{ isCheckingOut ? 'Bezig...' : 'Afrekenen (PDF)' }}
+                                </button>
+                            </div>
+                        </template>
                     </aside>
                 </div>
             </div>
@@ -334,7 +329,8 @@ onMounted(() => {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
+    width: 8px;
+    height: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
