@@ -142,15 +142,15 @@ onMounted(() => {
                 </div>
             </header>
 
-            <div class="flex-1 min-h-0 flex flex-col xl:flex-row">
+            <div class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden custom-scrollbar">
                 <!-- Kassa List -->
-                <section class="flex-1 min-h-0 flex flex-col border-r border-brand-border bg-white">
+                <section class="flex-shrink-0 lg:flex-1 lg:min-h-0 flex flex-col border-r border-brand-border bg-white">
                     <div class="p-6 border-b border-brand-border space-y-4 flex-shrink-0">
                         <div class="flex items-center justify-between">
                             <h3 class="font-black text-[10px] uppercase tracking-widest text-stone-600">Snel Zoeken</h3>
                             <span class="text-[9px] font-black uppercase tracking-tighter text-brand-gold">{{ visibleItems.length }} GERECHTEN</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div class="relative">
                                 <input v-model="query" type="search" placeholder="Naam of nummer..." autofocus class="w-full h-10 bg-stone-50 border border-stone-200 rounded-lg px-3 pl-9 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500">
@@ -161,14 +161,14 @@ onMounted(() => {
                                 <option value="all">Alle Categorieën</option>
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                             </select>
-                            </div>
-                            </div>
+                        </div>
+                    </div>
 
-                            <div v-if="isLoading" class="p-12 text-center flex-1 flex items-center justify-center">
-                            <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
-                            </div>
-                            <div v-else class="divide-y divide-brand-border flex-1 overflow-y-auto custom-scrollbar">
-                            <div v-for="group in groupedItems" :key="group.category">
+                    <div v-if="isLoading" class="p-12 text-center flex-shrink-0 lg:flex-1 lg:flex lg:items-center lg:justify-center">
+                        <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin mx-auto"></div>
+                    </div>
+                    <div v-else class="divide-y divide-brand-border flex-shrink-0 lg:flex-1 lg:overflow-y-auto custom-scrollbar">
+                        <div v-for="group in groupedItems" :key="group.category">
                             <div class="px-6 py-2 bg-stone-50 text-[9px] font-black uppercase text-stone-700 tracking-widest">{{ group.category }}</div>
                             <button
                                 v-for="item in group.items"
@@ -186,26 +186,26 @@ onMounted(() => {
                                     <span class="px-2 py-1 bg-brand-dark text-white text-[8px] font-black uppercase rounded-md opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">Toevoegen</span>
                                 </div>
                             </button>
-                            </div>
-                            </div>
-                            </section>
+                        </div>
+                    </div>
+                </section>
 
-                            <!-- Cart -->
-                            <aside class="w-full xl:w-96 min-h-0 flex flex-col bg-stone-50/30">
-                            <header class="p-6 border-b border-brand-border flex items-center justify-between bg-white flex-shrink-0">
-                            <div>
+                <!-- Cart -->
+                <aside class="w-full lg:w-96 flex-shrink-0 flex flex-col bg-stone-50/30">
+                    <header class="p-6 border-b border-brand-border flex items-center justify-between bg-white flex-shrink-0">
+                        <div>
                             <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Bestelling</p>
                             <h2 class="text-lg font-black leading-tight">Winkelmand</h2>
-                            </div>
-                            <button v-if="orderLines.length > 0" @click="clearOrderLines" class="text-[9px] font-black text-stone-600 hover:text-red-500 uppercase tracking-widest transition-colors">Leegmaken</button>
-                            </header>
+                        </div>
+                        <button v-if="orderLines.length > 0" @click="clearOrderLines" class="text-[9px] font-black text-stone-600 hover:text-red-500 uppercase tracking-widest transition-colors">Leegmaken</button>
+                    </header>
 
-                            <div class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                            <div v-if="orderLines.length === 0" class="h-full flex flex-col items-center justify-center text-center py-10">
+                    <div class="flex-shrink-0 lg:flex-1 lg:overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                        <div v-if="orderLines.length === 0" class="h-full flex flex-col items-center justify-center text-center py-10">
                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-stone-400 mb-4"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                             <p class="text-stone-600 font-bold text-[10px] uppercase tracking-widest">Mandje is leeg</p>
-                            </div>
-                            <article v-for="line in orderLines" :key="line.id" class="space-y-3 border-b border-stone-100 pb-4 last:border-b-0 last:pb-0">
+                        </div>
+                        <article v-for="line in orderLines" :key="line.id" class="space-y-3 border-b border-stone-100 pb-4 last:border-b-0 last:pb-0">
                             <div class="flex items-center gap-3 group">
                                 <div class="flex-1 min-w-0">
                                     <h4 class="font-black text-stone-900 text-xs leading-tight truncate">{{ line.display_number }} {{ line.name }}</h4>
@@ -239,7 +239,8 @@ onMounted(() => {
                                     >
                                         {{ suggestion.note }}
                                     </button>
-                                </div>                                <form class="flex gap-2" @submit.prevent="addNoteToLine(line, customNoteInputs[line.id] ?? '')">
+                                </div>
+                                <form class="flex gap-2" @submit.prevent="addNoteToLine(line, customNoteInputs[line.id] ?? '')">
                                     <input
                                         v-model="customNoteInputs[line.id]"
                                         type="text"

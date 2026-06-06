@@ -174,9 +174,9 @@ onMounted(() => {
                 </div>
             </header>
 
-            <div class="flex-1 min-h-0 flex flex-col xl:flex-row">
+            <div class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden custom-scrollbar">
                 <!-- Sales List -->
-                <div class="flex-1 min-h-0 flex flex-col border-r border-brand-border bg-white">
+                <div class="flex-shrink-0 lg:flex-1 lg:min-h-0 flex flex-col border-r border-brand-border bg-white">
                     <!-- Filters -->
                     <div class="p-6 border-b border-brand-border flex-shrink-0 bg-white">
                         <div class="flex flex-col gap-4">
@@ -215,7 +215,7 @@ onMounted(() => {
                     </div>
 
                     <!-- Metrics -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 border-b border-brand-border bg-stone-50/50">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 border-b border-brand-border bg-stone-50/50 flex-shrink-0">
                         <div class="p-6 border-r border-brand-border">
                             <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">Aantal regels</span>
                             <p class="text-2xl font-black text-stone-900">{{ summary.lines_count }}</p>
@@ -235,7 +235,7 @@ onMounted(() => {
                     </div>
 
                     <!-- Table -->
-                    <div class="flex-1 overflow-auto custom-scrollbar">
+                    <div class="flex-shrink-0 lg:flex-1 lg:overflow-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse">
                             <thead class="sticky top-0 bg-white shadow-sm z-10">
                                 <tr>
@@ -276,7 +276,7 @@ onMounted(() => {
                                     <td colspan="5" class="px-6 py-20 text-center">
                                         <div class="flex flex-col items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-stone-300 mb-4"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><path d="M9 15h6"/></svg>
-                                            <p class="text-xs font-bold text-stone-400 uppercase tracking-widest">Geen verkoopregels gevonden</p>
+                                            <p class="text-xs font-bold text-stone-600 uppercase tracking-widest">Geen verkoopregels gevonden</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -286,7 +286,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Daily Summaries -->
-                <aside class="w-full xl:w-96 min-h-0 flex flex-col bg-stone-50/30">
+                <aside class="w-full lg:w-96 flex-shrink-0 flex flex-col bg-stone-50/30">
                     <header class="p-6 border-b border-brand-border flex items-center justify-between bg-white flex-shrink-0">
                         <div>
                             <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Rapportages</p>
@@ -294,7 +294,7 @@ onMounted(() => {
                         </div>
                         <div v-if="isLoadingSummaries" class="w-4 h-4 border-2 border-stone-200 border-t-brand-gold rounded-full animate-spin"></div>
                     </header>
-                    <div class="flex-1 overflow-auto p-6 custom-scrollbar">
+                    <div class="flex-shrink-0 lg:flex-1 lg:overflow-auto p-6 custom-scrollbar">
                         <div class="space-y-4 pb-6">
                             <a
                                 v-for="summary in salesSummaries"
@@ -319,7 +319,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <div class="flex items-center justify-between pt-4 border-t border-stone-50">
-                                    <span class="text-[8px] font-black uppercase tracking-widest text-stone-600 group-hover:text-brand-gold transition-colors">Download PDF Rapport</span>
+                                    <span class="text-[8px] font-black uppercase tracking-widest text-stone-600 group-hover:text-brand-gold transition-colors">Download Excel Rapport</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-stone-500 group-hover:text-brand-gold transition-all group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                                 </div>
                             </a>

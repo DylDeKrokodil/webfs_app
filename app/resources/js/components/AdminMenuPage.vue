@@ -206,18 +206,19 @@ onMounted(loadMenu);
                 </button>
             </header>
 
-            <div class="flex-1 min-h-0 flex flex-col">
-                <!-- Metrics -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 border-b border-brand-border bg-stone-50/50 flex-shrink-0">
-                    <div v-for="(val, label) in { 'Totaal Gerechten': items.length, 'Actieve Items': activeItems.length, 'Verborgen': inactiveItems.length, 'Gem. Prijs': averagePrice }" :key="label" class="p-6 border-r border-brand-border last:border-r-0">
-                        <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">{{ label }}</span>
-                        <p class="text-2xl font-black text-stone-900 leading-none">{{ val }}</p>
+            <div class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden custom-scrollbar">
+                <!-- Metrics and List Area -->
+                <div class="flex-shrink-0 lg:flex-1 lg:min-h-0 flex flex-col border-r border-brand-border bg-white">
+                    <!-- Metrics -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 border-b border-brand-border bg-stone-50/50 flex-shrink-0">
+                        <div v-for="(val, label) in { 'Totaal Gerechten': items.length, 'Actieve Items': activeItems.length, 'Verborgen': inactiveItems.length, 'Gem. Prijs': averagePrice }" :key="label" class="p-6 border-r border-brand-border last:border-r-0">
+                            <span class="block text-[9px] uppercase font-black text-stone-600 mb-1">{{ label }}</span>
+                            <p class="text-2xl font-black text-stone-900 leading-none">{{ val }}</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex-1 min-h-0 flex flex-col xl:flex-row">
                     <!-- Menu List -->
-                    <section class="flex-1 min-h-0 flex flex-col border-r border-brand-border bg-white">
+                    <div class="flex-shrink-0 lg:flex-1 lg:min-h-0 flex flex-col">
                         <div class="p-6 border-b border-brand-border space-y-4 flex-shrink-0">
                             <div class="flex items-center justify-between">
                                 <h3 class="font-black text-[10px] uppercase tracking-widest text-stone-600">Gerechtenlijst</h3>
@@ -237,12 +238,12 @@ onMounted(loadMenu);
                             </div>
                         </div>
 
-                        <div v-if="isLoading" class="p-12 text-center flex-1 flex items-center justify-center">
+                        <div v-if="isLoading" class="p-12 text-center flex-shrink-0 lg:flex-1 lg:flex lg:items-center lg:justify-center">
                             <div class="w-8 h-8 border-3 border-stone-100 border-t-brand-gold rounded-full animate-spin"></div>
                         </div>
-                        <div v-else-if="visibleItems.length === 0" class="flex-1 p-8 text-center flex flex-col items-center justify-center">
+                        <div v-else-if="visibleItems.length === 0" class="flex-shrink-0 lg:flex-1 p-8 text-center lg:flex lg:flex-col lg:items-center lg:justify-center">
                             <h4 class="font-black text-[10px] uppercase tracking-widest text-stone-600 mb-2">{{ emptyState.title }}</h4>
-                            <p class="max-w-xs text-[11px] font-bold text-stone-500 leading-relaxed mb-6">{{ emptyState.copy }}</p>
+                            <p class="max-w-xs text-[11px] font-bold text-stone-600 leading-relaxed mb-6">{{ emptyState.copy }}</p>
                             <button
                                 type="button"
                                 @click="clearListFilters"
@@ -251,7 +252,7 @@ onMounted(loadMenu);
                                 {{ emptyState.action }}
                             </button>
                         </div>
-                        <div v-else class="divide-y divide-brand-border flex-1 overflow-y-auto custom-scrollbar">
+                        <div v-else class="divide-y divide-brand-border flex-shrink-0 lg:flex-1 lg:overflow-y-auto custom-scrollbar">
                             <div v-for="group in groupedItems" :key="group.category">
                                 <div class="px-6 py-2 bg-stone-50 text-[9px] font-black uppercase text-stone-700 tracking-widest">{{ group.category }}</div>
                                 <button
@@ -273,85 +274,85 @@ onMounted(loadMenu);
                                 </button>
                             </div>
                         </div>
-                    </section>
-
-                    <!-- Editor -->
-                    <aside class="w-full xl:w-96 min-h-0 flex flex-col bg-stone-50/30">
-                        <header class="p-6 border-b border-brand-border flex items-center justify-between bg-white flex-shrink-0">
-                            <div>
-                                <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Menubeheer</p>
-                                <h2 class="text-lg font-black leading-tight">{{ form.id ? 'Wijzigen' : 'Nieuw' }}</h2>
-                            </div>
-                            <span v-if="form.id" class="text-[9px] font-black text-stone-600">ID: {{ form.id }}</span>
-                        </header>
-
-                        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                            <form id="menuForm" class="space-y-5" @submit.prevent="saveItem">
-                                <div class="space-y-1.5">
-                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Categorie</label>
-                                    <select v-model="form.menu_category_id" required class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
-                                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                                    </select>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="space-y-1.5">
-                                        <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Nummer</label>
-                                        <input v-model="form.number" type="number" class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Suffix</label>
-                                        <input v-model="form.suffix" type="text" placeholder="bijv. A" class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
-                                    </div>
-                                </div>
-
-                                <div class="space-y-1.5">
-                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Naam van gerecht</label>
-                                    <input v-model="form.name" type="text" required class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
-                                </div>
-
-                                <div class="space-y-1.5">
-                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Omschrijving</label>
-                                    <textarea v-model="form.description" rows="3" class="w-full bg-white border border-stone-200 rounded-lg p-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm"></textarea>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4 items-end">
-                                    <div class="space-y-1.5">
-                                        <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Prijs</label>
-                                        <div class="relative">
-                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-bold text-xs">€</span>
-                                            <input v-model="form.price" type="number" step="0.01" required class="w-full h-10 bg-white border border-stone-200 rounded-lg pl-7 pr-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
-                                        </div>
-                                    </div>
-                                    <label class="flex items-center gap-2.5 h-10 cursor-pointer group px-1">
-                                        <input v-model="form.is_active" type="checkbox" class="w-4 h-4 rounded border-stone-300 text-brand-gold focus:ring-brand-gold">
-                                        <span class="text-[10px] font-black text-stone-600 group-hover:text-stone-900 transition-colors uppercase tracking-widest">Actief</span>
-                                    </label>
-                                </div>
-                            </form>
-                        </div>
-
-                        <div class="p-6 bg-brand-light border-t border-brand-border flex gap-3 flex-shrink-0">
-                            <button
-                                form="menuForm"
-                                type="submit"
-                                :disabled="isSaving"
-                                class="flex-1 h-11 bg-brand-gold text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-lg shadow-brand-gold/10 hover:bg-stone-800 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                <span v-if="isSaving" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                                Gerecht Opslaan
-                            </button>
-                            <button
-                                @click="deleteItem"
-                                :disabled="isSaving"
-                                class="px-4 h-11 bg-white border border-stone-200 text-brand-red rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-red-50 hover:border-brand-red transition-all active:scale-[0.98]"
-                                :title="form.id ? 'Gerecht verwijderen' : 'Annuleren'"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                            </button>
-                        </div>
-                    </aside>
+                    </div>
                 </div>
+
+                <!-- Editor -->
+                <aside class="w-full lg:w-96 flex-shrink-0 flex flex-col bg-stone-50/30">
+                    <header class="p-6 border-b border-brand-border flex items-center justify-between bg-white flex-shrink-0">
+                        <div>
+                            <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Menubeheer</p>
+                            <h2 class="text-lg font-black leading-tight">{{ form.id ? 'Wijzigen' : 'Nieuw' }}</h2>
+                        </div>
+                        <span v-if="form.id" class="text-[9px] font-black text-stone-600">ID: {{ form.id }}</span>
+                    </header>
+
+                    <div class="flex-shrink-0 lg:flex-1 lg:overflow-y-auto p-6 custom-scrollbar">
+                        <form id="menuForm" class="space-y-5" @submit.prevent="saveItem">
+                            <div class="space-y-1.5">
+                                <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Categorie</label>
+                                <select v-model="form.menu_category_id" required class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
+                                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Nummer</label>
+                                    <input v-model="form.number" type="number" class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Suffix</label>
+                                    <input v-model="form.suffix" type="text" placeholder="bijv. A" class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Naam van gerecht</label>
+                                <input v-model="form.name" type="text" required class="w-full h-10 bg-white border border-stone-200 rounded-lg px-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Omschrijving</label>
+                                <textarea v-model="form.description" rows="3" class="w-full bg-white border border-stone-200 rounded-lg p-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 items-end">
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] uppercase font-black text-stone-600 tracking-widest">Prijs</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 font-bold text-xs">€</span>
+                                        <input v-model="form.price" type="number" step="0.01" required class="w-full h-10 bg-white border border-stone-200 rounded-lg pl-7 pr-3 text-xs font-bold outline-none focus:ring-1 focus:ring-brand-gold shadow-sm">
+                                    </div>
+                                </div>
+                                <label class="flex items-center gap-2.5 h-10 cursor-pointer group px-1">
+                                    <input v-model="form.is_active" type="checkbox" class="w-4 h-4 rounded border-stone-300 text-brand-gold focus:ring-brand-gold">
+                                    <span class="text-[10px] font-black text-stone-600 group-hover:text-stone-900 transition-colors uppercase tracking-widest">Actief</span>
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="p-6 bg-brand-light border-t border-brand-border flex gap-3 flex-shrink-0">
+                        <button
+                            form="menuForm"
+                            type="submit"
+                            :disabled="isSaving"
+                            class="flex-1 h-11 bg-brand-gold text-white rounded-xl font-black uppercase tracking-[0.15em] text-[10px] shadow-lg shadow-brand-gold/10 hover:bg-stone-800 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                            <span v-if="isSaving" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                            Gerecht Opslaan
+                        </button>
+                        <button
+                            @click="deleteItem"
+                            :disabled="isSaving"
+                            class="px-4 h-11 bg-white border border-stone-200 text-brand-red rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-red-50 hover:border-brand-red transition-all active:scale-[0.98]"
+                            :title="form.id ? 'Gerecht verwijderen' : 'Annuleren'"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        </button>
+                    </div>
+                </aside>
             </div>
         </section>
     </main>
