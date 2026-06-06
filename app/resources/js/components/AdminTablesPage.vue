@@ -6,7 +6,7 @@ import { useAdminShell } from '../composables/useAdminShell';
 import { adminDateTimeFormatter as dateFormatter, currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
 
-const { csrfToken, isSidebarOpen } = useAdminShell();
+const { csrfToken, isSidebarOpen, isCollapsed } = useAdminShell();
 
 const tables = ref([]);
 const assistanceRequests = ref([]);
@@ -141,7 +141,14 @@ onMounted(() => {
 
 <template>
     <main class="h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
-        <AdminSidebar :is-open="isSidebarOpen" active-page="tafels" :csrf-token="csrfToken" @close="isSidebarOpen = false" />
+        <AdminSidebar
+            :is-open="isSidebarOpen"
+            :is-collapsed="isCollapsed"
+            active-page="tafels"
+            :csrf-token="csrfToken"
+            @close="isSidebarOpen = false"
+            @toggle-collapse="isCollapsed = !isCollapsed"
+        />
 
         <!-- Workspace -->
         <section class="flex-1 min-w-0 min-h-0 flex flex-col">

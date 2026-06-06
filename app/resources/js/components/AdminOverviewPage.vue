@@ -5,7 +5,7 @@ import { useAdminShell } from '../composables/useAdminShell';
 import { currencyFormatter as formatter } from '../services/formatters';
 import { toastService } from '../services/toastService';
 
-const { csrfToken, isSidebarOpen } = useAdminShell();
+const { csrfToken, isSidebarOpen, isCollapsed } = useAdminShell();
 
 const overview = ref(null);
 
@@ -253,7 +253,14 @@ onMounted(() => {
 
 <template>
     <main class="h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
-        <AdminSidebar :is-open="isSidebarOpen" active-page="overzicht" :csrf-token="csrfToken" @close="isSidebarOpen = false" />
+        <AdminSidebar
+            :is-open="isSidebarOpen"
+            :is-collapsed="isCollapsed"
+            active-page="overzicht"
+            :csrf-token="csrfToken"
+            @close="isSidebarOpen = false"
+            @toggle-collapse="isCollapsed = !isCollapsed"
+        />
 
         <!-- Workspace -->
         <section class="flex-1 min-w-0 min-h-0 flex flex-col">
