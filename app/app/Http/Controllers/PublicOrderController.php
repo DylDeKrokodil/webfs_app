@@ -23,6 +23,21 @@ class PublicOrderController extends Controller
         ]);
 
         return DB::transaction(function () use ($validated) {
+            $tableCode = null;
+            $attempts = 0;
+
+            while (!$tableCode && $attempts < 10) {
+                $candidate = 'WEB-' . Str::upper(Str::random(6));
+                if (!Order::where('table_code', $candidate)->exists()) {
+                    $tableCode = $candidate;
+                }
+                $attempts++;
+            }
+
+            if (!$tableCode) {
+                throw new \Exception('Kon geen unieke bestelcode genereren. Probeer het opnieuw.');
+            }
+
             $order = Order::create([
                 'channel' => 'web',
                 'status' => 'paid', // For this simulation, we'll mark it as paid immediately
@@ -31,7 +46,7 @@ class PublicOrderController extends Controller
                 'total' => 0,
                 // We'll use a token for secure access to the confirmation page
                 'source_order_id' => null, 
-                'table_code' => 'WEB-' . Str::upper(Str::random(4)),
+                'table_code' => $tableCode,
             ]);
 
             $total = 0;

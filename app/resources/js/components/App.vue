@@ -30,7 +30,7 @@ const pageComponents = {
 };
 
 const currentPage = computed(() => {
-    if (/^\/bestelling\/WEB-[A-Z0-9]+$/.test(currentPath.value)) {
+    if (/^\/bestelling\/WEB-[A-Z0-9]{4,10}$/.test(currentPath.value)) {
         return OrderConfirmationPage;
     }
 

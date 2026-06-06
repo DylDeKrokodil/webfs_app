@@ -29,7 +29,7 @@ Route::view('/tablet', 'app');
 Route::view('/tablet/{tableNumber}', 'app')
     ->whereNumber('tableNumber');
 Route::view('/bestelling/{token}', 'app')
-    ->where('token', 'WEB-[A-Z0-9]+');
+    ->where('token', 'WEB-[A-Z0-9]{4,10}');
 Route::view('/review/{token}', 'app')
     ->where('token', '[A-Za-z0-9]+')
     ->name('reviews.show');
@@ -79,7 +79,7 @@ Route::get('/api/menu-items', [MenuItemController::class, 'index']);
 Route::get('/api/locales/{lang}', [\App\Http\Controllers\LocaleController::class, 'show']);
 Route::post('/api/takeaway/orders', [PublicOrderController::class, 'store']);
 Route::get('/api/takeaway/orders/{token}', [PublicOrderController::class, 'show'])
-    ->where('token', 'WEB-[A-Z0-9]+');
+    ->where('token', 'WEB-[A-Z0-9]{4,10}');
 Route::get('/api/order-line-note-suggestions', [OrderLineNoteSuggestionController::class, 'index']);
 Route::get('/api/reviews/{token}', [ReviewController::class, 'show'])
     ->where('token', '[A-Za-z0-9]+');

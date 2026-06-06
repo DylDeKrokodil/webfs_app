@@ -1,10 +1,10 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import LegacyPageShell from './LegacyPageShell.vue';
 import { currencyFormatter as formatter } from '../services/formatters';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const props = defineProps({
     token: {
@@ -24,7 +24,7 @@ const loadOrder = async () => {
         const response = await fetch(`/api/takeaway/orders/${props.token}`, {
             headers: {
                 'Accept': 'application/json',
-                'X-Locale': localStorage.getItem('locale') || 'nl'
+                'X-Locale': locale.value
             }
         });
         if (!response.ok) throw new Error('Bestelling niet gevonden');
@@ -38,6 +38,10 @@ const loadOrder = async () => {
         isLoading.value = false;
     }
 };
+
+watch(locale, () => {
+    loadOrder();
+});
 
 const printPage = () => {
     window.print();
@@ -271,6 +275,22 @@ onMounted(loadOrder);
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-top: 32px;
+}
+
+.legacy-checkout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    border: 2px solid #d7b56d;
+    background: #7f1d1d;
+    color: #fff7d6;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: background 0.2s;
+    cursor: pointer;
+    width: 100%;
 }
 
 .legacy-checkout-btn:hover {

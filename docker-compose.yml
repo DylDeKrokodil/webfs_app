@@ -69,25 +69,6 @@ services:
     depends_on:
       - mysql
 
-  legacy:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile.legacy
-    container_name: gouden_draak_legacy
-    working_dir: /var/www/html/webfs_old
-    environment:
-      DB_HOST: mysql
-      DB_DATABASE: gouden_draak_legacy
-      DB_USERNAME: gouden_draak
-      DB_PASSWORD: gouden_draak
-      TZ: Europe/Amsterdam
-    volumes:
-      - .:/var/www/html
-    ports:
-      - "8090:80"
-    depends_on:
-      - mysql
-
   mysql:
     image: mysql:8.4
     container_name: gouden_draak_mysql
