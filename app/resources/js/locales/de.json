@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "Speisekarte wird geladen...",
+    "nav.main_navigation": "Hauptnavigation",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "Chinesisch-indische Spezialitäten",
@@ -16,8 +18,9 @@
     },
     "nav": {
         "menu": "Speisekarte",
-        "news": "Nachrichten",
-        "contact": "Kontakt"
+        "news": "Neuigkeiten",
+        "contact": "Kontakt",
+        "main_navigation": "Hauptnavigation"
     },
     "home": {
         "intro_p1": "Seit Jahren ist „De Gouden Draak“ ein Begriff, wenn es um die besten Gerichte zum Mitnehmen in 's-Hertogenbosch geht.",

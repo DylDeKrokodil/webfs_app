@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "메뉴 불러오는 중...",
+    "nav.main_navigation": "메인 네비게이션",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "중국 및 인도 요리",
@@ -17,7 +19,8 @@
     "nav": {
         "menu": "메뉴",
         "news": "뉴스",
-        "contact": "연락처"
+        "contact": "문의하기",
+        "main_navigation": "메인 네비게이션"
     },
     "home": {
         "intro_p1": "수년 동안 De Gouden Draak는 '스헤르토헨보스에서 최고의 테이크아웃 음식으로 명성이 자자합니다.",

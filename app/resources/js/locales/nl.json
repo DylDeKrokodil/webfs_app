@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "Menukaart laden...",
+    "nav.main_navigation": "Hoofdnavigatie",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "Chinees Indische Specialiteiten",
@@ -17,7 +19,8 @@
     "nav": {
         "menu": "Menukaart",
         "news": "Nieuws",
-        "contact": "Contact"
+        "contact": "Contact",
+        "main_navigation": "Hoofdnavigatie"
     },
     "home": {
         "intro_p1": "Al jaren is De Gouden Draak een begrip als het gaat om de beste afhaalgerechten in 's-Hertogenbosch.",

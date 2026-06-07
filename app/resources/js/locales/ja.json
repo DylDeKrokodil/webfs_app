@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "メニューを読み込み中...",
+    "nav.main_navigation": "メインナビゲーション",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "中華・インド料理",
@@ -17,7 +19,8 @@
     "nav": {
         "menu": "メニュー",
         "news": "ニュース",
-        "contact": "お問い合わせ"
+        "contact": "お問い合わせ",
+        "main_navigation": "メインナビゲーション"
     },
     "home": {
         "intro_p1": "長年にわたり、De Gouden Draakは『ス・ヘルトゲンボス』で最高のテイクアウト料理といえば、誰もが知る名店となっています。",

@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "Загрузка меню...",
+    "nav.main_navigation": "Главная навигация",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "Китайские и индийские блюда",
@@ -17,7 +19,8 @@
     "nav": {
         "menu": "Меню",
         "news": "Новости",
-        "contact": "Контакты"
+        "contact": "Контакты",
+        "main_navigation": "Главная навигация"
     },
     "home": {
         "intro_p1": "На протяжении многих лет «De Gouden Draak» является синонимом лучших блюд на вынос в Хертогенбосе.",

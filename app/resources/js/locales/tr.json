@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "Menü yükleniyor...",
+    "nav.main_navigation": "Ana Gezinti",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "Çin ve Hint Mutfağı Spesiyalleri",
@@ -15,9 +17,10 @@
         "order_number": "Sipariş numarası"
     },
     "nav": {
-        "menu": "Yemek menüsü",
+        "menu": "Menü",
         "news": "Haberler",
-        "contact": "İletişim"
+        "contact": "İletişim",
+        "main_navigation": "Ana Gezinti"
     },
     "home": {
         "intro_p1": "De Gouden Draak, yıllardır 's-Hertogenbosch'ta en iyi paket servis yemekleri konusunda bir simge haline gelmiştir.",

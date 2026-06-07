@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "正在加载菜单...",
+    "nav.main_navigation": "主导航",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "中国印度风味美食",
@@ -17,7 +19,8 @@
     "nav": {
         "menu": "菜单",
         "news": "新闻",
-        "contact": "联系我们"
+        "contact": "联系我们",
+        "main_navigation": "主导航"
     },
     "home": {
         "intro_p1": "多年来, De Gouden Draak 一直是海尔托亨博斯市最受欢迎的外卖餐厅之一。",

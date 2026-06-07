@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "Loading menu...",
+    "nav.main_navigation": "Main Navigation",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "Chinese and Indian Specialities",
@@ -17,7 +19,8 @@
     "nav": {
         "menu": "Menu",
         "news": "News",
-        "contact": "Contact"
+        "contact": "Contact",
+        "main_navigation": "Main Navigation"
     },
     "home": {
         "intro_p1": "For years, De Gouden Draak has been a household name when it comes to the best takeaway food in 's-Hertogenbosch.",

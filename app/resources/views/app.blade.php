@@ -9,7 +9,6 @@
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" type="image/png" href="/favicon-32x32.png">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
         <style>
             :root {

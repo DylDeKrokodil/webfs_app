@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "Cargando el menú...",
+    "nav.main_navigation": "Navegación principal",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "Especialidades chinas e indias",
@@ -17,7 +19,8 @@
     "nav": {
         "menu": "Carta",
         "news": "Noticias",
-        "contact": "Contacto"
+        "contact": "Contacto",
+        "main_navigation": "Navegación principal"
     },
     "home": {
         "intro_p1": "Desde hace años, «De Gouden Draak» es sinónimo de la mejor comida para llevar en 's-Hertogenbosch.",

@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "جاري تحميل قائمة الطعام...",
+    "nav.main_navigation": "التنقل الرئيسي",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "أطباق صينية وهندية",
@@ -16,8 +18,9 @@
     },
     "nav": {
         "menu": "قائمة الطعام",
-        "news": "الأخبار",
-        "contact": "الاتصال"
+        "news": "أخبار",
+        "contact": "اتصل بنا",
+        "main_navigation": "التنقل الرئيسي"
     },
     "home": {
         "intro_p1": "منذ سنوات عديدة، أصبح مطعم «De Gouden Draak» اسمًا مألوفًا عندما يتعلق الأمر بأفضل الأطباق الجاهزة في مدينة 's-Hertogenbosch.",

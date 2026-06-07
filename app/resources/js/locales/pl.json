@@ -1,4 +1,6 @@
 {
+    "menu.states.loading": "Ładowanie menu...",
+    "nav.main_navigation": "Główna nawigacja",
     "common": {
         "restaurant_name": "De Gouden Draak",
         "specialties": "Chińskie i indyjskie specjały",
@@ -16,8 +18,9 @@
     },
     "nav": {
         "menu": "Menu",
-        "news": "Aktualności",
-        "contact": "Kontakt"
+        "news": "Wiadomości",
+        "contact": "Kontakt",
+        "main_navigation": "Główna nawigacja"
     },
     "home": {
         "intro_p1": "Od lat De Gouden Draak jest synonimem najlepszych dań na wynos w 's-Hertogenbosch.",
