@@ -190,7 +190,11 @@ onMounted(loadMenu);
                     <h1 class="text-xl font-black leading-tight">Menukaart</h1>
                 </div>
             </div>
-            <button @click="startNewItem" class="px-4 py-2 bg-brand-dark text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-stone-800 transition-all shadow-md shadow-brand-dark/10">
+            <button
+                data-tour="admin-menu-create"
+                @click="startNewItem"
+                class="px-4 py-2 bg-brand-dark text-white rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-stone-800 transition-all shadow-md shadow-brand-dark/10"
+            >
                 Nieuw Gerecht
             </button>
         </header>
@@ -209,8 +213,8 @@ onMounted(loadMenu);
                 </div>
 
                 <!-- Menu List -->
-                <div class="flex-shrink-0 lg:flex-1 lg:min-h-0 flex flex-col">
-                    <div class="p-6 border-b border-brand-border space-y-4 flex-shrink-0">
+                <div data-tour="admin-menu-list" class="flex-shrink-0 lg:flex-1 lg:min-h-0 flex flex-col">
+                    <div data-tour="admin-menu-filters" class="p-6 border-b border-brand-border space-y-4 flex-shrink-0">
                         <div class="flex items-center justify-between">
                             <h3 class="font-black text-[10px] uppercase tracking-widest text-stone-600">Gerechtenlijst</h3>
                             <span class="text-[9px] font-black uppercase tracking-tighter text-brand-gold">{{ visibleItems.length }} RESULTATEN</span>
@@ -269,7 +273,7 @@ onMounted(loadMenu);
             </div>
 
             <!-- Editor -->
-            <aside class="w-full lg:w-96 flex-shrink-0 flex flex-col bg-stone-50/30">
+            <aside data-tour="admin-menu-editor" class="w-full lg:w-96 flex-shrink-0 flex flex-col bg-stone-50/30">
                 <header class="p-6 border-b border-brand-border flex items-center justify-between bg-white flex-shrink-0">
                     <div>
                         <p class="text-[9px] uppercase tracking-widest font-black text-brand-gold">Menubeheer</p>

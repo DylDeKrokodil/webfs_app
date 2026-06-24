@@ -1,5 +1,6 @@
 <script setup>
 import AdminSidebar from './AdminSidebar.vue';
+import AdminTourOverlay from './AdminTourOverlay.vue';
 import { useAdminShell } from '../composables/useAdminShell';
 
 defineProps({
@@ -24,6 +25,8 @@ const { csrfToken, isSidebarOpen, isCollapsed } = useAdminShell();
         />
 
         <slot></slot>
+
+        <AdminTourOverlay :csrf-token="csrfToken" />
     </div>
 </template>
 

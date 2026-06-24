@@ -72,6 +72,7 @@ defineEmits(['close', 'toggle-collapse']);
                 :key="link.id"
                 :href="link.href"
                 :title="link.label"
+                :data-tour="`admin-nav-${link.id}`"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold text-xs transition-all group"
                 :class="[
                     activePage === link.id ? 'bg-white/10 text-white shadow-inner' : 'text-stone-400 hover:bg-white/5 hover:text-white',

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\OrderLineOverviewController;
 use App\Http\Controllers\Admin\SalesSummaryController;
 use App\Http\Controllers\Admin\TableReceiptController;
 use App\Http\Controllers\Admin\TableAssistanceRequestController as AdminTableAssistanceRequestController;
+use App\Http\Controllers\Admin\TourProgressController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MenuPdfController;
@@ -58,6 +59,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('order-line-overview', [OrderLineOverviewController::class, 'index']);
         Route::get('stats', [AdminStatsController::class, 'index']);
         Route::get('sales-summaries', [SalesSummaryController::class, 'index']);
+        Route::get('tour-progress', [TourProgressController::class, 'index']);
+        Route::patch('tour-progress/{tourKey}', [TourProgressController::class, 'update'])
+            ->where('tourKey', '[A-Za-z0-9_-]+');
+        Route::post('tour-progress/{tourKey}/complete', [TourProgressController::class, 'complete'])
+            ->where('tourKey', '[A-Za-z0-9_-]+');
+        Route::post('tour-progress/{tourKey}/dismiss', [TourProgressController::class, 'dismiss'])
+            ->where('tourKey', '[A-Za-z0-9_-]+');
         Route::get('table-assistance-requests', [AdminTableAssistanceRequestController::class, 'index']);
         Route::post('table-assistance-requests/{tableAssistanceRequest}/resolve', [AdminTableAssistanceRequestController::class, 'resolve'])
             ->whereNumber('tableAssistanceRequest');
