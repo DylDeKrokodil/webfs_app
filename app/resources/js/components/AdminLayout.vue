@@ -14,7 +14,7 @@ const { csrfToken, isSidebarOpen, isCollapsed } = useAdminShell();
 </script>
 
 <template>
-    <div class="h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
+    <div class="admin-shell h-dvh overflow-hidden bg-brand-light text-brand-dark flex font-sans antialiased">
         <AdminSidebar
             :is-open="isSidebarOpen"
             :is-collapsed="isCollapsed"
@@ -33,6 +33,22 @@ const { csrfToken, isSidebarOpen, isCollapsed } = useAdminShell();
 <style>
 .font-sans {
     font-family: 'DM Sans', sans-serif;
+}
+
+.admin-shell button:not(:disabled),
+.admin-shell a[href],
+.admin-shell [role="button"]:not([aria-disabled="true"]),
+.admin-shell select:not(:disabled),
+.admin-shell input[type="checkbox"]:not(:disabled),
+.admin-shell label:has(input:not(:disabled)) {
+    cursor: pointer;
+}
+
+.admin-shell button:disabled,
+.admin-shell [aria-disabled="true"],
+.admin-shell select:disabled,
+.admin-shell input:disabled {
+    cursor: not-allowed;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
