@@ -43,9 +43,5 @@ services:
     ports: !override
       - "8085:80"
 
-  legacy:
-    profiles:
-      - legacy
-
 volumes:
   mysql_acceptance_data:
