@@ -1,7 +1,0 @@
-{
-  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "entry": [
-    "app/resources/css/app.css",
-    "app/resources/js/app.js"
-  ]
-}

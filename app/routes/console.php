@@ -11,7 +11,6 @@ Artisan::command('legacy:import-menu {--fresh : Clear imported menu categories a
 
     if ($this->option('fresh')) {
         Schema::disableForeignKeyConstraints();
-        DB::table('favorite_menu_items')->truncate();
         DB::table('menu_items')->truncate();
         DB::table('menu_categories')->truncate();
         Schema::enableForeignKeyConstraints();

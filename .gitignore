@@ -1,8 +1,4 @@
 .DS_Store
-.fallow/
-.agents/
-app/.fallow/
-app/.agents/
 
 # Runtime / dependency folders
 node_modules/
@@ -30,6 +26,3 @@ dist/
 *.sql.gz
 *.dump
 
-# Generated document QA artifacts
-devdoc_artifacts/rendered/
-devdoc_artifacts/screenshots/

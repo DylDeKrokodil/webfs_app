@@ -5,11 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Events\CheckoutCompleted;
 use App\Events\TableCheckoutInitiated;
 use App\Http\Controllers\Controller;
-use App\Models\FavoriteMenuItem;
 use App\Models\Order;
 use App\Services\Reviews\ReceiptQrCodeService;
 use App\Services\Reviews\ReviewInviteService;
-use App\Support\OrderLineNoteService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Http\JsonResponse;
@@ -70,13 +68,6 @@ class TableReceiptController extends Controller
                     'status' => 'paid',
                     'paid_at' => $paidAt,
                 ]);
-
-                $order->lines->each(function ($line): void {
-                    FavoriteMenuItem::firstOrCreate(
-                        ['menu_item_id' => $line->menu_item_id],
-                        ['count' => 0],
-                    )->increment('count', $line->quantity);
-                });
             });
 
             return $orders;

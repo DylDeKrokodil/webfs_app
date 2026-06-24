@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\CheckoutCompleted;
 use App\Http\Controllers\Controller;
-use App\Models\FavoriteMenuItem;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Support\OrderLineNoteService;
@@ -69,11 +68,6 @@ class OrderController extends Controller
                 ]);
 
                 $noteService->createNotes($orderLine, $line['notes']);
-
-                FavoriteMenuItem::firstOrCreate(
-                    ['menu_item_id' => $menuItem->id],
-                    ['count' => 0],
-                )->increment('count', $quantity);
             });
 
             return $order;

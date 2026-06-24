@@ -1,4 +1,3 @@
-// fallow-ignore-next-line unused-export
 export const apiRequest = async (url, { method = 'GET', body = null, csrfToken = '', errorMessage = 'Fout bij verwerken aanvraag.' } = {}) => {
     const headers = {
         Accept: 'application/json',
