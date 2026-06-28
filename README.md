@@ -1,8 +1,5 @@
 # De Gouden Draak
 
-Modernisering van de oude website en kassa van restaurant De Gouden Draak.
-
-De applicatie bestaat uit een Laravel-backend met een Vue 3/Vite-frontend. Docker Compose levert de ontwikkelomgeving met nginx, Apache/PHP, MySQL, Vite, Reverb, scheduler en phpMyAdmin.
 
 ## Huidige Functionaliteit
 
@@ -10,23 +7,23 @@ De huidige implementatie dekt deze geselecteerde user stories:
 
 - `US-1`: tablet bestellen per tafel met rondelimiet, cooldown en tafelstatus
 - `US-4`: tafelrekening genereren als PDF bij het afrekenen
+- `US-5`: tafel-assistentieverzoeken vanuit de tabletinterface
 - `US-6`: herhalingsbestelling vanuit de open bestelhistorie van dezelfde tafel
 - `US-7`: cocktail-inspiratie via TheCocktailDB binnen de tabletinterface
+- `US-8`: QR/review-flow na afrekenen
 - `US-9`: kassa zoeken en filteren op naam, nummer en categorie
 - `US-10`: opmerkingen per gerecht, inclusief suggesties uit eerdere opmerkingen
+- `US-13`: meertalige UI en menuvertalingen
 - `UC-14`: actuele menukaart als PDF genereren vanuit de database
 - `UC-15`: favoriete gerechten bewaren via een browser-cookie
+- `UC-16`: webbestellingen met bestelbevestiging
 - `UC-19`: dagelijkse verkooprapportage als Excel-bestand
 - `UC-20`: gerechten toevoegen, aanpassen, inactief zetten en verwijderen waar dat veilig kan
 
 Daarnaast bevat de applicatie:
 
 - publieke menukaart en webbestellingen met bestelbevestiging
-- admin-kassa, menubeheer, tafeloverzicht, verkoopoverzicht en statistieken
-- QR/review-flow na afrekenen
-- tafel-assistentieverzoeken vanuit de tabletinterface
 - realtime events via Laravel Reverb
-- meertalige UI en menuvertalingen
 - import van legacy-menudata en historische verkopen uit `webfs_old/`
 - admin-tour voortgang per gebruiker
 
