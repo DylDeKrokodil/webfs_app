@@ -1,0 +1,203 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "Chinesisch-indische Spezialitäten",
+        "loading": "Wird geladen...",
+        "error": "Es ist ein Fehler aufgetreten",
+        "back": "Zurück",
+        "next": "Weiter",
+        "send": "Senden",
+        "sending": "Senden...",
+        "total": "Insgesamt",
+        "unknown": "Unbekannt",
+        "price_per_piece": "{price} pro Stück",
+        "items": "Artikel",
+        "order_number": "Bestellnummer"
+    },
+    "nav": {
+        "menu": "Speisekarte",
+        "news": "Neuigkeiten",
+        "contact": "Kontakt",
+        "main_navigation": "Hauptnavigation"
+    },
+    "home": {
+        "intro_p1": "Seit Jahren ist „De Gouden Draak“ ein Begriff, wenn es um die besten Gerichte zum Mitnehmen in 's-Hertogenbosch geht.",
+        "intro_p2": "Wir möchten Sie gerne mit authentischen Gerichten der kantonesischen Küche verwöhnen.",
+        "student_offer_title": "Sonderangebot für Studenten",
+        "student_offer_subtitle": "Chinesisches Reisgericht (für 2 Personen)",
+        "student_offer_instruction": "Wählen Sie drei der folgenden Gerichte aus:",
+        "student_offer_sides": "Mit weißem Reis. Nasi oder Bami sind gegen Aufpreis erhältlich.",
+        "student_offer_price": "Preis: {price}",
+        "to_contact": "Zur Kontaktseite",
+        "dishes": {
+            "koe_loe_yuk": "Koe Loe Yuk",
+            "foe_yong_hai": "Foe Yong Hai",
+            "tjap_tjoy": "Tjap Tjoy",
+            "prawns_garlic": "Garnelen mit gebratenem Knoblauch",
+            "babi_pangang": "Babi Pangang",
+            "chicken_black_bean": "Hähnchenfilet in schwarzer Bohnensauce"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "Willkommen bei De Gouden Draak. Klicken Sie auf diesen Text, um die Angebote dieser Woche anzusehen!"
+    },
+    "menu": {
+        "current_menu": "Aktuelle Speisekarte",
+        "database_dishes": "Gerichte",
+        "download_pdf": "PDF herunterladen",
+        "tabs": {
+            "menu": "Menü",
+            "favorites": "Favoriten",
+            "cart": "Warenkorb"
+        },
+        "sorting": {
+            "label_menu": "Menü sortieren",
+            "label_favorites": "Favoriten sortieren",
+            "default": "Standardreihenfolge",
+            "favorites_first": "Favoriten ganz oben in der Rangliste",
+            "favorites_alpha": "Favoriten alphabetisch oben",
+            "by_number": "Nach Nummer",
+            "alpha": "Alphabetisch"
+        },
+        "states": {
+            "loading": "Speisekarte wird geladen...",
+            "empty_cart": "Dein Warenkorb ist noch leer. Füge Gerichte aus dem Menü hinzu.",
+            "empty_favorites": "Du hast noch keine Lieblingsgerichte markiert."
+        },
+        "actions": {
+            "favorite": "Favorit",
+            "add_to_cart": "+ Bestellen",
+            "less": "Weniger",
+            "more": "Mehr",
+            "remove": "Löschen",
+            "place_order": "Bestellung aufgeben",
+            "submitting": "Wird geladen..."
+        },
+        "cart": {
+            "total": "Gesamtbetrag:"
+        },
+        "errors": {
+            "load_failed": "Die Speisekarte konnte nicht geladen werden.",
+            "checkout_failed": "Bestellung fehlgeschlagen"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak ist leicht zu finden, ganz in der Nähe des Zentrums, 5 Gehminuten hinter dem Hauptbahnhof.",
+        "map_alt": "Karte zum Onderwijsboulevard 215 in 's-Hertogenbosch"
+    },
+    "confirmation": {
+        "loading": "Bestellung wird geladen...",
+        "not_found": "Bestellung nicht gefunden",
+        "back_to_menu": "Zurück zur Speisekarte",
+        "success_title": "Bestellung erfolgreich",
+        "success_message": "Vielen Dank für deine Bestellung!",
+        "your_dishes": "Deine Gerichte",
+        "total_paid": "Gesamtbetrag:",
+        "scan_label": "Beim Abholen scannen",
+        "qr_alt": "Bestellung QR-Code",
+        "qr_help": "Zeige diesen Code unserem Mitarbeiter, damit du deine Bestellung sofort mitnehmen kannst.",
+        "print_receipt": "Abholschein ausdrucken",
+        "order_more": "Möchtest du noch etwas bestellen?",
+        "pickup_location": "Abholort"
+    },
+    "review": {
+        "loading": "Bewertungsformular wird geladen...",
+        "expired_title": "Link ist abgelaufen",
+        "expired_message": "Wir können dieses Bewertungsformular nicht öffnen.",
+        "received_title": "Bewertung erhalten",
+        "received_message": "Vielen Dank für Ihr Feedback.",
+        "received_copy": "Ihre Bewertung wurde gespeichert. Das Team nutzt diese Rückmeldungen, um das Essen, den Service und die Schnelligkeit immer weiter zu verbessern.",
+        "steps": {
+            "step_x_of_y": "Schritt {x} von {y}",
+            "overall_title": "Wie war die Erfahrung insgesamt?",
+            "overall_copy": "Wählen Sie die Atmosphäre, die am besten zu Ihrem Besuch passt.",
+            "food_title": "Wie hat das Essen geschmeckt?",
+            "food_copy": "Vom ersten Bissen bis zum letzten Löffel Soße.",
+            "service_title": "Wie war der Service?",
+            "service_copy": "Denke an Freundlichkeit, Aufmerksamkeit und Abwicklung.",
+            "speed_title": "Wie schnell ging das alles?",
+            "speed_copy": "Von der Bestellung bis zur Bezahlung.",
+            "details_title": "Was sollten wir uns merken?",
+            "details_copy": "Ein Lieblingsgericht oder ein kurzer Tipp hilft dem Team sofort."
+        },
+        "scores": {
+            "1": "Das könnte besser sein",
+            "2": "Mäßig",
+            "3": "Prima",
+            "4": "Gut",
+            "5": "Oben"
+        },
+        "fields": {
+            "favorite_dish": "Lieblingsgericht",
+            "favorite_placeholder": "Zum Beispiel Babi Pangang",
+            "comment": "Anmerkung oder Tipp",
+            "comment_placeholder": "Was ist gut gelaufen, oder was könnte besser sein?",
+            "permission": "De Gouden Draak Sie dürfen mein Feedback intern nutzen, um den Service und die Speisen zu verbessern."
+        },
+        "actions": {
+            "submit": "Bewertung senden"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "Bestellung Nr.{id}aufgegeben.",
+            "assistance_sent": "Ein Kellner kommt gleich zu Ihrem Tisch.",
+            "assistance_resolved": "Der Kellner hat Ihre Anfrage als erledigt markiert.",
+            "assistance_created": "Für diesen Tisch wurde um Hilfe gebeten."
+        },
+        "table_number": "Tisch „{number}“",
+        "no_table": "Kein Tisch",
+        "assistance": {
+            "title": "Brauchst du Hilfe?",
+            "warned": "Ein Kellner ist gewarnt.",
+            "call_prompt": "Rufen Sie einen Kellner an Ihren Tisch.",
+            "button_calling": "Kellner unterwegs",
+            "button_call": "Den Kellner rufen"
+        },
+        "round": "Runde",
+        "checkout": {
+            "thanks": "Danke!",
+            "hope_enjoyed": "Wir hoffen, dass Ihnen Ihr Besuch auf De Gouden Draak gefallen hat.",
+            "total_paid": "Gesamtbetrag",
+            "leave_review": "Hinterlasse eine Bewertung",
+            "new_table": "Neuer Tisch"
+        },
+        "tabs": {
+            "dishes": "Gerichte",
+            "cocktails": "Cocktails"
+        },
+        "search_placeholder": "Nummer oder Namen suchen...",
+        "all_categories": "Alles",
+        "clear": "Löschen",
+        "empty_cart": "Gerichte auswählen",
+        "note_placeholder": "Anmerkung...",
+        "add_note": "Hinzufügen",
+        "order_button": "Bestellen",
+        "history": {
+            "title": "Frühere Runden",
+            "empty": "Keine Geschichte",
+            "repeat": "Wiederholen",
+            "out_of_stock": "AUF"
+        },
+        "errors": {
+            "order_failed": "Fehler bei der Bestellung.",
+            "assistance_failed": "Die Hilfeanfrage konnte nicht gesendet werden.",
+            "load_status": "Der Status konnte nicht geladen werden.",
+            "load_history": "Der Verlauf konnte nicht geladen werden.",
+            "invalid_table": "Geben Sie bitte eine gültige Tischnummer an."
+        }
+    },
+    "cocktails": {
+        "alcoholic": "Alkoholisch",
+        "non_alcoholic": "Alkoholfrei",
+        "type": "Typ",
+        "search": "Suchen",
+        "search_placeholder": "Z. B. Mojito...",
+        "category": "Kategorie",
+        "all_categories": "Alle Kategorien",
+        "found_singular": "1 Cocktail gefunden",
+        "found_plural": "{count} Cocktails gefunden",
+        "clear_filters": "Filter löschen",
+        "not_found": "Es wurden keine Cocktails gefunden"
+    }
+}

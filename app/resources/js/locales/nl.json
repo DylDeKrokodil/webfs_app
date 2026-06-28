@@ -1,0 +1,203 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "Chinees Indische Specialiteiten",
+        "loading": "Laden...",
+        "error": "Er is een fout opgetreden",
+        "back": "Terug",
+        "next": "Volgende",
+        "send": "Versturen",
+        "sending": "Versturen...",
+        "total": "Totaal",
+        "unknown": "Onbekend",
+        "price_per_piece": "{price} per stuk",
+        "items": "items",
+        "order_number": "Bestelnummer"
+    },
+    "nav": {
+        "menu": "Menukaart",
+        "news": "Nieuws",
+        "contact": "Contact",
+        "main_navigation": "Hoofdnavigatie"
+    },
+    "home": {
+        "intro_p1": "Al jaren is De Gouden Draak een begrip als het gaat om de beste afhaalgerechten in 's-Hertogenbosch.",
+        "intro_p2": "Graag trakteren we u op authentieke gerechten uit de Cantonese keuken.",
+        "student_offer_title": "Speciale Studentenaanbieding",
+        "student_offer_subtitle": "Chinese Rijsttafel (2 personen)",
+        "student_offer_instruction": "Maak een keuze uit 3 van onderstaande keuzegerechten:",
+        "student_offer_sides": "Met witte rijst. Nasi of bami is mogelijk tegen meerprijs.",
+        "student_offer_price": "Prijs: {price}",
+        "to_contact": "Naar Contact",
+        "dishes": {
+            "koe_loe_yuk": "Koe Loe Yuk",
+            "foe_yong_hai": "Foe Yong Hai",
+            "tjap_tjoy": "Tjap Tjoy",
+            "prawns_garlic": "Garnalen met Gebakken Knoflook",
+            "babi_pangang": "Babi Pangang",
+            "chicken_black_bean": "Kipfilet in Zwarte Bonen saus"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "Welkom bij De Gouden Draak. Klik op deze tekst om de aanbiedingen van deze week te zien!"
+    },
+    "menu": {
+        "current_menu": "Actuele menukaart",
+        "database_dishes": "Gerechten",
+        "download_pdf": "Download PDF",
+        "tabs": {
+            "menu": "Menu",
+            "favorites": "Favorieten",
+            "cart": "Winkelmandje"
+        },
+        "sorting": {
+            "label_menu": "Sorteer menu",
+            "label_favorites": "Sorteer favorieten",
+            "default": "Standaard volgorde",
+            "favorites_first": "Favorieten bovenaan op nummer",
+            "favorites_alpha": "Favorieten alfabetisch bovenaan",
+            "by_number": "Op nummer",
+            "alpha": "Alfabetisch"
+        },
+        "states": {
+            "loading": "Menukaart laden...",
+            "empty_cart": "Je winkelmandje is nog leeg. Voeg gerechten toe vanuit het menu.",
+            "empty_favorites": "Je hebt nog geen favoriete gerechten aangevinkt."
+        },
+        "actions": {
+            "favorite": "Favoriet",
+            "add_to_cart": "+ Bestel",
+            "less": "Minder",
+            "more": "Meer",
+            "remove": "Verwijderen",
+            "place_order": "Bestelling Plaatsen",
+            "submitting": "Bezig..."
+        },
+        "cart": {
+            "total": "Totaalbedrag:"
+        },
+        "errors": {
+            "load_failed": "Menukaart kon niet worden geladen.",
+            "checkout_failed": "Bestellen mislukt"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak is eenvoudig te vinden, vlak bij het centrum, 5 minuten lopen achter het centraal station.",
+        "map_alt": "Kaart naar Onderwijsboulevard 215 in 's-Hertogenbosch"
+    },
+    "confirmation": {
+        "loading": "Bestelling laden...",
+        "not_found": "Bestelling niet gevonden",
+        "back_to_menu": "Terug naar de menukaart",
+        "success_title": "Bestelling geslaagd",
+        "success_message": "Bedankt voor je bestelling!",
+        "your_dishes": "Jouw Gerechten",
+        "total_paid": "Totaal betaald:",
+        "scan_label": "Scan bij afhalen",
+        "qr_alt": "Bestelling QR-Code",
+        "qr_help": "Toon deze code aan onze medewerker om je bestelling direct mee te nemen.",
+        "print_receipt": "Print Ophaalbewijs",
+        "order_more": "Nog iets bestellen?",
+        "pickup_location": "Locatie Afhalen"
+    },
+    "review": {
+        "loading": "Reviewformulier laden...",
+        "expired_title": "Link verlopen",
+        "expired_message": "We kunnen dit reviewformulier niet openen.",
+        "received_title": "Review ontvangen",
+        "received_message": "Bedankt voor uw feedback.",
+        "received_copy": "Uw review is opgeslagen. Het team gebruikt deze signalen om het eten, de service en de snelheid steeds scherper te krijgen.",
+        "steps": {
+            "step_x_of_y": "Stap {x} van {y}",
+            "overall_title": "Hoe was de totale ervaring?",
+            "overall_copy": "Kies het gevoel dat het beste past bij uw bezoek.",
+            "food_title": "Hoe smaakte het eten?",
+            "food_copy": "Van de eerste hap tot de laatste sauslepel.",
+            "service_title": "Hoe was de service?",
+            "service_copy": "Denk aan vriendelijkheid, aandacht en afhandeling.",
+            "speed_title": "Hoe snel ging alles?",
+            "speed_copy": "Van bestellen tot afrekenen.",
+            "details_title": "Wat mogen we onthouden?",
+            "details_copy": "Een favoriet gerecht of korte tip helpt het team direct."
+        },
+        "scores": {
+            "1": "Kan beter",
+            "2": "Matig",
+            "3": "Prima",
+            "4": "Goed",
+            "5": "Top"
+        },
+        "fields": {
+            "favorite_dish": "Favoriet gerecht",
+            "favorite_placeholder": "Bijvoorbeeld Babi Pangang",
+            "comment": "Opmerking of tip",
+            "comment_placeholder": "Wat ging goed, of wat kan beter?",
+            "permission": "De Gouden Draak mag mijn feedback intern gebruiken om service en gerechten te verbeteren."
+        },
+        "actions": {
+            "submit": "Review versturen"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "Bestelling #{id} geplaatst.",
+            "assistance_sent": "Een ober komt zo naar uw tafel.",
+            "assistance_resolved": "De ober heeft uw hulpvraag afgemeld.",
+            "assistance_created": "Er is hulp gevraagd voor deze tafel."
+        },
+        "table_number": "Tafel {number}",
+        "no_table": "Geen tafel",
+        "assistance": {
+            "title": "Hulp nodig?",
+            "warned": "Een ober is gewaarschuwd.",
+            "call_prompt": "Roep een ober naar uw tafel.",
+            "button_calling": "Ober onderweg",
+            "button_call": "Ober roepen"
+        },
+        "round": "Ronde",
+        "checkout": {
+            "thanks": "Bedankt!",
+            "hope_enjoyed": "We hopen dat u genoten heeft van uw bezoek aan De Gouden Draak.",
+            "total_paid": "Totaalbedrag betaald",
+            "leave_review": "Laat een review achter",
+            "new_table": "Nieuwe Tafel"
+        },
+        "tabs": {
+            "dishes": "Gerechten",
+            "cocktails": "Cocktails"
+        },
+        "search_placeholder": "Zoek nummer of naam...",
+        "all_categories": "Alles",
+        "clear": "Wissen",
+        "empty_cart": "Kies gerechten",
+        "note_placeholder": "Opmerking...",
+        "add_note": "Toevoegen",
+        "order_button": "Bestellen",
+        "history": {
+            "title": "Eerdere rondes",
+            "empty": "Geen geschiedenis",
+            "repeat": "Herhaal",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "Fout bij bestellen.",
+            "assistance_failed": "Hulpvraag kon niet worden verstuurd.",
+            "load_status": "Status kon niet worden geladen.",
+            "load_history": "Geschiedenis kon niet worden geladen.",
+            "invalid_table": "Geef een geldig tafelnummer mee."
+        }
+    },
+    "cocktails": {
+        "alcoholic": "Alcoholisch",
+        "non_alcoholic": "Non-alcoholisch",
+        "type": "Type",
+        "search": "Zoeken",
+        "search_placeholder": "Bijv. Mojito...",
+        "category": "Categorie",
+        "all_categories": "Alle categorieën",
+        "found_singular": "1 cocktail gevonden",
+        "found_plural": "{count} cocktails gevonden",
+        "clear_filters": "Filters wissen",
+        "not_found": "Geen cocktails gevonden"
+    }
+}

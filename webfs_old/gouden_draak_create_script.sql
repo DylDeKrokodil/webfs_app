@@ -1,5 +1,5 @@
-CREATE DATABASE  IF NOT EXISTS `gouden_draak_legacy` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `gouden_draak_legacy`;
+CREATE DATABASE  IF NOT EXISTS `gouden_draak` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `gouden_draak`;
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: gouden_draak

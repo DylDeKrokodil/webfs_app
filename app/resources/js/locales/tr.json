@@ -1,0 +1,203 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "Çin ve Hint Mutfağı Spesiyalleri",
+        "loading": "Yükleniyor...",
+        "error": "Bir hata oluştu",
+        "back": "Geri",
+        "next": "Sonraki",
+        "send": "Gönder",
+        "sending": "Gönder...",
+        "total": "Toplam",
+        "unknown": "Bilinmiyor",
+        "price_per_piece": "{price} adet başına",
+        "items": "ürünler",
+        "order_number": "Sipariş numarası"
+    },
+    "nav": {
+        "menu": "Menü",
+        "news": "Haberler",
+        "contact": "İletişim",
+        "main_navigation": "Ana Gezinti"
+    },
+    "home": {
+        "intro_p1": "De Gouden Draak, yıllardır 's-Hertogenbosch'ta en iyi paket servis yemekleri konusunda bir simge haline gelmiştir.",
+        "intro_p2": "Size Kanton mutfağının otantik lezzetlerini sunmaktan mutluluk duyarız.",
+        "student_offer_title": "Öğrencilere Özel Teklif",
+        "student_offer_subtitle": "Çin Usulü Pilav Menüsü (2 kişilik)",
+        "student_offer_instruction": "Aşağıdaki ana yemek seçeneklerinden 3 tanesini seçin:",
+        "student_offer_sides": "Beyaz pirinç ile. Nasi veya bami, ek ücret karşılığında sunulabilir.",
+        "student_offer_price": "Fiyat: {price}",
+        "to_contact": "İletişim",
+        "dishes": {
+            "koe_loe_yuk": "Koe Loe Yuk",
+            "foe_yong_hai": "Foe Yong Hai",
+            "tjap_tjoy": "Tjap Tjoy",
+            "prawns_garlic": "Kızarmış Sarımsaklı Karides",
+            "babi_pangang": "Kızarmış Domuz",
+            "chicken_black_bean": "Siyah Fasulye Soslu Tavuk Fileto"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "De Gouden Draak'e hoş geldiniz. Bu haftanın fırsatlarını görmek için bu metne tıklayın!"
+    },
+    "menu": {
+        "current_menu": "Güncel menü",
+        "database_dishes": "Yemekler",
+        "download_pdf": "PDF'yi indir",
+        "tabs": {
+            "menu": "Menü",
+            "favorites": "Sık Kullanılanlar",
+            "cart": "Alışveriş sepeti"
+        },
+        "sorting": {
+            "label_menu": "Menü sıralama",
+            "label_favorites": "Favorileri sırala",
+            "default": "Standart sıra",
+            "favorites_first": "En çok beğenilenler numaraya göre en üstte",
+            "favorites_alpha": "En çok beğenilenler alfabetik sırayla en üstte",
+            "by_number": "Sıra numarası",
+            "alpha": "Alfabetik"
+        },
+        "states": {
+            "loading": "Menü yükleniyor...",
+            "empty_cart": "Alışveriş sepetiniz henüz boş. Menüden yemekler ekleyin.",
+            "empty_favorites": "Henüz favori yemeklerinizi işaretlemediniz."
+        },
+        "actions": {
+            "favorite": "Favori",
+            "add_to_cart": "+ Sipariş ver",
+            "less": "Daha az",
+            "more": "Daha fazla",
+            "remove": "Sil",
+            "place_order": "Sipariş Verme",
+            "submitting": "Çalışıyor..."
+        },
+        "cart": {
+            "total": "Toplam tutar:"
+        },
+        "errors": {
+            "load_failed": "Menü yüklenemedi.",
+            "checkout_failed": "Sipariş işlemi başarısız oldu"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak bulması kolaydır; merkezin hemen yakınında, merkez istasyonun arkasında 5 dakikalık yürüme mesafesindedir.",
+        "map_alt": "'s-Hertogenbosch'taki Onderwijsboulevard 215'e yol tarifi"
+    },
+    "confirmation": {
+        "loading": "Sipariş yükleniyor...",
+        "not_found": "Sipariş bulunamadı",
+        "back_to_menu": "Menüye geri dön",
+        "success_title": "Sipariş başarıyla tamamlandı",
+        "success_message": "Siparişiniz için teşekkür ederiz!",
+        "your_dishes": "Senin Yemeklerin",
+        "total_paid": "Toplam ödeme tutarı:",
+        "scan_label": "Teslim alırken tarama",
+        "qr_alt": "QR Kodu Siparişi",
+        "qr_help": "Bu kodu görevlimize göstererek siparişinizi hemen alabilirsiniz.",
+        "print_receipt": "Alım Belgesini Yazdır",
+        "order_more": "Başka bir şey sipariş etmek ister misiniz?",
+        "pickup_location": "Teslim Alma Noktası"
+    },
+    "review": {
+        "loading": "Değerlendirme formu yükleniyor...",
+        "expired_title": "Bağlantı süresi doldu",
+        "expired_message": "Bu değerlendirme formunu açamıyoruz.",
+        "received_title": "Yorum alındı",
+        "received_message": "Geri bildiriminiz için teşekkür ederiz.",
+        "received_copy": "Yorumunuz kaydedildi. Ekibimiz, yemekleri, hizmeti ve servis hızını sürekli iyileştirmek için bu geri bildirimleri kullanıyor.",
+        "steps": {
+            "step_x_of_y": "Adım {x} adresinden {y}",
+            "overall_title": "Genel olarak deneyiminiz nasıldı?",
+            "overall_copy": "Ziyaretinize en uygun olanı seçin.",
+            "food_title": "Yemek nasıldı?",
+            "food_copy": "İlk lokmadan son sos kaşığına kadar.",
+            "service_title": "Servis nasıldı?",
+            "service_copy": "Nazik davranmayı, özen göstermeyi ve işleri düzgün bir şekilde halletmeyi unutmayın.",
+            "speed_title": "Her şey ne kadar çabuk oldu?",
+            "speed_copy": "Siparişten ödemeye kadar.",
+            "details_title": "Bundan ne gibi dersler çıkarabiliriz?",
+            "details_copy": "En sevdiğiniz bir yemek ya da kısa bir ipucu, ekibe hemen yardımcı olur."
+        },
+        "scores": {
+            "1": "Daha iyi olabilir",
+            "2": "Orta",
+            "3": "Harika",
+            "4": "İyi",
+            "5": "En üstte"
+        },
+        "fields": {
+            "favorite_dish": "En sevdiğim yemek",
+            "favorite_placeholder": "Örneğin Babi Pangang",
+            "comment": "Yorum veya öneri",
+            "comment_placeholder": "Neler iyi gitti, ya da neleri daha iyi yapabiliriz?",
+            "permission": "De Gouden Draak Geri bildirimimi, hizmet ve yemekleri iyileştirmek amacıyla kurum içinde kullanabilir."
+        },
+        "actions": {
+            "submit": "Yorum gönder"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "{id} numaralı sipariş verildi.",
+            "assistance_sent": "Bir garson birazdan masanıza gelecek.",
+            "assistance_resolved": "Garson yardım talebinizi iptal etti.",
+            "assistance_created": "Bu masa için yardım istendi."
+        },
+        "table_number": "{number} Masası",
+        "no_table": "Masa yok",
+        "assistance": {
+            "title": "Yardıma mı ihtiyacınız var?",
+            "warned": "Bir garson uyarıldı.",
+            "call_prompt": "Masaya bir garson çağırın.",
+            "button_calling": "Garson yolda",
+            "button_call": "Garsonu çağırmak"
+        },
+        "round": "Tur",
+        "checkout": {
+            "thanks": "Teşekkürler!",
+            "hope_enjoyed": "De Gouden Draak sitesini ziyaretinizden keyif aldığınızı umuyoruz.",
+            "total_paid": "Ödenen toplam tutar",
+            "leave_review": "Bir yorum bırakın",
+            "new_table": "Yeni Masa"
+        },
+        "tabs": {
+            "dishes": "Yemekler",
+            "cocktails": "Kokteyller"
+        },
+        "search_placeholder": "Numara veya adı ara...",
+        "all_categories": "Her şey",
+        "clear": "Sil",
+        "empty_cart": "Yemekleri seçin",
+        "note_placeholder": "Not...",
+        "add_note": "Ekle",
+        "order_button": "Sipariş ver",
+        "history": {
+            "title": "Önceki turlar",
+            "empty": "Geçmiş yok",
+            "repeat": "Tekrarla",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "Sipariş sırasında hata oluştu.",
+            "assistance_failed": "Yardım talebi gönderilemedi.",
+            "load_status": "Durum yüklenemedi.",
+            "load_history": "Tarih yüklenemedi.",
+            "invalid_table": "Geçerli bir masa numarası girin."
+        }
+    },
+    "cocktails": {
+        "alcoholic": "Alkollü",
+        "non_alcoholic": "Alkolsüz",
+        "type": "Tür",
+        "search": "Arama",
+        "search_placeholder": "Örneğin Mojito...",
+        "category": "Kategori",
+        "all_categories": "Tüm kategoriler",
+        "found_singular": "1 kokteyl bulundu",
+        "found_plural": "{count} bulunan kokteyller",
+        "clear_filters": "Filtreleri sil",
+        "not_found": "Kokteyl bulunamadı"
+    }
+}

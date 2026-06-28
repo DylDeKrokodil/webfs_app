@@ -1,65 +1,75 @@
 # De Gouden Draak
 
-Modernisering van de oude website en kassa van De Gouden Draak.
 
-## Scope eerste implementatie
+## Huidige Functionaliteit
 
-De implementatie volgt de geselecteerde user stories uit `WEBFS - Nieuwe Functionaliteit v2.xlsx`:
+De huidige implementatie dekt deze geselecteerde user stories:
 
-- `US-4`: rekening opslaan als PDF
-- `US-6`: herhalingsbestelling vanuit historie
-- `US-7`: cocktail-inspiratie via externe API
-- `US-9`: kassa zoeken en filteren
-- `US-10`: opmerkingen per gerecht
-- `UC-14`: menu-PDF genereren vanuit database
-- `UC-15`: favoriete gerechten via cookie
-- `UC-19`: dagelijkse verkooprapportage
-- `UC-20`: gerechten toevoegen, aanpassen en verwijderen
+- `US-1`: tablet bestellen per tafel met rondelimiet, cooldown en tafelstatus
+- `US-4`: tafelrekening genereren als PDF bij het afrekenen
+- `US-5`: tafel-assistentieverzoeken vanuit de tabletinterface
+- `US-6`: herhalingsbestelling vanuit de open bestelhistorie van dezelfde tafel
+- `US-7`: cocktail-inspiratie via TheCocktailDB binnen de tabletinterface
+- `US-8`: QR/review-flow na afrekenen
+- `US-9`: kassa zoeken en filteren op naam, nummer en categorie
+- `US-10`: opmerkingen per gerecht, inclusief suggesties uit eerdere opmerkingen
+- `US-13`: meertalige UI en menuvertalingen
+- `UC-14`: actuele menukaart als PDF genereren vanuit de database
+- `UC-15`: favoriete gerechten bewaren via een browser-cookie
+- `UC-16`: webbestellingen met bestelbevestiging
+- `UC-19`: dagelijkse verkooprapportage als Excel-bestand
+- `UC-20`: gerechten toevoegen, aanpassen, inactief zetten en verwijderen waar dat veilig kan
 
-## Technische richting
+Daarnaast bevat de applicatie:
 
-- Backend: Laravel
-- Frontend: Vue 3 met Vite
-- Webserver: Apache 2.4
-- Database: MySQL 8
+- publieke menukaart en webbestellingen met bestelbevestiging
+- realtime events via Laravel Reverb
+- import van legacy-menudata en historische verkopen uit `webfs_old/`
+- admin-tour voortgang per gebruiker
+
+## Technische Richting
+
+- Backend: Laravel 13 op PHP 8.4
+- Frontend: Vue 3, Vite en Tailwind CSS
+- Realtime: Laravel Reverb
+- PDF: Dompdf
+- Rapportage: PhpSpreadsheet
+- Database: MySQL 8.4
 - Development: Docker Compose
 
 ## Starten
 
 Zorg eerst dat Docker Desktop draait.
 
-Daarna scaffold je de Laravel/Vue-app:
-
-```bash
-docker compose run --rm composer create-project laravel/laravel app
-docker compose run --rm node npm --prefix app install
-docker compose run --rm node npm --prefix app install vue @vitejs/plugin-vue
-```
-
-Kopieer daarna de voorbeeldconfiguratie:
+Maak een lokale environment-file:
 
 ```bash
 cp app/.env.example app/.env
 ```
 
-Zet in `app/.env` minimaal:
+Zet in `app/.env` minimaal een admin-wachtwoord en Reverb-waarden:
 
 ```env
-APP_NAME="De Gouden Draak"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8080
-
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=gouden_draak_app
-DB_USERNAME=gouden_draak
-DB_PASSWORD=gouden_draak
-
 ADMIN_USER_NAME=Admin
 ADMIN_USER_EMAIL=admin@goudendraak.local
-ADMIN_USER_PASSWORD=vervang-door-een-sterk-lokaal-wachtwoord
+ADMIN_USER_PASSWORD=admin1234
+
+REVERB_APP_ID=gouden-draak
+REVERB_APP_KEY=local-reverb-key
+REVERB_APP_SECRET=local-reverb-secret
+```
+
+Installeer dependencies:
+
+```bash
+docker compose run --rm composer --working-dir=app install
+docker compose run --rm node npm --prefix app install
+```
+
+Genereer de Laravel key:
+
+```bash
+docker compose run --rm app php artisan key:generate
 ```
 
 Start de omgeving:
@@ -68,51 +78,88 @@ Start de omgeving:
 docker compose up --build
 ```
 
-Dit start Laravel, Vite met live reload, MySQL en phpMyAdmin.
+Voer daarna migraties, import en seeders uit:
 
-De nieuwe Laravel-app gebruikt database `gouden_draak_app`. De legacy-app gebruikt database `gouden_draak_legacy`, zodat legacy-data en nieuwe Laravel-migraties elkaar niet raken.
+```bash
+docker compose exec app php artisan migrate
+docker compose exec app php artisan legacy:import-menu --fresh
+docker compose exec app php artisan db:seed --class=AdminUserSeeder --force
+```
 
-Migreer daarna de legacy-menudata naar de nieuwe Laravel-tabellen:
+Open daarna:
+
+- Applicatie: http://localhost:8080
+- phpMyAdmin: http://localhost:8081
+- Vite dev server: http://localhost:5173
+- Reverb server: http://localhost:8008
+
+Standaard admin-login als je bovenstaande voorbeeldwaarden gebruikt:
+
+- E-mail: `admin@goudendraak.local`
+- Wachtwoord: `admin1234`
+
+## Belangrijke Routes
+
+- `/`: publieke startpagina
+- `/menukaart`: publieke menukaart met favorieten-cookie
+- `/menukaart.pdf`: menu-PDF vanuit de database
+- `/tablet/{tafelnummer}`: tabletbestellen per tafel
+- `/bestelling/{token}`: webbestelling-bevestiging
+- `/review/{token}`: reviewformulier na afrekenen
+- `/admin/menu`: menubeheer
+- `/admin/kassa`: kassa
+- `/admin/tafels`: tafeloverzicht, assistentie en afrekenen
+- `/admin/overzicht`: verkoopoverzicht
+- `/admin/statistieken`: statistieken en rapportages
+
+## OTAP
+
+De repo bevat Docker Compose-profielen voor meerdere omgevingen:
+
+- Ontwikkel: `docker-compose.yml`, applicatie op http://localhost:8080
+- Test: `docker-compose.yml` + `docker-compose.test.yml`, applicatie op http://localhost:8082
+- Acceptatie: `docker-compose.yml` + `docker-compose.acceptance.yml`, applicatie op http://localhost:8084
+- Productie: build/deploy op basis van de Laravel-app, environment templates en serverconfiguratie
+
+Gebruik alleen echte `.env` bestanden lokaal of op de server. Commit alleen templates zoals:
+
+- `app/.env.example`
+- `app/.env.test.example`
+- `app/.env.acceptance.example`
+- `app/.env.production.example`
+
+## Legacy Data
+
+De oude SQL-dump staat in `webfs_old/gouden_draak_create_script.sql`. De MySQL-init scripts laden deze dump in database `gouden_draak_legacy`. De Laravel-app gebruikt zelf database `gouden_draak_app`, zodat legacy-data en nieuwe migraties gescheiden blijven.
+
+Importeer legacy-data naar de moderne tabellen met:
 
 ```bash
 docker compose exec app php artisan legacy:import-menu --fresh
 ```
 
-Deze import vult `menu_categories` en `menu_items` vanuit de legacy-tabel `menu`. Legacy-verkoopregels uit `sales` worden als populariteitsstatistiek opgeslagen in `favorite_menu_items`.
+Deze import vult `menu_categories`, `menu_items`, `orders` en `order_lines`. Favoriete gerechten voor bezoekers worden niet meer server-side als populariteitstabel bijgehouden; die feature gebruikt een browser-cookie op de publieke menukaart.
 
-Maak of herstel de admin user:
+## Rapportages
 
-```bash
-docker compose exec app php artisan db:seed --class=AdminUserSeeder --force
-```
+De scheduler-container draait `php artisan schedule:work`. Laravel plant `sales:generate-daily-summary` dagelijks om 00:10. De gegenereerde Excel-bestanden zijn in de admin beschikbaar via de verkooprapportages.
 
-Standaard login voor de nieuwe admin/kassa:
-
-- E-mail: `admin@goudendraak.local`
-- Wachtwoord: `admin1234`
-
-Open daarna:
-
-- Applicatie: http://localhost:8080
-- Oude website/kassa: http://localhost:8090
-- phpMyAdmin: http://localhost:8081
-
-## Oude site
-
-De oude website en SQL-dump blijven beschikbaar in `webfs_old/`. Deze map is bronmateriaal voor migratie en bewijsvoering, niet de plek voor nieuwe code.
-
-De legacy-runtime draait als aparte Docker Compose service, zodat de oude app naast Laravel beschikbaar blijft:
+Handmatig genereren kan ook:
 
 ```bash
-docker compose up --build legacy mysql
+docker compose exec app php artisan sales:generate-daily-summary 2026-06-24
 ```
 
-Open daarna:
+## Testen
 
-- Oude website: http://localhost:8090
-- Oude kassa: http://localhost:8090/kassa
+Gebruik de testomgeving of draai tests in de app-container:
 
-Test-login voor de kassa volgens de legacy dump:
+```bash
+docker compose run --rm app php artisan test
+```
 
-- Medewerker: `1`
-- Wachtwoord: `test`
+Voor een specifieke test:
+
+```bash
+docker compose run --rm app php artisan test --filter=AdminOrderTest
+```

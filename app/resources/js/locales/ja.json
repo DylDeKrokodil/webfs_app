@@ -1,0 +1,203 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "中華・インド料理",
+        "loading": "読み込み中...",
+        "error": "エラーが発生しました",
+        "back": "戻る",
+        "next": "次へ",
+        "send": "送信",
+        "sending": "送信...",
+        "total": "合計",
+        "unknown": "不明",
+        "price_per_piece": "{price} 1個あたり",
+        "items": "アイテム",
+        "order_number": "注文番号"
+    },
+    "nav": {
+        "menu": "メニュー",
+        "news": "ニュース",
+        "contact": "お問い合わせ",
+        "main_navigation": "メインナビゲーション"
+    },
+    "home": {
+        "intro_p1": "長年にわたり、De Gouden Draakは『ス・ヘルトゲンボス』で最高のテイクアウト料理といえば、誰もが知る名店となっています。",
+        "intro_p2": "広東料理の本格的なお料理をご堪能ください。",
+        "student_offer_title": "学生限定特別オファー",
+        "student_offer_subtitle": "中華風ライスセット（2名様用）",
+        "student_offer_instruction": "以下のメニューから3品お選びください：",
+        "student_offer_sides": "白米付き。追加料金でナシまたはバミも可能です。",
+        "student_offer_price": "価格：{price}",
+        "to_contact": "お問い合わせへ",
+        "dishes": {
+            "koe_loe_yuk": "コウ・ルー・ユック",
+            "foe_yong_hai": "フォ・ヨン・ハイ",
+            "tjap_tjoy": "チャップ・チョイ",
+            "prawns_garlic": "エビのガーリック炒め",
+            "babi_pangang": "バビ・パンガン",
+            "chicken_black_bean": "鶏ササミのブラックビーンズソース"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "De Gouden Draakへようこそ。今週の特売情報を見るには、このテキストをクリックしてください！"
+    },
+    "menu": {
+        "current_menu": "最新のメニュー",
+        "database_dishes": "料理",
+        "download_pdf": "PDFをダウンロード",
+        "tabs": {
+            "menu": "メニュー",
+            "favorites": "お気に入り",
+            "cart": "ショッピングカート"
+        },
+        "sorting": {
+            "label_menu": "メニューの並べ替え",
+            "label_favorites": "お気に入りを並べ替える",
+            "default": "標準的な順序",
+            "favorites_first": "番号順に上位のお気に入り",
+            "favorites_alpha": "お気に入り（アルファベット順）を上に表示",
+            "by_number": "番号順に",
+            "alpha": "アルファベット順"
+        },
+        "states": {
+            "loading": "メニューを読み込み中...",
+            "empty_cart": "ショッピングカートはまだ空です。メニューから料理を追加してください。",
+            "empty_favorites": "まだお気に入りの料理にチェックを入れていません。"
+        },
+        "actions": {
+            "favorite": "お気に入り",
+            "add_to_cart": "+ 注文する",
+            "less": "少ない",
+            "more": "もっと見る",
+            "remove": "削除",
+            "place_order": "注文する",
+            "submitting": "処理中..."
+        },
+        "cart": {
+            "total": "合計金額："
+        },
+        "errors": {
+            "load_failed": "メニューを読み込めませんでした。",
+            "checkout_failed": "注文に失敗しました"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak 中心部からすぐの場所にあり、中央駅の裏手から徒歩5分です。",
+        "map_alt": "『ス・ヘルトゲンボス』の「Onderwijsboulevard 215」への地図"
+    },
+    "confirmation": {
+        "loading": "注文を読み込んでいます...",
+        "not_found": "注文が見つかりません",
+        "back_to_menu": "メニューに戻る",
+        "success_title": "注文完了",
+        "success_message": "ご注文ありがとうございます！",
+        "your_dishes": "あなたの料理",
+        "total_paid": "支払総額：",
+        "scan_label": "受け取り時のスキャン",
+        "qr_alt": "QRコードのご注文",
+        "qr_help": "このコードを店員にお見せいただければ、ご注文の商品をその場で持ち帰ることができます。",
+        "print_receipt": "引取証を印刷する",
+        "order_more": "他に何かご注文されますか？",
+        "pickup_location": "店舗受け取り"
+    },
+    "review": {
+        "loading": "レビューフォームを読み込んでいます...",
+        "expired_title": "リンクの有効期限が切れています",
+        "expired_message": "このレビューフォームを開くことができません。",
+        "received_title": "レビューを受け取りました",
+        "received_message": "ご意見をお寄せいただき、ありがとうございます。",
+        "received_copy": "レビューが保存されました。スタッフはこのフィードバックを参考に、料理、サービス、提供スピードをさらに向上させていきます。",
+        "steps": {
+            "step_x_of_y": "ステップ{x}（{y}）",
+            "overall_title": "全体的な感想はいかがでしたか？",
+            "overall_copy": "ご来訪の目的に最も適したプランをお選びください。",
+            "food_title": "食事はどうでしたか？",
+            "food_copy": "最初の一口から、最後の一匙のソースまで。",
+            "service_title": "サービスはいかがでしたか？",
+            "service_copy": "親切さ、気配り、そして対応を心がけましょう。",
+            "speed_title": "すべてはどれくらいの速さで進んだのですか？",
+            "speed_copy": "注文から決済まで。",
+            "details_title": "何が重要でしょうか？",
+            "details_copy": "お気に入りの料理やちょっとしたアドバイスをいただければ、チームにとって大きな助けになります。"
+        },
+        "scores": {
+            "1": "もっとうまくできる",
+            "2": "普通",
+            "3": "いいですよ",
+            "4": "いいね",
+            "5": "トップ"
+        },
+        "fields": {
+            "favorite_dish": "好きな料理",
+            "favorite_placeholder": "例えば、バビ・パンガン",
+            "comment": "ご意見・ご提案",
+            "comment_placeholder": "何がうまくいったか、あるいは改善すべき点は何か？",
+            "permission": "De Gouden Draak 私のフィードバックを、サービスや料理の改善のために社内で活用していただいて構いません。"
+        },
+        "actions": {
+            "submit": "レビューを送信する"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "注文番号{id}を登録しました。",
+            "assistance_sent": "すぐにウェイターがお席へ参ります。",
+            "assistance_resolved": "ウェイターがお客様のサポート依頼を完了しました。",
+            "assistance_created": "このテーブルについて、助けを求めています。"
+        },
+        "table_number": "テーブル{number}",
+        "no_table": "テーブルなし",
+        "assistance": {
+            "title": "お困りですか？",
+            "warned": "ウェイターに注意が与えられた。",
+            "call_prompt": "ウェイターを呼んでください。",
+            "button_calling": "ウェイターが向かっている",
+            "button_call": "ウェイターを呼ぶ"
+        },
+        "round": "ラウンド",
+        "checkout": {
+            "thanks": "ありがとう！",
+            "hope_enjoyed": "De Gouden Draakへのご訪問を、お楽しみいただけたことを願っております。",
+            "total_paid": "支払総額",
+            "leave_review": "レビューを投稿する",
+            "new_table": "新しいテーブル"
+        },
+        "tabs": {
+            "dishes": "料理",
+            "cocktails": "カクテル"
+        },
+        "search_placeholder": "番号または名前を検索...",
+        "all_categories": "すべて",
+        "clear": "削除",
+        "empty_cart": "料理を選ぶ",
+        "note_placeholder": "注記...",
+        "add_note": "追加",
+        "order_button": "注文する",
+        "history": {
+            "title": "これまでのラウンド",
+            "empty": "履歴なし",
+            "repeat": "繰り返す",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "注文時にエラーが発生しました。",
+            "assistance_failed": "お問い合わせを送信できませんでした。",
+            "load_status": "ステータスを読み込めませんでした。",
+            "load_history": "履歴を読み込めませんでした。",
+            "invalid_table": "有効なテーブル番号を入力してください。"
+        }
+    },
+    "cocktails": {
+        "alcoholic": "アルコール性",
+        "non_alcoholic": "ノンアルコール",
+        "type": "タイプ",
+        "search": "検索",
+        "search_placeholder": "例えば、モヒート…",
+        "category": "カテゴリー",
+        "all_categories": "すべてのカテゴリ",
+        "found_singular": "1件のカクテルが見つかりました",
+        "found_plural": "{count} 見つかったカクテル",
+        "clear_filters": "フィルターをクリアする",
+        "not_found": "カクテルが見つかりませんでした"
+    }
+}

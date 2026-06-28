@@ -1,0 +1,203 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "Especialidades chinesas e indianas",
+        "loading": "A carregar...",
+        "error": "Ocorreu um erro",
+        "back": "Voltar",
+        "next": "Próximo",
+        "send": "Enviar",
+        "sending": "Enviar...",
+        "total": "Total",
+        "unknown": "Desconhecido",
+        "price_per_piece": "{price} por unidade",
+        "items": "itens",
+        "order_number": "Número de encomenda"
+    },
+    "nav": {
+        "menu": "Ementa",
+        "news": "Notícias",
+        "contact": "Contacto",
+        "main_navigation": "Navegação principal"
+    },
+    "home": {
+        "intro_p1": "Há anos que o De Gouden Draak é uma referência quando se trata dos melhores pratos para levar em 's-Hertogenbosch.",
+        "intro_p2": "Temos todo o prazer em lhe oferecer pratos autênticos da cozinha cantonesa.",
+        "student_offer_title": "Oferta especial para estudantes",
+        "student_offer_subtitle": "Prato de arroz chinês (2 pessoas)",
+        "student_offer_instruction": "Escolha 3 dos pratos à escolha abaixo:",
+        "student_offer_sides": "Com arroz branco. É possível pedir nasi ou bami mediante um custo adicional.",
+        "student_offer_price": "Preço: {price}",
+        "to_contact": "Para o Contacto",
+        "dishes": {
+            "koe_loe_yuk": "Koe Loe Yuk",
+            "foe_yong_hai": "Foe Yong Hai",
+            "tjap_tjoy": "Tjap Tjoy",
+            "prawns_garlic": "Camarões com alho frito",
+            "babi_pangang": "Porco Assado",
+            "chicken_black_bean": "Filete de frango com molho de feijão preto"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "Bem-vindo ao De Gouden Draak. Clique neste texto para ver as promoções desta semana!"
+    },
+    "menu": {
+        "current_menu": "Ementa atual",
+        "database_dishes": "Pratos",
+        "download_pdf": "Descarregar PDF",
+        "tabs": {
+            "menu": "Menu",
+            "favorites": "Favoritos",
+            "cart": "Cesto de compras"
+        },
+        "sorting": {
+            "label_menu": "Menu de filtragem",
+            "label_favorites": "Ordenar favoritos",
+            "default": "Ordem padrão",
+            "favorites_first": "Favoritos no topo da tabela",
+            "favorites_alpha": "Favoritos por ordem alfabética no topo",
+            "by_number": "Por número",
+            "alpha": "Por ordem alfabética"
+        },
+        "states": {
+            "loading": "A carregar o menu...",
+            "empty_cart": "O seu carrinho ainda está vazio. Adicione pratos a partir do menu.",
+            "empty_favorites": "Ainda não marcaste nenhum prato favorito."
+        },
+        "actions": {
+            "favorite": "Favorito",
+            "add_to_cart": "+ Encomendar",
+            "less": "Menos",
+            "more": "Mais",
+            "remove": "Eliminar",
+            "place_order": "Fazer uma encomenda",
+            "submitting": "A trabalhar..."
+        },
+        "cart": {
+            "total": "Valor total:"
+        },
+        "errors": {
+            "load_failed": "Não foi possível carregar o menu.",
+            "checkout_failed": "Falha na encomenda"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak é fácil de encontrar, perto do centro, a 5 minutos a pé atrás da estação central.",
+        "map_alt": "Mapa para a Onderwijsboulevard 215, em 's-Hertogenbosch"
+    },
+    "confirmation": {
+        "loading": "A carregar a encomenda...",
+        "not_found": "Encomenda não encontrada",
+        "back_to_menu": "Voltar ao menu",
+        "success_title": "Encomenda efetuada com sucesso",
+        "success_message": "Obrigado pela sua encomenda!",
+        "your_dishes": "Os teus pratos",
+        "total_paid": "Total pago:",
+        "scan_label": "Digitalizar no momento da recolha",
+        "qr_alt": "Encomenda de código QR",
+        "qr_help": "Mostre este código ao nosso funcionário para poder levar a sua encomenda imediatamente.",
+        "print_receipt": "Imprimir comprovativo de levantamento",
+        "order_more": "Quer encomendar mais alguma coisa?",
+        "pickup_location": "Local de recolha"
+    },
+    "review": {
+        "loading": "A carregar o formulário de avaliação...",
+        "expired_title": "Link expirado",
+        "expired_message": "Não conseguimos abrir este formulário de avaliação.",
+        "received_title": "Recebi uma avaliação",
+        "received_message": "Obrigado pelo seu feedback.",
+        "received_copy": "A sua avaliação foi guardada. A equipa utiliza estas opiniões para melhorar continuamente a comida, o serviço e a rapidez.",
+        "steps": {
+            "step_x_of_y": "Passo {x} de {y}",
+            "overall_title": "Como foi a experiência no geral?",
+            "overall_copy": "Escolha a experiência que melhor se adequa à sua visita.",
+            "food_title": "Como estava a comida?",
+            "food_copy": "Desde a primeira garfada até à última colherada de molho.",
+            "service_title": "Como foi o atendimento?",
+            "service_copy": "Pense na simpatia, na atenção e no atendimento.",
+            "speed_title": "Tudo aconteceu muito depressa?",
+            "speed_copy": "Desde a encomenda até ao pagamento.",
+            "details_title": "O que devemos reter?",
+            "details_copy": "Uma receita favorita ou uma dica rápida ajuda a equipa de imediato."
+        },
+        "scores": {
+            "1": "Podia ser melhor",
+            "2": "Mediano",
+            "3": "Ótimo",
+            "4": "Ótimo",
+            "5": "Topo"
+        },
+        "fields": {
+            "favorite_dish": "Prato favorito",
+            "favorite_placeholder": "Por exemplo, Babi Pangang",
+            "comment": "Comentário ou sugestão",
+            "comment_placeholder": "O que correu bem, ou o que pode ser melhorado?",
+            "permission": "De Gouden Draak pode utilizar o meu feedback internamente para melhorar o serviço e os pratos."
+        },
+        "actions": {
+            "submit": "Enviar avaliação"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "Encomenda n.º{id}.",
+            "assistance_sent": "Um empregado de mesa irá atendê-lo em breve.",
+            "assistance_resolved": "O empregado de mesa cancelou o seu pedido de ajuda.",
+            "assistance_created": "Foi solicitada ajuda para esta mesa."
+        },
+        "table_number": "Mesa{number}",
+        "no_table": "Não há mesa",
+        "assistance": {
+            "title": "Precisa de ajuda?",
+            "warned": "Um empregado de mesa foi avisado.",
+            "call_prompt": "Chame um empregado de mesa à sua mesa.",
+            "button_calling": "Garçom a caminho",
+            "button_call": "Chamar o empregado de mesa"
+        },
+        "round": "Volta",
+        "checkout": {
+            "thanks": "Obrigado!",
+            "hope_enjoyed": "Esperamos que tenha gostado da sua visita a De Gouden Draak.",
+            "total_paid": "Valor total pago",
+            "leave_review": "Deixe uma avaliação",
+            "new_table": "Nova Mesa"
+        },
+        "tabs": {
+            "dishes": "Pratos",
+            "cocktails": "Cocktails"
+        },
+        "search_placeholder": "Pesquisar número ou nome...",
+        "all_categories": "Tudo",
+        "clear": "Apagar",
+        "empty_cart": "Escolha os pratos",
+        "note_placeholder": "Nota...",
+        "add_note": "Adicionar",
+        "order_button": "Encomendar",
+        "history": {
+            "title": "Fases anteriores",
+            "empty": "Sem histórico",
+            "repeat": "Repetir",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "Erro ao efetuar a encomenda.",
+            "assistance_failed": "Não foi possível enviar o pedido de ajuda.",
+            "load_status": "Não foi possível carregar o estado.",
+            "load_history": "Não foi possível carregar o histórico.",
+            "invalid_table": "Indique um número de mesa válido."
+        }
+    },
+    "cocktails": {
+        "alcoholic": "Alcoólico",
+        "non_alcoholic": "Sem álcool",
+        "type": "Tipo",
+        "search": "Pesquisar",
+        "search_placeholder": "Por exemplo, Mojito...",
+        "category": "Categoria",
+        "all_categories": "Todas as categorias",
+        "found_singular": "Encontrado 1 cocktail",
+        "found_plural": "{count} cocktails encontrados",
+        "clear_filters": "Limpar filtros",
+        "not_found": "Não foram encontrados cocktails"
+    }
+}

@@ -1,0 +1,203 @@
+{
+    "common": {
+        "restaurant_name": "De Gouden Draak",
+        "specialties": "中国印度风味美食",
+        "loading": "正在加载...",
+        "error": "发生了一个错误",
+        "back": "返回",
+        "next": "下一页",
+        "send": "发送",
+        "sending": "发送...",
+        "total": "总计",
+        "unknown": "未知",
+        "price_per_piece": "{price} 每件",
+        "items": "项目",
+        "order_number": "订单号"
+    },
+    "nav": {
+        "menu": "菜单",
+        "news": "新闻",
+        "contact": "联系我们",
+        "main_navigation": "主导航"
+    },
+    "home": {
+        "intro_p1": "多年来, De Gouden Draak 一直是海尔托亨博斯市最受欢迎的外卖餐厅之一。",
+        "intro_p2": "我们诚挚地邀请您品尝地道的粤菜。",
+        "student_offer_title": "学生专享优惠",
+        "student_offer_subtitle": "中式米饭套餐(2人份)",
+        "student_offer_instruction": "请从以下3道主菜中任选3道:",
+        "student_offer_sides": "配白米饭。如需印尼炒饭或印尼炒面，需额外付费。",
+        "student_offer_price": "价格：{price}",
+        "to_contact": "联系我们",
+        "dishes": {
+            "koe_loe_yuk": "Koe Loe Yuk",
+            "foe_yong_hai": "福永海",
+            "tjap_tjoy": "Tjap Tjoy",
+            "prawns_garlic": "蒜香炒虾",
+            "babi_pangang": "巴比·潘甘",
+            "chicken_black_bean": "黑豆酱鸡胸肉"
+        }
+    },
+    "shell": {
+        "marquee_welcome": "欢迎访问De Gouden Draak。点击此处查看本周特惠！"
+    },
+    "menu": {
+        "current_menu": "最新菜单",
+        "database_dishes": "菜品",
+        "download_pdf": "下载PDF",
+        "tabs": {
+            "menu": "菜单",
+            "favorites": "收藏",
+            "cart": "购物车"
+        },
+        "sorting": {
+            "label_menu": "菜单分类",
+            "label_favorites": "按收藏排序",
+            "default": "默认顺序",
+            "favorites_first": "热门项目按编号排列在顶部",
+            "favorites_alpha": "收藏夹按字母顺序排列在顶部",
+            "by_number": "按编号",
+            "alpha": "按字母顺序排列"
+        },
+        "states": {
+            "loading": "正在加载菜单...",
+            "empty_cart": "您的购物车目前为空。请从菜单中添加菜品。",
+            "empty_favorites": "您尚未勾选任何喜爱的菜品。"
+        },
+        "actions": {
+            "favorite": "收藏",
+            "add_to_cart": "+ 订购",
+            "less": "更少",
+            "more": "更多",
+            "remove": "删除",
+            "place_order": "下单",
+            "submitting": "正在处理中..."
+        },
+        "cart": {
+            "total": "总金额："
+        },
+        "errors": {
+            "load_failed": "无法加载菜单。",
+            "checkout_failed": "订购失败"
+        }
+    },
+    "contact": {
+        "find_us": "De Gouden Draak 位置便利，紧邻市中心，从中央车站后方步行5分钟即可到达。",
+        "map_alt": "前往海尔托亨博斯教育大道215号的地图"
+    },
+    "confirmation": {
+        "loading": "正在加载订单...",
+        "not_found": "未找到订单",
+        "back_to_menu": "返回菜单",
+        "success_title": "订单已成功提交",
+        "success_message": "感谢您的订购！",
+        "your_dishes": "您的菜品",
+        "total_paid": "已支付总额：",
+        "scan_label": "取货时扫描",
+        "qr_alt": "订购二维码",
+        "qr_help": "请向我们的工作人员出示此代码，即可当场取走您的订单。",
+        "print_receipt": "打印取货凭证",
+        "order_more": "还要再点些什么吗？",
+        "pickup_location": "自提地点"
+    },
+    "review": {
+        "loading": "正在加载评价表单...",
+        "expired_title": "链接已过期",
+        "expired_message": "我们无法打开此评价表单。",
+        "received_title": "已收到评论",
+        "received_message": "感谢您的反馈。",
+        "received_copy": "您的评价已保存。团队将根据这些反馈，不断提升菜品质量、服务水平和上菜速度。",
+        "steps": {
+            "step_x_of_y": "第{x}步，来自 {y}",
+            "overall_title": "整体体验如何？",
+            "overall_copy": "请选择最符合您此次访问的体验。",
+            "food_title": "饭菜味道怎么样？",
+            "food_copy": "从第一口到最后一口酱汁。",
+            "service_title": "服务怎么样？",
+            "service_copy": "请注重友善、关注和处理。",
+            "speed_title": "事情进展得有多快？",
+            "speed_copy": "从下单到结账。",
+            "details_title": "我们需要记住什么？",
+            "details_copy": "分享一道你最喜欢的菜肴或一个简短的小贴士，就能立即为团队提供帮助。"
+        },
+        "scores": {
+            "1": "可以做得更好",
+            "2": "一般",
+            "3": "很好",
+            "4": "好",
+            "5": "顶部"
+        },
+        "fields": {
+            "favorite_dish": "最喜欢的菜肴",
+            "favorite_placeholder": "例如巴比·潘甘",
+            "comment": "意见或建议",
+            "comment_placeholder": "哪些方面做得不错，哪些方面还有改进的空间？",
+            "permission": "De Gouden Draak 贵方可以将我的反馈用于内部改进服务和菜品。"
+        },
+        "actions": {
+            "submit": "提交评论"
+        }
+    },
+    "tablet": {
+        "notifications": {
+            "order_placed": "已提交订单编号{id}。",
+            "assistance_sent": "服务员马上就来为您服务。",
+            "assistance_resolved": "服务员已将您的求助请求标记为已解决。",
+            "assistance_created": "有人请求帮助处理这张桌子。"
+        },
+        "table_number": "{number} 餐桌",
+        "no_table": "没有桌子",
+        "assistance": {
+            "title": "需要帮助吗？",
+            "warned": "一名服务员已被警告。",
+            "call_prompt": "请叫一位服务员过来。",
+            "button_calling": "服务员正在路上",
+            "button_call": "叫服务员"
+        },
+        "round": "轮次",
+        "checkout": {
+            "thanks": "谢谢！",
+            "hope_enjoyed": "希望您喜欢访问 De Gouden Draak。",
+            "total_paid": "已支付总额",
+            "leave_review": "留下评论",
+            "new_table": "新桌"
+        },
+        "tabs": {
+            "dishes": "菜肴",
+            "cocktails": "鸡尾酒"
+        },
+        "search_placeholder": "搜索编号或名称...",
+        "all_categories": "全部",
+        "clear": "清除",
+        "empty_cart": "选择菜品",
+        "note_placeholder": "注……",
+        "add_note": "添加",
+        "order_button": "订购",
+        "history": {
+            "title": "前几轮",
+            "empty": "无历史",
+            "repeat": "重复",
+            "out_of_stock": "OP"
+        },
+        "errors": {
+            "order_failed": "订购时出现错误。",
+            "assistance_failed": "无法发送求助请求。",
+            "load_status": "无法加载状态。",
+            "load_history": "无法加载历史记录。",
+            "invalid_table": "请提供一个有效的桌号。"
+        }
+    },
+    "cocktails": {
+        "alcoholic": "含酒精的",
+        "non_alcoholic": "无酒精",
+        "type": "类型",
+        "search": "搜索",
+        "search_placeholder": "例如莫吉托……",
+        "category": "分类",
+        "all_categories": "所有分类",
+        "found_singular": "找到1款鸡尾酒",
+        "found_plural": "{count} 找到的鸡尾酒",
+        "clear_filters": "清除筛选条件",
+        "not_found": "未找到鸡尾酒"
+    }
+}

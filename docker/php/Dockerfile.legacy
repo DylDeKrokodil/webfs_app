@@ -1,8 +1,0 @@
-FROM php:8.4-apache
-
-RUN docker-php-ext-install mysqli \
-    && a2enmod rewrite \
-    && echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
-    && a2enconf servername
-
-COPY docker/php/legacy-vhost.conf /etc/apache2/sites-available/000-default.conf
